@@ -1,0 +1,6 @@
+{
+  "name": "Psixologik Maslahatchi",
+  "description": "Ilmiy asoslangan testlar, temperament tahlili, stress darajasini aniqlash va shaxsiy psixologik maslahatlar beruvchi platforma.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
