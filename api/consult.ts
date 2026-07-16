@@ -60,7 +60,7 @@ Sizning vazifalaringiz:
       parts: [{ text: message }]
     });
 
-    const models = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-3.5-pro', 'gemini-1.5-pro'];
+    const models = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-pro-latest', 'gemini-3.1-flash-lite', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
     let success = false;
     let responseText = '';
     let errors: string[] = [];
