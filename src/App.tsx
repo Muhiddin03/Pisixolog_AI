@@ -700,18 +700,19 @@ export default function App() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               {/* EYSENCK TEST INTERFACE */}
-              <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 space-y-4 flex flex-col justify-between group relative overflow-hidden" id="eysenck_test_card">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500" id="eysenck_test_card">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-100/80 to-teal-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg">
-                      <Brain className="w-4 h-4" />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 p-2.5 rounded-xl shadow-sm border border-emerald-100/50">
+                      <Brain className="w-5 h-5" />
                     </div>
-                    <h2 className="font-bold text-sm text-slate-900">1. Temperament Testi (Eysenck)</h2>
+                    <h2 className="font-display font-bold text-base sm:text-lg text-slate-900">1. Temperament Testi</h2>
                   </div>
-                  <p className="text-[11px] text-slate-500 mb-4 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed">
                     Ushbu test shaxsiyatning 2 ta asosiy ustunini aniqlaydi: Muloqot xulqi (Ekstraversiya/Introversiya) va Hissiy barqarorlik (Neyrotizm). Iltimos, barcha 20 ta savolga faqat "Ha" yoki "Yo'q" shaklida samimiy javob bering.
                   </p>
 
@@ -739,18 +740,18 @@ export default function App() {
                       </div>
 
                       {/* Options */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-2">
                         <button 
                           id="btn_ey_yes"
                           onClick={() => handleEyAnswer(true)}
-                          className="py-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
+                          className="py-3 sm:py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95 flex items-center justify-center gap-2"
                         >
-                          Ha
+                          <Check className="w-4 h-4 hidden sm:block" /> Ha
                         </button>
                         <button 
                           id="btn_ey_no"
                           onClick={() => handleEyAnswer(false)}
-                          className="py-2.5 rounded-xl bg-white/80 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
+                          className="py-3 sm:py-3.5 rounded-2xl bg-white border-2 border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
                         >
                           Yo&apos;q
                         </button>
@@ -776,16 +777,17 @@ export default function App() {
               </div>
 
               {/* STRESS TEST INTERFACE */}
-              <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 space-y-4 flex flex-col justify-between group relative overflow-hidden" id="stress_test_card">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500" id="stress_test_card">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-amber-100/80 to-rose-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-rose-400"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg">
-                      <Activity className="w-4 h-4" />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 p-2.5 rounded-xl shadow-sm border border-amber-100/50">
+                      <Activity className="w-5 h-5" />
                     </div>
-                    <h2 className="font-bold text-sm text-slate-900">2. Stress darajasi (PSS-10)</h2>
+                    <h2 className="font-display font-bold text-base sm:text-lg text-slate-900">2. Stress Darajasi</h2>
                   </div>
-                  <p className="text-[11px] text-slate-500 mb-4 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed">
                     Ushbu xalqaro miqyosda tan olingan so&apos;rovnoma (Perceived Stress Scale) orqali oxirgi 1 oy davomidagi hayotiy stress darajangizni o&apos;lchang. Har bir holat uchun qanchalik tez-tez yuz berishini belgilang (0: Hech qachon, 4: Juda tez-tez).
                   </p>
 
@@ -1014,10 +1016,10 @@ export default function App() {
 
         {/* TAB 3: DEEP BREATHING EXERCISE */}
         {activeTab === 'breathing' && (
-          <div className="max-w-xl mx-auto glass-card rounded-2xl md:rounded-3xl p-4 sm:p-5 text-center space-y-4 animate-slide-up relative overflow-hidden" id="tab_breathing_view">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-100 rounded-full blur-[80px] opacity-40 pointer-events-none"></div>
-            <div className="space-y-3 relative z-10">
-              <div className="bg-emerald-50 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <div className="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-slide-up relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_breathing_view">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-teal-50 to-emerald-50 rounded-full blur-[100px] opacity-60 pointer-events-none"></div>
+            <div className="space-y-4 relative z-10">
+              <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
                 <Wind className="w-6 h-6" />
               </div>
               <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Nafas Mashqi (4-7-8 Usuli)</h2>
@@ -1086,18 +1088,21 @@ export default function App() {
               )}
 
               {/* Instructions */}
-              <div className="grid grid-cols-3 gap-2 bg-stone-50 p-4 rounded-2xl border border-stone-200/50 text-left text-xs" id="breathing_instruction_box">
-                <div className="p-2 space-y-1">
-                  <span className="font-bold text-emerald-800 block">1. Nafas olish (4s)</span>
-                  <p className="text-slate-500 text-[11px]">Burun orqali chuqur va xotirjam nafas oling.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4" id="breathing_instruction_box">
+                <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
+                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs mb-3">1</div>
+                  <span className="font-bold text-slate-800 block text-sm">Nafas olish (4s)</span>
+                  <p className="text-slate-500 text-xs">Burun orqali chuqur va xotirjam nafas oling.</p>
                 </div>
-                <div className="p-2 space-y-1 border-x border-stone-200">
-                  <span className="font-bold text-teal-800 block">2. Ushlab turish (7s)</span>
-                  <p className="text-slate-500 text-[11px]">O&apos;pkani to&apos;ldirib, havoni ichkarida saqlang.</p>
+                <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
+                  <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xs mb-3">2</div>
+                  <span className="font-bold text-slate-800 block text-sm">Ushlab turish (7s)</span>
+                  <p className="text-slate-500 text-xs">O&apos;pkani to&apos;ldirib, havoni ichkarida saqlang.</p>
                 </div>
-                <div className="p-2 space-y-1">
-                  <span className="font-bold text-slate-800 block">3. Chiqarish (8s)</span>
-                  <p className="text-slate-500 text-[11px]">Og&apos;iz orqali sekin va ohista havoni chiqaring.</p>
+                <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
+                  <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs mb-3">3</div>
+                  <span className="font-bold text-slate-800 block text-sm">Chiqarish (8s)</span>
+                  <p className="text-slate-500 text-xs">Og&apos;iz orqali sekin va ohista havoni chiqaring.</p>
                 </div>
               </div>
             </div>
@@ -1106,12 +1111,15 @@ export default function App() {
 
         {/* TAB 4: MOOD DIARY */}
         {activeTab === 'mood' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 animate-slide-up" id="tab_mood_view">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 animate-slide-up max-w-6xl mx-auto" id="tab_mood_view">
             {/* New entry logging */}
-            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm space-y-4 h-fit" id="mood_form_box">
-              <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
-                <Smile className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-display font-bold text-base text-slate-900">Bugungi kayfiyatingiz</h3>
+            <div className="lg:col-span-1 bg-white rounded-3xl p-5 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 space-y-6 h-fit relative overflow-hidden" id="mood_form_box">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100/50 rounded-full blur-3xl -z-10"></div>
+              <div className="flex items-center gap-3 border-b border-stone-100 pb-4">
+                <div className="bg-amber-50 text-amber-600 p-2 rounded-xl">
+                  <Smile className="w-5 h-5" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-slate-900">Bugungi kayfiyatingiz</h3>
               </div>
 
               {/* Mood Emojis Picker */}
@@ -1207,14 +1215,14 @@ export default function App() {
               </button>
             </div>
 
-            {/* Logs display and trends */}
-            <div className="lg:col-span-2 space-y-6" id="mood_history_box">
-              {/* Simple weekly mood trend SVG Chart */}
-              <div className="glass-card rounded-3xl p-6 md:p-8" id="mood_analytics_panel">
-                <h3 className="font-bold text-base text-slate-900 mb-6 flex items-center gap-2">
-                  <Smile className="w-4 h-4 text-emerald-600" />
-                  <span>Ruhiy o&apos;zgarishlar dinamikasi (Oxirgi qaydlar)</span>
-                </h3>
+            {/* Mood History */}
+            <div className="lg:col-span-2 bg-white rounded-3xl p-5 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 space-y-5 h-fit" id="mood_history_box">
+              <div className="flex items-center gap-3 border-b border-stone-100 pb-4">
+                <div className="bg-indigo-50 text-indigo-600 p-2 rounded-xl">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <h3 className="font-display font-bold text-lg text-slate-900">Kayfiyat tarixi</h3>
+              </div>
 
                 {moodLogs.length > 0 ? (
                   <div className="space-y-4" id="analytics_with_data">
@@ -1252,7 +1260,6 @@ export default function App() {
                     Dinamika grafigini ko&apos;rish uchun kamida bitta qayd saqlang.
                   </div>
                 )}
-              </div>
 
               {/* Saved lists */}
               <div className="glass-card rounded-3xl p-6 md:p-8 space-y-5" id="mood_history_list">
@@ -1308,54 +1315,57 @@ export default function App() {
 
         {/* TAB 5: SCIENTIFIC KNOWLEDGE HUB & RECOMMENDATIONS */}
         {activeTab === 'info' && (
-          <div className="space-y-8 animate-fade-in" id="tab_info_view">
-            <div className="text-center space-y-1.5 max-w-lg mx-auto">
-              <h2 className="font-bold text-2xl text-slate-900">Ilmiy Maslahatlar va Psixologiya Hubi</h2>
-              <p className="text-xs text-slate-500 leading-relaxed">
+          <div className="space-y-8 animate-fade-in max-w-6xl mx-auto" id="tab_info_view">
+            <div className="text-center space-y-3 max-w-2xl mx-auto mt-4">
+              <h2 className="font-display font-bold text-3xl text-slate-900">Psixologiya Hubi</h2>
+              <p className="text-sm text-slate-500 leading-relaxed">
                 Platformadagi har bir maslahat va metodlar xalqaro Kognitiv-Xulq-atvor Terapiyasi (CBT), Gumanistik psixologiya va neyrobiologiya qonuniyatlariga tayanadi.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="articles_grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" id="articles_grid">
               {/* Card 1 */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4" id="article_card_1">
-                <div className="bg-emerald-50 text-emerald-700 w-10 h-10 rounded-xl flex items-center justify-center">
-                  <Brain className="w-5 h-5" />
+              <div className="bg-white border border-stone-100 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 space-y-5 group relative overflow-hidden" id="article_card_1">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm border border-emerald-100">
+                  <Brain className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900">Kognitiv Xatolar Nima va Ularni Qanday Tuzatish Kerak?</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                <h3 className="font-display font-bold text-lg text-slate-900 leading-snug">Kognitiv Xatolar Nima va Ularni Qanday Tuzatish Kerak?</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Bizning ongimiz ko&apos;pincha asossiz xavotirlar yaratadi. Bunday holatlar &quot;kognitiv xatolar&quot; deb ataladi. Masalan, falokatlashtirish (hamma narsani eng yomon tusda ko&apos;rish) yoki zehn o&apos;qish.
                 </p>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-slate-500">
-                  <strong>CBT Yechimi:</strong> Fikrning haqiqatga mosligini so&apos;roq qiling. &quot;Bunga dalilim bormi?&quot; deb o&apos;zingizdan so&apos;rang.
+                <div className="pt-4 border-t border-stone-100 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                  <strong className="text-emerald-700 block mb-1">CBT Yechimi:</strong> Fikrning haqiqatga mosligini so&apos;roq qiling. &quot;Bunga dalilim bormi?&quot; deb o&apos;zingizdan so&apos;rang.
                 </div>
               </div>
 
               {/* Card 2 */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4" id="article_card_2">
-                <div className="bg-teal-50 text-teal-700 w-10 h-10 rounded-xl flex items-center justify-center">
-                  <Heart className="w-5 h-5" />
+              <div className="bg-white border border-stone-100 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 space-y-5 group relative overflow-hidden" id="article_card_2">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-teal-100 rounded-full blur-3xl opacity-50 -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                <div className="bg-gradient-to-br from-teal-100 to-teal-50 text-teal-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm border border-teal-100">
+                  <Heart className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900">Hissiy Intellekt (EQ)ni Rivojlantirish Yo&apos;llari</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                <h3 className="font-display font-bold text-lg text-slate-900 leading-snug">Hissiy Intellekt (EQ)ni Rivojlantirish Yo&apos;llari</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Hissiy intellekt - bu o&apos;z his-tuyg&apos;ularingizni anglash va ularni oqilona boshqarish qobiliyatidir. Bu boshqalar bilan mustahkam munosabatlar qurishning asosidir.
                 </p>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-slate-500">
-                  <strong>EQ Amaliyoti:</strong> Har kuni hissiyotlaringizni yozib boring, dilingizni ochiq suhbatlar orqali bo&apos;lishing.
+                <div className="pt-4 border-t border-stone-100 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                  <strong className="text-teal-700 block mb-1">EQ Amaliyoti:</strong> Har kuni hissiyotlaringizni yozib boring, dilingizni ochiq suhbatlar orqali bo&apos;lishing.
                 </div>
               </div>
 
               {/* Card 3 */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4" id="article_card_3">
-                <div className="bg-amber-50 text-amber-700 w-10 h-10 rounded-xl flex items-center justify-center">
-                  <Wind className="w-5 h-5" />
+              <div className="bg-white border border-stone-100 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 space-y-5 group relative overflow-hidden" id="article_card_3">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100 rounded-full blur-3xl opacity-50 -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                <div className="bg-gradient-to-br from-amber-100 to-amber-50 text-amber-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm border border-amber-100">
+                  <Wind className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900">Stressni Jismoniy Tinchlantirish Neyrobiologiyasi</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                <h3 className="font-display font-bold text-lg text-slate-900 leading-snug">Stressni Jismoniy Tinchlantirish Neyrobiologiyasi</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Stress boshlanganda tana adreanalin ajratadi. Biz chuqur nafas olganimizda, adashgan nerv (vagus nerve) faollashib, pulsni sekinlashtiradi va miyaga xavfsizlik signalini yuboradi.
                 </p>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-slate-500">
-                  <strong>Nafas Yechimi:</strong> 4-7-8 nafas mashqini kuniga 2 marta muntazam takrorlang.
+                <div className="pt-4 border-t border-stone-100 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                  <strong className="text-amber-700 block mb-1">Nafas Yechimi:</strong> 4-7-8 nafas mashqini kuniga 2 marta muntazam takrorlang.
                 </div>
               </div>
             </div>
