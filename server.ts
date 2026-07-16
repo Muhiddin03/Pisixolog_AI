@@ -203,6 +203,24 @@ Sizning vazifalaringiz:
     }
   });
 
+  app.get('/api/list-models', async (req, res) => {
+    try {
+      const currentApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+      if (!currentApiKey) {
+        return res.status(400).json({ error: "API kaliti (API key) topilmadi." });
+      }
+      const ai = new GoogleGenAI({
+        apiKey: currentApiKey,
+        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+      });
+      const response = await ai.models.list();
+      res.json(response);
+    } catch (error: any) {
+      console.error("List models backend error:", error);
+      res.status(500).json({ error: error.message || error.toString() });
+    }
+  });
+
   // Serve static files or use Vite middlewares
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.resolve('dist')));

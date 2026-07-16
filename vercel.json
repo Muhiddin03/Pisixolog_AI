@@ -15,11 +15,7 @@
   ],
   "routes": [
     {
-      "src": "/api/consult",
-      "dest": "server.ts"
-    },
-    {
-      "src": "/api/analyze-face",
+      "src": "/api/(.*)",
       "dest": "server.ts"
     },
     {
