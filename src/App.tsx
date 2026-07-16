@@ -343,7 +343,7 @@ export default function App() {
         setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
         setFaceLoading(false);
         return;
-      }      const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+      }      const models = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
       let success = false;
       let modelErrors: string[] = [];
 
@@ -613,7 +613,7 @@ export default function App() {
         const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
 
         if (apiKey && apiKey.trim()) {
-          const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const models = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
           let modelErrors: string[] = [];
           for (const modelName of models) {
             try {
