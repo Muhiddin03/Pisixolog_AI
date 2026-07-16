@@ -298,7 +298,14 @@ export default function App() {
           return;
         }
 
-        const ai = new GoogleGenAI({ apiKey });
+        const ai = new GoogleGenAI({ 
+          apiKey: apiKey,
+          httpOptions: {
+            headers: {
+              'User-Agent': 'aistudio-build'
+            }
+          }
+        });
         const response = await ai.models.generateContent({
           model: 'gemini-1.5-flash',
           contents: [
