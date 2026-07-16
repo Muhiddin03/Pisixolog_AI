@@ -30,7 +30,9 @@ import {
   Trash2,
   Settings,
   Database,
-  Download
+  Download,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 
 // Scientific Eysenck Temperament Inventory questions
@@ -107,6 +109,246 @@ const LUSCHER_COLORS = [
   { id: 'gray', color: 'bg-slate-400', name: 'Kulrang' },
 ];
 
+class MindfulnessAudio {
+  static isMuted = false;
+  private static audioCtx: AudioContext | null = null;
+  private static breathOscs: { osc1: OscillatorNode; osc2: OscillatorNode; gain: GainNode } | null = null;
+  private static breathNoise: { source: AudioBufferSourceNode; filter: BiquadFilterNode; gain: GainNode } | null = null;
+
+  private static getContext(): AudioContext {
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
+    return this.audioCtx;
+  }
+
+  // Play satisfying paper tear/crush sound
+  static playShred() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      // Create noise buffer
+      const bufferSize = ctx.sampleRate * 1.5;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.Q.value = 3.0;
+      
+      // Modulate filter frequency to simulate paper tearing crackle
+      filter.frequency.setValueAtTime(800, now);
+      filter.frequency.exponentialRampToValueAtTime(300, now + 1.2);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.1);
+      // Tear 1
+      gain.gain.setValueAtTime(0.15, now + 0.3);
+      gain.gain.linearRampToValueAtTime(0.05, now + 0.5);
+      // Tear 2
+      gain.gain.linearRampToValueAtTime(0.12, now + 0.7);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      noise.start(now);
+      noise.stop(now + 1.5);
+
+      // Play a tiny low-frequency crunch
+      const lowOsc = ctx.createOscillator();
+      lowOsc.type = 'triangle';
+      lowOsc.frequency.setValueAtTime(90, now);
+      lowOsc.frequency.linearRampToValueAtTime(30, now + 0.5);
+      
+      const lowGain = ctx.createGain();
+      lowGain.gain.setValueAtTime(0.12, now);
+      lowGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+      lowOsc.connect(lowGain);
+      lowGain.connect(ctx.destination);
+      lowOsc.start(now);
+      lowOsc.stop(now + 0.6);
+    } catch (e) {
+      console.warn("Audio error:", e);
+    }
+  }
+
+  // Play C-major mindfulness chime
+  static playSuccess() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+      
+      const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C4, E4, G4, C5, E5
+      notes.forEach((freq, idx) => {
+        const timeOffset = now + idx * 0.12;
+        
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, timeOffset);
+        
+        gain.gain.setValueAtTime(0.001, timeOffset);
+        gain.gain.linearRampToValueAtTime(0.12 - idx * 0.015, timeOffset + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, timeOffset + 2.5);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(timeOffset);
+        osc.stop(timeOffset + 3.0);
+      });
+    } catch (e) {
+      console.warn("Audio error:", e);
+    }
+  }
+
+  // Manage breathing sound cycles
+  static playBreathing(phase: 'idle' | 'inhale' | 'hold' | 'exhale') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      // Stop previous sounds
+      this.stopBreathing();
+
+      if (phase === 'inhale') {
+        // Inhale: Ocean-breeze sound rising
+        const bufferSize = ctx.sampleRate * 5; // Up to 5s buffer
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(150, now);
+        filter.frequency.exponentialRampToValueAtTime(450, now + 4.0); // Rise filter
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.07, now + 4.0); // Rise volume
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        source.start(now);
+        this.breathNoise = { source, filter, gain };
+
+      } else if (phase === 'hold') {
+        // Hold: Soft celestial singing-bowl hum
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(220, now); // A3
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(220.5, now); // Slight detune for chorus/vibrato
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.04, now + 1.0); // Soft fade-in
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        this.breathOscs = { osc1, osc2, gain };
+
+      } else if (phase === 'exhale') {
+        // Exhale: Ocean-breeze sound falling
+        const bufferSize = ctx.sampleRate * 9; // Up to 9s buffer
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(450, now);
+        filter.frequency.exponentialRampToValueAtTime(150, now + 8.0); // Fall filter
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 8.0); // Fall volume
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        source.start(now);
+        this.breathNoise = { source, filter, gain };
+      }
+    } catch (e) {
+      console.warn("Audio error:", e);
+    }
+  }
+
+  static stopBreathing() {
+    try {
+      const now = this.audioCtx ? this.audioCtx.currentTime : 0;
+      if (this.breathOscs) {
+        const { osc1, osc2, gain } = this.breathOscs;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        setTimeout(() => {
+          try {
+            osc1.stop();
+            osc2.stop();
+          } catch (e) {}
+        }, 350);
+        this.breathOscs = null;
+      }
+      if (this.breathNoise) {
+        const { source, gain } = this.breathNoise;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        setTimeout(() => {
+          try {
+            source.stop();
+          } catch (e) {}
+        }, 350);
+        this.breathNoise = null;
+      }
+    } catch (e) {
+      console.warn("Audio stop error:", e);
+    }
+  }
+}
+
 interface MoodLog {
   id: string;
   date: string;
@@ -123,6 +365,15 @@ export default function App() {
   const [moodSubTab, setMoodSubTab] = useState<'log'|'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik'|'xolerik'|'flegmatik'|'melanxolik'>('sangvinik');
   const [faceSubTab, setFaceSubTab] = useState<'camera'|'result'>('camera');
+
+  const [isAudioMuted, setIsAudioMuted] = useState<boolean>(() => {
+    return localStorage.getItem('psixologik_audio_muted') === 'true';
+  });
+
+  useEffect(() => {
+    MindfulnessAudio.isMuted = isAudioMuted;
+    localStorage.setItem('psixologik_audio_muted', isAudioMuted ? 'true' : 'false');
+  }, [isAudioMuted]);
 
   // Helper to load state
   const loadState = <T,>(key: string, defaultVal: T): T => {
@@ -551,6 +802,7 @@ export default function App() {
       const resObj = { eScore, nScore, type, title, description, advice };
       setEyResult(resObj);
       setEyCompleted(true);
+      MindfulnessAudio.playSuccess();
       localStorage.setItem('psixologik_ey_result', JSON.stringify(resObj));
     }
   };
@@ -602,6 +854,7 @@ export default function App() {
       const resObj = { score: totalScore, level, advice, color };
       setPssResult(resObj);
       setPssCompleted(true);
+      MindfulnessAudio.playSuccess();
       localStorage.setItem('psixologik_pss_result', JSON.stringify(resObj));
     }
   };
@@ -637,6 +890,7 @@ export default function App() {
 
       resultText += "\n\n💡 (Ushbu xulosa Xalqaro Lüscher Metodikasi tahlilining chuqurlashtirilgan shakli bo'lib, hozirgi hissiy holatingizni va yashirin psixologik ehtiyojlaringizni aks ettiradi).";
       setColorResult(resultText);
+      MindfulnessAudio.playSuccess();
     }
   };
 
@@ -649,6 +903,7 @@ export default function App() {
   const handleShredWorry = () => {
     if (!worryText.trim()) return;
     setIsShredding(true);
+    MindfulnessAudio.playShred();
     setTimeout(() => {
       setWorryText('');
       setShredderMessage("Xavotir parchalandi! Bu endi sizga zarar bera olmaydi.");
@@ -870,6 +1125,13 @@ export default function App() {
     return () => clearInterval(interval);
   }, [breathingPhase]);
 
+  useEffect(() => {
+    MindfulnessAudio.playBreathing(breathingPhase);
+    return () => {
+      MindfulnessAudio.stopBreathing();
+    };
+  }, [breathingPhase]);
+
   const startBreathing = () => {
     setBreathingPhase('inhale');
     setBreathingTimer(0);
@@ -923,6 +1185,13 @@ export default function App() {
             <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'settings' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
               <Settings className="w-5 h-5" /> <span>Sozlamalar</span>
             </button>
+            <button onClick={() => setIsAudioMuted(!isAudioMuted)} className="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all font-semibold text-sm text-slate-500 hover:bg-stone-50 hover:text-slate-800 cursor-pointer">
+              <div className="flex items-center gap-3">
+                {isAudioMuted ? <VolumeX className="w-5 h-5 text-slate-400" /> : <Volume2 className="w-5 h-5 text-emerald-600" />}
+                <span>Ovozli effektlar</span>
+              </div>
+              <span className="text-xs bg-stone-100 text-slate-600 px-2 py-0.5 rounded-md">{isAudioMuted ? "O'chirilgan" : "Yoqilgan"}</span>
+            </button>
           </nav>
 
           <div className="p-4 border-t border-stone-100 bg-stone-50/50">
@@ -947,10 +1216,15 @@ export default function App() {
               </div>
               <h1 className="font-display font-bold text-sm text-slate-900">Psixolog AI</h1>
             </div>
-            <a href="tel:1003" className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold active:scale-95 transition-transform">
-              <PhoneCall className="w-3.5 h-3.5" />
-              <span>Yordam</span>
-            </a>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setIsAudioMuted(!isAudioMuted)} className="flex items-center justify-center bg-stone-100 border border-stone-200 text-slate-700 p-2 rounded-lg active:scale-95 transition-transform cursor-pointer">
+                {isAudioMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-emerald-600 animate-pulse" />}
+              </button>
+              <a href="tel:1003" className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold active:scale-95 transition-transform">
+                <PhoneCall className="w-3.5 h-3.5" />
+                <span>Yordam</span>
+              </a>
+            </div>
           </header>
         )}
 
