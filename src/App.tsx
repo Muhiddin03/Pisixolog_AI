@@ -502,84 +502,75 @@ export default function App() {
 
   // Render different tabs
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-mesh-pattern text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900" id="app_root">
-      {/* HEADER SECTION */}
-      <header className="z-50 glass-panel border-b border-white/60 px-3 py-1.5 shrink-0" id="header_section">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-1.5 md:gap-3">
-          <div className="flex items-center justify-between w-full md:w-auto">
-            <div className="flex items-center gap-2.5">
-              <div className="bg-emerald-600 text-white p-2 rounded-xl shadow-sm" id="logo_container">
-                <Brain className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="text-base md:text-lg font-display font-extrabold tracking-tight text-slate-900 leading-none">Ruhiy Ko&apos;mak</h1>
-                <p className="text-[10px] text-slate-500 font-medium mt-0.5">Ilmiy-psixologik platforma</p>
-              </div>
+    <div className="flex h-screen overflow-hidden bg-stone-50 text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900" id="app_root">
+      
+      {/* DESKTOP SIDEBAR */}
+      <aside className="hidden md:flex flex-col w-64 border-r border-stone-200 bg-white shadow-[2px_0_10px_rgba(0,0,0,0.02)] z-20 shrink-0" id="desktop_sidebar">
+        <div className="p-5 border-b border-stone-100 flex items-center gap-3">
+          <div className="bg-emerald-600 text-white p-2.5 rounded-2xl shadow-sm">
+            <Brain className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="font-display font-bold text-lg text-slate-900 leading-none">Psixolog AI</h1>
+            <p className="text-[11px] text-emerald-600 font-medium mt-0.5">Shaxsiy maslahatchi</p>
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
+          <button onClick={() => setActiveTab('tests')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'tests' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <Activity className="w-5 h-5" /> <span>Testlar</span>
+          </button>
+          <button onClick={() => setActiveTab('ai-chat')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'ai-chat' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <MessageSquare className="w-5 h-5" /> <span>AI Sodiq</span>
+          </button>
+          <button onClick={() => setActiveTab('breathing')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'breathing' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <Wind className="w-5 h-5" /> <span>Nafas mashqi</span>
+          </button>
+          <button onClick={() => setActiveTab('mood')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'mood' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <Smile className="w-5 h-5" /> <span>Kundalik</span>
+          </button>
+          <button onClick={() => setActiveTab('info')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'info' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <BookOpen className="w-5 h-5" /> <span>Maslahatlar</span>
+          </button>
+        </nav>
+
+        <div className="p-4 border-t border-stone-100 bg-stone-50/50">
+          <div className="bg-white border border-stone-200 rounded-2xl p-3 text-center shadow-sm">
+            <AlertCircle className="w-5 h-5 text-rose-500 mx-auto mb-1.5" />
+            <span className="text-[10px] text-slate-500 block mb-1">Favqulodda yordam telefoni</span>
+            <span className="font-bold text-rose-600 text-sm block">1003 yoki 103</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-w-0 bg-stone-50/30 relative">
+        
+        {/* MOBILE HEADER */}
+        <header className="md:hidden flex items-center justify-between p-3 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="bg-emerald-600 text-white p-1.5 rounded-lg shadow-xs">
+              <Brain className="w-4 h-4" />
             </div>
-
-            {/* Quick emergency help button on mobile header */}
-            <a href="tel:1003" className="md:hidden flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold">
-              <PhoneCall className="w-3.5 h-3.5" />
-              <span>Yordam</span>
-            </a>
+            <h1 className="font-display font-bold text-sm text-slate-900">Psixolog AI</h1>
           </div>
+          <a href="tel:1003" className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold active:scale-95 transition-transform">
+            <PhoneCall className="w-3.5 h-3.5" />
+            <span>Yordam</span>
+          </a>
+        </header>
 
-          <div className="flex items-center gap-1 bg-white/40 p-1 rounded-xl border border-white/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] overflow-x-auto no-scrollbar max-w-full w-full md:w-auto" id="main_navigation">
-            <button 
-              id="nav_tests"
-              onClick={() => setActiveTab('tests')} 
-              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'tests' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
-            >
-              <Activity className={`w-4 h-4 ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`} />
-              <span>Testlar</span>
-            </button>
-            <button 
-              id="nav_chat"
-              onClick={() => setActiveTab('ai-chat')} 
-              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'ai-chat' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
-            >
-              <MessageSquare className={`w-4 h-4 ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`} />
-              <span>AI Sodiq</span>
-            </button>
-            <button 
-              id="nav_breathing"
-              onClick={() => setActiveTab('breathing')} 
-              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'breathing' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
-            >
-              <Wind className={`w-4 h-4 ${activeTab === 'breathing' ? 'text-emerald-600' : 'text-slate-400'}`} />
-              <span>Nafas</span>
-            </button>
-            <button 
-              id="nav_mood"
-              onClick={() => setActiveTab('mood')} 
-              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'mood' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
-            >
-              <Smile className={`w-4 h-4 ${activeTab === 'mood' ? 'text-emerald-600' : 'text-slate-400'}`} />
-              <span>Kundalik</span>
-            </button>
-            <button 
-              id="nav_info"
-              onClick={() => setActiveTab('info')} 
-              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'info' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
-            >
-              <BookOpen className={`w-4 h-4 ${activeTab === 'info' ? 'text-emerald-600' : 'text-slate-400'}`} />
-              <span>Maslahatlar</span>
-            </button>
+        {/* EMERGENCY TICKER */}
+        <div className="bg-rose-50 border-b border-rose-100 px-3 py-2 text-center text-[10px] text-rose-700 font-semibold shrink-0">
+          <div className="flex items-center justify-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>Ruhiy ko'mak ishonch telefoni: <strong className="font-bold underline">1003</strong></span>
           </div>
         </div>
-      </header>
 
-      {/* EMERGENCY CRISIS TICKER */}
-      <div className="bg-rose-50 border-b border-rose-100 px-3 py-1.5 text-center text-[10px] text-rose-700 font-semibold shrink-0" id="emergency_ticker">
-        <div className="max-w-6xl mx-auto flex items-center justify-center gap-1.5 flex-wrap">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>Favqulodda vaziyatda bepul va maxfiy ruhiy ko&apos;mak ishonch telefoni: <strong className="font-bold underline">1003</strong> (Sog&apos;liqni saqlash vazirligi) yoki <strong className="font-bold underline">103</strong>.</span>
-        </div>
-      </div>
-
-      {/* MAIN CONTENT CONTAINER */}
-      <div className="flex-1 overflow-y-auto no-scrollbar relative w-full" id="scrollable_main">
-        <main className="max-w-6xl mx-auto px-3 py-3 md:py-4 pb-20 md:pb-6" id="main_content_container">
+        {/* SCROLLABLE MAIN CONTENT */}
+        <main className="flex-1 overflow-y-auto w-full relative p-3 md:p-6 pb-24 md:pb-10 custom-scrollbar" id="main_content_container">
+          <div className="max-w-4xl mx-auto">
           {/* TAB 1: TESTS & DIAGNOSTICS */}
           {activeTab === 'tests' && (
             <div className="space-y-4 md:space-y-6" id="tab_tests_view">
@@ -1391,14 +1382,34 @@ export default function App() {
             </div>
           </div>
         )}
-      </main>
+          </div>
+        </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-stone-200 bg-stone-50/50 py-3 text-center text-[9px] text-slate-400 font-medium shrink-0" id="footer_section">
-        <div className="max-w-6xl mx-auto px-4 space-y-1">
-          <p>© 2026 Psixolog AI. Barcha huquqlar himoyalangan.</p>
-        </div>
-      </footer>
+        {/* MOBILE BOTTOM NAVIGATION */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-200 pb-safe z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]" id="mobile_bottom_nav">
+          <div className="flex items-center justify-around p-1.5 px-2">
+            <button onClick={() => setActiveTab('tests')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <Activity className={`w-5 h-5 mb-1 ${activeTab === 'tests' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[9px] font-bold">Testlar</span>
+            </button>
+            <button onClick={() => setActiveTab('ai-chat')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <MessageSquare className={`w-5 h-5 mb-1 ${activeTab === 'ai-chat' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[9px] font-bold">AI Chat</span>
+            </button>
+            <button onClick={() => setActiveTab('breathing')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'breathing' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <Wind className={`w-5 h-5 mb-1 ${activeTab === 'breathing' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[9px] font-bold">Nafas</span>
+            </button>
+            <button onClick={() => setActiveTab('mood')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'mood' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <Smile className={`w-5 h-5 mb-1 ${activeTab === 'mood' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[9px] font-bold">Kayfiyat</span>
+            </button>
+            <button onClick={() => setActiveTab('info')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'info' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <BookOpen className={`w-5 h-5 mb-1 ${activeTab === 'info' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[9px] font-bold">Ma'lumot</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </div>
   );
