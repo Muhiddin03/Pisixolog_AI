@@ -39,23 +39,36 @@ const EYSENCK_QUESTIONS: Question[] = [
   { id: 1, text: "Tez-tez yangi taassurotlar va hayajonli lahzalarni qidirasizmi?", category: 'E' },
   { id: 2, text: "Do'stlaringiz bilan muloqot qilish va ko'ngil ochishni juda yaxshi ko'rasizmi?", category: 'E' },
   { id: 3, text: "Odatda tez qaror qabul qilasizmi va faol harakat qilasizmi?", category: 'E' },
-  { id: 4, text: "Davralarda diqqat markazida bo'lish sizga yoqadimi?", category: 'E' },
-  { id: 5, text: "Notanish odamlar bilan osonlikcha suhbat boshlay olasizmi?", category: 'E' },
-  { id: 6, text: "O'zingizni shijoatli va g'ayratli odam deb hisoblaysizmi?", category: 'E' },
-  { id: 7, text: "Shovqinli va ko'p odam yig'ilgan joylarda o'zingizni erkin his qilasizmi?", category: 'E' },
-  { id: 8, text: "Bir joyda uzoq vaqt tinch o'tirish sizga qiyinchilik tug'diradimi?", category: 'E' },
-  { id: 9, text: "Do'stlaringiz sizni jo'shqin va kirishimli deb bilishadimi?", category: 'E' },
-  { id: 10, text: "Biror ishni rejalashtirmasdan, tavakkal qilish sizga yoqadimi?", category: 'E' },
-  { id: 11, text: "Kayfiyatingiz sababsiz tez-tez o'zgarib turadimi?", category: 'N' },
-  { id: 12, text: "Arzimas narsalarga ham ko'p tashvishlanib, xavotirga tushasizmi?", category: 'N' },
-  { id: 13, text: "Biror xatolikka yo'l qo'ysangiz, uzoq vaqt xayolingizdan ketmaydimi?", category: 'N' },
-  { id: 14, text: "Sizni ranjitish yoki xafa qilish osonmi?", category: 'N' },
-  { id: 15, text: "Tez-tez o'zingizni charchagan, asabiy yoki lanj his qilasizmi?", category: 'N' },
-  { id: 16, text: "Kutilmagan qiyinchiliklar sizni osongina sarosimaga solib qo'yadimi?", category: 'N' },
-  { id: 17, text: "Uyquga ketishingiz qiyin bo'lib, turli xavotirli fikrlar keladimi?", category: 'N' },
-  { id: 18, text: "Ba'zida hech qanday sababsiz o'zingizni yolg'iz yoki tushkun his qilasizmi?", category: 'N' },
-  { id: 19, text: "O'z his-tuyg'ularingizni nazorat qilish sizga qiyinchilik tug'diradimi?", category: 'N' },
-  { id: 20, text: "Tanbehlarni yoki tanqidlarni juda og'ir qabul qilasizmi?", category: 'N' }
+  { id: 4, text: "Kayfiyatingiz tez-tez va o'z-o'zidan o'zgarib turadimi?", category: 'N' },
+  { id: 5, text: "O'zingizni ko'pincha baxtsiz yoki siqilgan his qilasizmi?", category: 'N' },
+  { id: 6, text: "Arzimas narsalarga ham tez xavotirga tushib qolasizmi?", category: 'N' },
+  { id: 7, text: "Odamlar ko'p joyda o'zingizni erkin va quvnoq his qilasizmi?", category: 'E' },
+  { id: 8, text: "Sizga yangi odamlar bilan tanishish yoqadimi?", category: 'E' },
+  { id: 9, text: "Ba'zida hech qanday sababsiz o'zingizni juda charchagan his qilasizmi?", category: 'N' },
+  { id: 10, text: "Tez-tez uxlashingiz qiyinlashadimi (o'y-xayollar sababli)?", category: 'N' },
+  { id: 11, text: "Tavakkal qilishni va xavfli ishlarni yaxshi ko'rasizmi?", category: 'E' },
+  { id: 12, text: "Ko'pincha hayajonli voqealarning markazida bo'lishni xohlaysizmi?", category: 'E' },
+  { id: 13, text: "Siz tez-tez o'zingizni aybdor his qilasizmi?", category: 'N' },
+  { id: 14, text: "Ba'zida o'zingizni shunchalik asabiylashganday his qilasizki, joyingizda o'tirolmaysizmi?", category: 'N' },
+  { id: 15, text: "Ziyofat yoki bayramlarda qatnashish sizga zavq beradimi?", category: 'E' },
+  { id: 16, text: "Biror ishni boshlashdan oldin tez-tez ikkilanib qolasizmi?", category: 'N' },
+  { id: 17, text: "Sizni tez-tez 'hissiyotga beriluvchan' deb ta'riflashadimi?", category: 'N' },
+  { id: 18, text: "Kutilmagan vaziyatlarda tezda moslashib keta olasizmi?", category: 'E' },
+  { id: 19, text: "Qiyin vaziyatlarda xotirjamlikni saqlab qolish siz uchun qiyinmi?", category: 'N' },
+  { id: 20, text: "Yolg'izlikdan ko'ra davrada bo'lishni afzal ko'rasizmi?", category: 'E' }
+];
+
+const AFFIRMATIONS = [
+  "Men o'z hayotimning ijodkoriman, va bugun men baxtni tanlayman.",
+  "Mening his-tuyg'ularim muhim va men ularni qabul qilishga tayyorman.",
+  "Men qiyinchiliklarni yengib o'tish uchun yetarli kuchga egaman.",
+  "Har bir kun menga yangi imkoniyatlar eshigini ochmoqda.",
+  "Mening o'tmishim kelajagimni belgilamaydi; men hozirda erkinman.",
+  "Men o'zimni qanday bo'lsam, shundayligimcha qabul qilaman va sevaman.",
+  "Mening qalbim tinch, aqlim tiniq.",
+  "Men hayotimga yaxshiliklarni jalb qilish imkoniyatiga egaman.",
+  "Har nafas olganimda menga kuch va yorug'lik kirib keladi.",
+  "Men mukammal emasman, va bu butunlay tabiiy. Men o'sishda davom etaman."
 ];
 
 // Scientific PSS-10 questions
@@ -103,7 +116,7 @@ export default function App() {
   const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
-  const [practicesSubTab, setPracticesSubTab] = useState<'breathing' | 'shredder'>('breathing');
+  const [practicesSubTab, setPracticesSubTab] = useState<'breathing' | 'shredder' | 'affirmations' | 'gratitude'>('breathing');
 
   // --- EYSENCK TEST STATE ---
   const [eyQuestionIndex, setEyQuestionIndex] = useState(0);
@@ -171,6 +184,13 @@ export default function App() {
   const [worryText, setWorryText] = useState('');
   const [isShredding, setIsShredding] = useState(false);
   const [shredderMessage, setShredderMessage] = useState('');
+
+  // --- AFFIRMATIONS STATE ---
+  const [currentAffirmation, setCurrentAffirmation] = useState('');
+
+  // --- GRATITUDE STATE ---
+  const [gratitudeEntries, setGratitudeEntries] = useState<string[]>(['', '', '']);
+  const [gratitudeSaved, setGratitudeSaved] = useState(false);
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -323,16 +343,16 @@ export default function App() {
       const primary = newColors[0];
       
       let resultText = '';
-      if (primary === 'blue') resultText = "Siz hozirda tinchlik, xotirjamlik va o'zaro tushunishga muhtojsiz. Atrofdagi shovqinlardan charchagansiz va ruhiy dam olishni xohlaysiz.";
-      else if (primary === 'green') resultText = "Sizda hozir o'z qadr-qimmatingizni his qilish, mustaqillik va muvaffaqiyatga erishish ehtiyoji kuchli. O'zingizni tasdiqlashni istayapsiz.";
-      else if (primary === 'red') resultText = "Siz g'ayratga to'lasiz. Harakat qilish, qiyinchiliklarni yengish va natijalarga erishish istagi yuqori. Biroq, biroz asabiy zo'riqish ham bo'lishi mumkin.";
-      else if (primary === 'yellow') resultText = "Siz kelajakka umid bilan qarayapsiz. Yangiliklarni kutish, o'zgarishlar va erkinlikka intilish kayfiyatidasiz. Hayotingizda yorqinlik yetishmayapti.";
-      else if (primary === 'violet') resultText = "Sizda hozir biroz hayolparastlik va sehrli/mo'jizaviy narsalarga ishonish kayfiyati bor. Reallikdan biroz qochish va o'z orzularingiz dunyosida yashashni xohlaysiz.";
-      else if (primary === 'brown') resultText = "Sizga jismoniy qulaylik, xavfsizlik va g'amxo'rlik juda zarur. Stress yoki kasallikdan charchagan bo'lishingiz va iliqlik izlayotgan bo'lishingiz mumkin.";
-      else if (primary === 'black') resultText = "Sizda hozir qandaydir norozilik, isyon yoki reallikni inkor etish holati ustun. Hamma narsani o'zgartirishni yoki muammolardan qochishni xohlayapsiz.";
-      else if (primary === 'gray') resultText = "Siz o'zingizni tashqi ta'sirlardan himoya qilmoqchisiz. Mas'uliyatdan qochish, 'ko'rinmas' bo'lish va hech narsaga aralashmaslikni afzal ko'ryapsiz.";
+      if (primary === 'blue') resultText = "Hissiy ehtiyojlar: Siz chuqur xotirjamlik, tinchlik va o'zaro ishonchga asoslangan munosabatlarga muhtojsiz. Atrofdagi stresslardan charchagansiz va hozircha barcha ziddiyatlardan uzoqlashishni, asab tizimingizga dam berishni xohlayapsiz. Ichki dunyongizda uyg'unlik (garmoniya) va himoyalanganlik hissi hozir birinchi o'rinda.";
+      else if (primary === 'green') resultText = "Hissiy ehtiyojlar: Siz o'z imkoniyatlaringizni ko'rsatish, hurmat qozonish va mustaqilligingizni isbotlash bosqichidasiz. O'z qadr-qimmatingizni baland tutish, qat'iyatlik bilan oldinga borish va birovlarning fikriga qaram bo'lmaslik ehtiyoji kuchli. Ba'zida haddan tashqari mukammallikka (perfeksionizmga) intilish va o'jarlik ham kuzatilishi mumkin.";
+      else if (primary === 'red') resultText = "Hissiy ehtiyojlar: Sizda hayotiylik, energiya va yutuqlarga erishish ishtiyoqi qaynayapti. Harakat qilish, to'siqlarni yengib o'tish va muvaffaqiyatga erishish istagi juda yuqori. O'z xohish-istaklaringizni tezroq qondirishga urinyapsiz. Ehtiyot bo'ling, bu intensiv holat tez asabiy charchoq yoki tajovuzkorlikka aylanishi mumkin.";
+      else if (primary === 'yellow') resultText = "Hissiy ehtiyojlar: Siz kelajakka katta umid bilan qarayapsiz. Hozirgi monoton yoki bosimli vaziyatlardan qutulib, erkinlik, yangilik va kashfiyotlar sari intilmoqdasiz. Optimistik kayfiyatdasiz, qandaydir ijobiy o'zgarishni kutyapsiz. Diqqatingiz bir joyda turmasligi va har narsaga tez qiziqib qolishingiz ehtimoli bor.";
+      else if (primary === 'violet') resultText = "Hissiy ehtiyojlar: Siz qandaydir sehrli, noodatiy va estetik sirlarga boy voqelikni istayapsiz. Boshqalar bilan juda nozik va hissiy aloqa o'rnatish, haqiqatning qo'pol tomonlaridan qochib, o'z fantaziyalar olamingizda yashash ehtiyoji mavjud. Sizni o'rab turgan reallik biroz zerikarli tuyulyapti va nozik did bilan muhit yaratishga urinyapsiz.";
+      else if (primary === 'brown') resultText = "Hissiy ehtiyojlar: Sizga jismoniy qulaylik, iliqlik va shunchaki xavfsizlik juda zarur. Ehtimol siz kasallikdan, uzoq davom etgan stressdan yoki tushkunlikdan holdan toygan bo'lishingiz mumkin. Hayotning murakkabliklaridan qochib, faqatgina g'amxo'rlik va shinam oilaviy xotirjamlik orqali o'zingizni tiklab olishni istayapsiz.";
+      else if (primary === 'black') resultText = "Hissiy ehtiyojlar: Sizning hozirgi holatingizda kuchli norozilik, rad etish va isyonga moyillik bor. Hozirgi vaziyatdan qat'iyan rozi emassiz va hamma narsani keskin o'zgartirishni, mavjud qoidalarni yo'q qilishni xohlayapsiz. Bu shuningdek, hayotdagi qandaydir yo'qotish yoki umidsizlikka nisbatan himoya reaksiyasi ham bo'lishi mumkin.";
+      else if (primary === 'gray') resultText = "Hissiy ehtiyojlar: Siz o'zingizni tashqi ta'sirlardan qattiq himoya qilmoqchisiz. Mas'uliyatdan, qaror qabul qilishdan va hissiy bog'lanishlardan qochishni, \"ko'zga tashlanmaslik\"ni afzal ko'ryapsiz. Bu kuchli psixologik charchoq va barcha narsalardan o'zini izolyatsiya qilish (yopib olish) mexanizmi hisoblanadi.";
 
-      resultText += " (Ushbu xulosa psixologik Luscher metodikasi asosida sizning hozirgi hissiy holatingizni ifodalaydi).";
+      resultText += "\n\n💡 (Ushbu xulosa Xalqaro Lüscher Metodikasi tahlilining chuqurlashtirilgan shakli bo'lib, hozirgi hissiy holatingizni va yashirin psixologik ehtiyojlaringizni aks ettiradi).";
       setColorResult(resultText);
     }
   };
@@ -1223,18 +1243,30 @@ export default function App() {
         {activeTab === 'practices' && (
           <div className="max-w-2xl mx-auto space-y-6 w-full animate-slide-up">
             {/* Practices Sub-Navigation */}
-            <div className="flex bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full mx-auto shadow-inner border border-stone-200/50">
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-1 sm:gap-2 bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full mx-auto shadow-inner border border-stone-200/50">
               <button 
                 onClick={() => setPracticesSubTab('breathing')} 
-                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'breathing' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'breathing' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
                 Nafas Mashqi
               </button>
               <button 
                 onClick={() => setPracticesSubTab('shredder')} 
-                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'shredder' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'shredder' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
                 Xavotirni Parchalash
+              </button>
+              <button 
+                onClick={() => setPracticesSubTab('affirmations')} 
+                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'affirmations' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+              >
+                Afirmatsiyalar
+              </button>
+              <button 
+                onClick={() => setPracticesSubTab('gratitude')} 
+                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'gratitude' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+              >
+                Minnadorchilik
               </button>
             </div>
 
@@ -1346,28 +1378,140 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="relative z-10 w-full max-w-md mx-auto space-y-4">
+                <div className="relative max-w-sm mx-auto mt-6">
                   <textarea
                     value={worryText}
                     onChange={(e) => setWorryText(e.target.value)}
-                    placeholder="Sizni nima xavotirga solmoqda? Bu yerga yozing..."
                     disabled={isShredding}
-                    className={`w-full p-4 border border-stone-200 rounded-2xl resize-none h-32 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50 bg-stone-50 transition-all duration-[1500ms] ${isShredding ? 'translate-y-full opacity-0 scale-y-0 blur-sm' : ''}`}
-                  />
-                  
-                  {shredderMessage && (
-                    <div className="text-emerald-600 font-bold text-sm py-2 animate-fade-in">
-                      {shredderMessage}
+                    placeholder="Sizni nima o'ylantiryapti? Bu yerga yozing..."
+                    className={`w-full min-h-[120px] p-4 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-rose-200 focus:border-rose-300 outline-none resize-none transition-all bg-white relative z-10 shadow-sm ${
+                      isShredding ? 'animate-vibrate opacity-0 transition-opacity duration-500 delay-300' : ''
+                    }`}
+                  ></textarea>
+
+                  {/* Shredder effect overlay */}
+                  {isShredding && (
+                    <div className="absolute top-0 left-0 w-full h-full flex flex-wrap justify-center pointer-events-none z-20">
+                      {[...Array(30)].map((_, i) => {
+                        const rx = (Math.random() - 0.5) * 400 + "px";
+                        const rr = (Math.random() - 0.5) * 720 + "deg";
+                        const delay = Math.random() * 0.3;
+                        return (
+                          <div 
+                            key={i} 
+                            className="absolute w-2 h-10 bg-slate-50 border border-stone-200 animate-shred rounded-sm shadow-sm"
+                            style={{ 
+                              left: `${(i / 30) * 100}%`,
+                              top: `${Math.random() * 20}%`,
+                              '--scatter-x': rx,
+                              '--scatter-r': rr,
+                              animationDelay: `${0.3 + delay}s` 
+                            } as React.CSSProperties}
+                          ></div>
+                        );
+                      })}
                     </div>
                   )}
+                </div>
 
-                  {!isShredding && !shredderMessage && (
+                <div className="mt-6 max-w-sm mx-auto">
+                  {shredderMessage ? (
+                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-700 text-sm font-semibold flex items-center justify-center gap-2 animate-slide-up">
+                      <Check className="w-5 h-5" /> {shredderMessage}
+                    </div>
+                  ) : (
                     <button
                       onClick={handleShredWorry}
-                      disabled={!worryText.trim()}
+                      disabled={!worryText.trim() || isShredding}
                       className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
                     >
                       <Trash2 className="w-4 h-4" /> Parchalab Yo&apos;q Qilish
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Affirmations */}
+            {practicesSubTab === 'affirmations' && (
+              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_affirmations_view">
+                <div className="space-y-4 relative z-10">
+                  <div className="bg-gradient-to-br from-amber-100 to-yellow-50 text-amber-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Star className="w-6 h-6" />
+                  </div>
+                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Kunlik Afirmatsiyalar</h2>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Miyangizni ijobiy o&apos;ylarga dasturlash uchun quyidagi so&apos;zlarni ovoz chiqarib o&apos;qing. Bu sizga o&apos;z-o&apos;zingizga ishonchni tiklashga yordam beradi.
+                  </p>
+                </div>
+
+                <div className="relative max-w-md mx-auto min-h-[160px] flex items-center justify-center p-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100/50 rounded-3xl shadow-sm group">
+                  <p className="text-lg sm:text-xl font-bold text-slate-800 leading-snug">
+                    {currentAffirmation || "Afirmatsiyani olish uchun pastdagi tugmani bosing!"}
+                  </p>
+                </div>
+
+                <div className="max-w-xs mx-auto">
+                  <button
+                    onClick={() => setCurrentAffirmation(AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)])}
+                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3.5 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2 active:scale-95"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Yangi Afirmatsiya
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Gratitude Journal */}
+            {practicesSubTab === 'gratitude' && (
+              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-6 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_gratitude_view">
+                <div className="space-y-4 relative z-10">
+                  <div className="bg-gradient-to-br from-pink-100 to-rose-50 text-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Heart className="w-6 h-6 fill-pink-200" />
+                  </div>
+                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Minnadorchilik Kundaligi</h2>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Bugun qaysi 3 ta narsa uchun xursandsiz? Minnadorchilik yozish miyani baxtli bo&apos;lishga va tushkunlikni yengishga o&apos;rgatadi.
+                  </p>
+                </div>
+
+                <div className="max-w-md mx-auto space-y-3 mt-4 text-left">
+                  {[0, 1, 2].map((index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <div className="w-8 h-8 rounded-full bg-pink-100 text-pink-600 font-bold flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                        {index + 1}
+                      </div>
+                      <input
+                        type="text"
+                        value={gratitudeEntries[index]}
+                        onChange={(e) => {
+                          const newEntries = [...gratitudeEntries];
+                          newEntries[index] = e.target.value;
+                          setGratitudeEntries(newEntries);
+                          setGratitudeSaved(false);
+                        }}
+                        placeholder="Men shuning uchun minnadorman..."
+                        className="flex-1 p-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 transition-all bg-stone-50"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 max-w-sm mx-auto">
+                  {gratitudeSaved ? (
+                    <div className="p-4 bg-pink-50 rounded-xl border border-pink-100 text-pink-700 text-sm font-semibold flex items-center justify-center gap-2 animate-slide-up">
+                      <Check className="w-5 h-5" /> Saqlandi! Bugun ajoyib kun bo&apos;ladi.
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (gratitudeEntries.some(e => e.trim())) {
+                          setGratitudeSaved(true);
+                        }
+                      }}
+                      className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
+                    >
+                      <Heart className="w-4 h-4" /> Kundalikni Saqlash
                     </button>
                   )}
                 </div>
