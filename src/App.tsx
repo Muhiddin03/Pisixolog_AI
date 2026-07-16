@@ -830,9 +830,9 @@ export default function App() {
       {/* MAIN CONTENT AREA */}
       <div className={`flex-1 flex flex-col min-w-0 bg-stone-50/30 relative ${activeTab === 'welcome' ? 'md:bg-white' : ''}`}>
         
-        {/* MOBILE HEADER */}
-        {activeTab !== 'welcome' && (
-          <header className="md:hidden flex items-center justify-between p-6 sm:p-5 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
+        {/* MOBILE HEADER - hidden for chat tab */}
+        {activeTab !== 'welcome' && activeTab !== 'ai-chat' && (
+          <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
             <div className="flex items-center gap-2">
               <div className="bg-emerald-600 text-white p-1.5 rounded-lg shadow-xs">
                 <Brain className="w-4 h-4" />
@@ -847,8 +847,17 @@ export default function App() {
         )}
 
         {/* SCROLLABLE MAIN CONTENT */}
-        <main className={`flex-1 overflow-y-auto w-full relative ${activeTab === 'ai-chat' ? 'p-0 pb-[70px] md:pb-0' : 'p-3 md:p-6'} ${isKeyboardOpen ? '' : activeTab !== 'ai-chat' ? 'pb-24 md:pb-10' : ''} custom-scrollbar`} id="main_content_container">
-          <div className={`max-w-4xl mx-auto ${activeTab === 'ai-chat' ? 'h-full flex flex-col' : ''}`}>
+        <main
+          className={`flex-1 w-full relative ${
+            activeTab === 'ai-chat'
+              ? 'overflow-hidden p-0'
+              : `overflow-y-auto p-3 md:p-6 ${isKeyboardOpen ? 'pb-4' : 'pb-24 md:pb-10'}`
+          } custom-scrollbar`}
+          id="main_content_container"
+        >
+          <div className={`mx-auto ${
+            activeTab === 'ai-chat' ? 'h-full w-full relative' : 'max-w-4xl'
+          }`}>
           
           {/* TAB 0: WELCOME SCREEN */}
           {activeTab === 'welcome' && (
@@ -1471,138 +1480,107 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 2: AI CONSULTANT CHAT */}
+        {/* TAB 2: AI CONSULTANT CHAT - Full messenger layout */}
         {activeTab === 'ai-chat' && (
-          <div className="w-full h-full flex flex-col animate-fade-in" id="tab_chat_view">
-            {/* Chat Box Interface */}
-            <div className="bg-stone-50 md:glass-card md:rounded-3xl flex flex-col flex-1 overflow-hidden shadow-md relative" id="chat_box_interface">
+          <div className="absolute inset-0 flex flex-col" id="tab_chat_view">
+            <div className="flex flex-col h-full bg-white" id="chat_box_interface">
+
               {/* Chat Header */}
-              <div className="bg-white/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex flex-wrap items-center justify-between z-20 rounded-t-2xl md:rounded-t-3xl shrink-0" id="chat_header">
+              <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-stone-200 shrink-0 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg relative shadow-md">
+                  <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold text-base relative shadow">
                     S
-                    <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full animate-pulse"></span>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full"></span>
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-sm sm:text-base text-slate-900">Sodiq <span className="hidden sm:inline-block text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md ml-1 font-semibold">AI Ruhshunos</span></h3>
-                    <p className="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Sizni tinglashga doim tayyor</p>
+                    <h3 className="font-bold text-sm text-slate-900 leading-tight">Sodiq <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-md font-semibold ml-1">AI Ruhshunos</span></h3>
+                    <p className="text-[10px] text-emerald-600 font-semibold">Online · Tinglashga tayyor</p>
                   </div>
                 </div>
-                
-                {/* Collapsible Info Menu */}
-                <div className="relative mt-2 w-full sm:w-auto sm:mt-0">
+                <div className="relative">
                   <button
-                    onClick={() => setShowChatInfo(prev => !prev)}
-                    className="text-[11px] bg-emerald-50/80 text-emerald-700 px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-2 font-bold hover:bg-emerald-100 transition border border-emerald-200 shadow-sm active:scale-95 w-full sm:w-auto"
+                    onClick={() => setShowChatInfo(p => !p)}
+                    className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-1.5 rounded-xl text-[11px] font-bold active:scale-95"
                   >
-                    <span className="flex items-center gap-1.5"><Shield className="w-4 h-4" /> Ulanish sozlamalari</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showChatInfo ? 'rotate-180' : ''}`} />
+                    <Shield className="w-3.5 h-3.5" />
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showChatInfo ? 'rotate-180' : ''}`} />
                   </button>
-                  
-                  {/* Dropdown Box */}
                   {showChatInfo && (
-                    <div className="absolute right-0 top-full mt-2 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50">
-                      <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
-                        Ruhshunos Sodiq sizning topshirgan test natijalaringizni to&apos;g&apos;ridan-to&apos;g&apos;ri tahlil qila oladi. Muloqotingiz maxfiy.
-                      </p>
-                      
-                      <div className="space-y-2 mb-3">
-                        {eyResult ? (
-                          <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px]">
-                            <span className="font-bold text-emerald-900 block">Temperament:</span>
-                            <span className="text-emerald-700">{eyResult.title}</span>
-                          </div>
-                        ) : (
-                          <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
-                            Siz hali Temperament testini topshirmadingiz.
-                          </div>
-                        )}
-
-                        {pssResult ? (
-                          <div className={`p-2.5 rounded-xl border text-[11px] ${pssResult.color}`}>
-                            <span className="font-bold block">Stress holati:</span>
-                            <span>{pssResult.level} ({pssResult.score}/40)</span>
-                          </div>
-                        ) : (
-                          <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
-                            Siz hali Stress testini topshirmadingiz.
-                          </div>
-                        )}
-                      </div>
-
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-stone-200 p-3 z-50 space-y-2">
+                      <p className="text-[10px] text-slate-500">Test natijalaringizni Sodiqqa yuboring:</p>
+                      {eyResult ? (
+                        <div className="text-[11px] bg-emerald-50 rounded-xl p-2 border border-emerald-100">
+                          <strong className="block text-emerald-800">Temperament:</strong>
+                          <span className="text-emerald-700">{eyResult.title}</span>
+                        </div>
+                      ) : <div className="text-[10px] text-slate-400 bg-stone-50 rounded-xl p-2 border border-dashed border-stone-200">Temperament testi topshirilmagan</div>}
+                      {pssResult ? (
+                        <div className={`text-[11px] rounded-xl p-2 border ${pssResult.color}`}>
+                          <strong className="block">Stress:</strong> {pssResult.level} ({pssResult.score}/40)
+                        </div>
+                      ) : <div className="text-[10px] text-slate-400 bg-stone-50 rounded-xl p-2 border border-dashed border-stone-200">Stress testi topshirilmagan</div>}
                       {(eyResult || pssResult) && (
-                        <button
-                          id="btn_inject_results"
-                          onClick={() => {
-                            let infoText = "Mening test natijalarim:\n";
-                            if (eyResult) infoText += `- Temperament: ${eyResult.title}\n`;
-                            if (pssResult) infoText += `- Stress: ${pssResult.level} (${pssResult.score}/40)\n`;
-                            infoText += "Menga ushbu ko'rsatkichlar bo'yicha maxsus va ilmiy tavsiyalar bera olasizmi?";
-                            setChatInput(infoText);
-                            setShowChatInfo(false);
-                          }}
-                          className="w-full text-center py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-sm cursor-pointer active:scale-95 mb-3"
-                        >
-                          Natijalarni yozish maydoniga joylash
+                        <button onClick={() => {
+                          let t = "Mening natijalarim:\n";
+                          if (eyResult) t += `- Temperament: ${eyResult.title}\n`;
+                          if (pssResult) t += `- Stress: ${pssResult.level} (${pssResult.score}/40)\n`;
+                          t += "Tavsiya bera olasizmi?";
+                          setChatInput(t); setShowChatInfo(false);
+                        }} className="w-full py-2 bg-emerald-600 text-white rounded-xl text-[11px] font-bold active:scale-95">
+                          Maydoniga joylash
                         </button>
                       )}
-
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Messages display */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-stone-50/50 custom-scrollbar relative z-0" id="chat_messages_area">
+              {/* Messages area - flex-1 scrolls */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 bg-[#F0F2F5]" id="chat_messages_area">
                 {chatHistory.map((msg, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    id={`chat_msg_${idx}`}
-                  >
-                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed shadow-sm ${
-                      msg.role === 'user' 
-                        ? 'bg-gradient-to-br from-emerald-600 to-teal-500 text-white rounded-tr-sm shadow-emerald-500/20' 
-                        : 'bg-white border border-stone-200/60 text-slate-800 rounded-tl-sm'
+                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`} id={`chat_msg_${idx}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'bg-emerald-600 text-white rounded-tr-sm'
+                        : 'bg-white text-slate-800 rounded-tl-sm shadow-sm'
                     }`}>
-                      <p className="whitespace-pre-line font-medium leading-relaxed">{msg.text}</p>
+                      <p className="whitespace-pre-line">{msg.text}</p>
                     </div>
                   </div>
                 ))}
-                
                 {chatLoading && (
-                  <div className="flex justify-start" id="chat_loading_indicator">
-                    <div className="bg-white border border-stone-200 rounded-2xl rounded-tl-none p-4 shadow-sm flex items-center gap-3">
-                      <span className="text-xs text-slate-500 font-medium">Sodiq o&apos;ylamoqda</span>
-                      <span className="flex gap-1.5">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"></span>
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                  <div className="flex justify-start">
+                    <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-2">
+                      <span className="text-xs text-slate-500">Sodiq yozmoqda</span>
+                      <span className="flex gap-1">
+                        {[0, 0.15, 0.3].map((d, i) => (
+                          <span key={i} className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{animationDelay: `${d}s`}}></span>
+                        ))}
                       </span>
                     </div>
                   </div>
                 )}
-                <div ref={chatEndRef} className="h-2" />
+                <div ref={chatEndRef} />
               </div>
 
-              {/* Chat Input form */}
-              <form onSubmit={sendChatMessage} className="p-3 sm:p-4 bg-white/90 backdrop-blur-xl border-t border-stone-200 flex gap-2 sm:gap-3 rounded-b-2xl md:rounded-b-3xl z-10 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]" id="chat_input_form">
+              {/* Input - always at bottom, keyboard pushes it up naturally via dvh */}
+              <form onSubmit={sendChatMessage} className="flex gap-2 px-3 py-2.5 bg-white border-t border-stone-200 shrink-0" id="chat_input_form">
                 <input
                   id="input_chat_text"
                   type="text"
                   value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="O'z his-tuyg'ularingiz bilan bo'lishing..."
-                  className="flex-1 bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 sm:py-3.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-800 font-medium transition shadow-inner"
+                  onChange={e => setChatInput(e.target.value)}
+                  placeholder="Xabar yozing..."
+                  autoComplete="off"
+                  className="flex-1 bg-stone-100 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/40 text-slate-800"
                 />
                 <button
                   id="btn_chat_send"
                   type="submit"
                   disabled={chatLoading || !chatInput.trim()}
-                  className="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 sm:px-5 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                  className="bg-emerald-600 disabled:opacity-40 text-white w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition shrink-0"
                 >
-                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline-block font-bold text-sm">Yuborish</span>
+                  <Send className="w-4 h-4" />
                 </button>
               </form>
             </div>
