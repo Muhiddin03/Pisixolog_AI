@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { jsPDF } from "jspdf";
 import { 
   Brain, 
   Heart, 
@@ -202,6 +203,9 @@ export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // --- UI STATE ---
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
   // --- STORAGE USAGE STATE ---
   const [storageUsage, setStorageUsage] = useState({ bytes: 0, percent: 0 });
 
@@ -225,9 +229,35 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (activeTab === 'settings') {
-      calculateStorage();
+    // Initial sync
+    calculateStorage();
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key?.startsWith('psixologik_')) {
+        calculateStorage();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // Mobile keyboard detection
+    const handleVisualViewportResize = () => {
+      if (window.visualViewport) {
+        const isShrunk = window.visualViewport.height < window.innerHeight - 150;
+        setIsKeyboardOpen(isShrunk);
+      }
+    };
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleVisualViewportResize);
+      // initial check
+      handleVisualViewportResize();
     }
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleVisualViewportResize);
+      }
+    };
   }, [activeTab, chatHistory, moodLogs, eyResult, pssResult]);
 
   // Auto-save effects
@@ -736,7 +766,7 @@ export default function App() {
 
   // Render different tabs
   return (
-    <div className="flex h-screen overflow-hidden bg-stone-50 text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900" id="app_root">
+    <div className="flex h-[100dvh] overflow-hidden bg-stone-50 text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900" id="app_root">
       
       {/* DESKTOP SIDEBAR */}
       {activeTab !== 'welcome' && (
@@ -808,7 +838,7 @@ export default function App() {
         )}
 
         {/* SCROLLABLE MAIN CONTENT */}
-        <main className="flex-1 overflow-y-auto w-full relative p-3 md:p-6 pb-24 md:pb-10 custom-scrollbar" id="main_content_container">
+        <main className={`flex-1 overflow-y-auto w-full relative p-3 md:p-6 ${isKeyboardOpen ? 'pb-2' : 'pb-24 md:pb-10'} custom-scrollbar`} id="main_content_container">
           <div className="max-w-4xl mx-auto">
           
           {/* TAB 0: WELCOME SCREEN */}
@@ -856,22 +886,22 @@ export default function App() {
 
           {/* TAB 0.5: FACE ANALYSIS */}
           {activeTab === 'face' && (
-            <div className="space-y-6 max-w-2xl mx-auto animate-slide-up" id="tab_face_view">
-              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-[60px] opacity-60"></div>
+            <div className="space-y-4 max-w-xl mx-auto animate-slide-up" id="tab_face_view">
+              <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100 rounded-full blur-[40px] opacity-60"></div>
                 
-                <div className="text-center space-y-3 mb-8 relative z-10">
-                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Camera className="w-8 h-8" />
+                <div className="text-center space-y-2 mb-4 relative z-10">
+                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Camera className="w-6 h-6" />
                   </div>
-                  <h2 className="font-display font-bold text-xl sm:text-2xl text-slate-900">Yuz Fiziognomikasi va Emotsiya</h2>
-                  <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Kameraga qarab turing. Sun'iy intellekt sizning yuz tuzilishingiz va mikroifodalaringiz orqali psixologik holatingizni tahlil qiladi. Rasm xotiraga saqlanmaydi!
+                  <h2 className="font-display font-bold text-lg text-slate-900">Yuz Fiziognomiyasi va Emotsiya</h2>
+                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Kameraga qarab turing. Sun'iy intellekt sizning yuz tuzilishingiz orqali psixologik holatingizni tahlil qiladi.
                   </p>
                 </div>
 
                 {/* Camera Container */}
-                <div className="relative w-full max-w-sm mx-auto aspect-square bg-slate-900 rounded-3xl overflow-hidden shadow-inner mb-6 border-4 border-stone-100">
+                <div className="relative w-full max-w-[200px] mx-auto aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner mb-4 border-2 border-stone-100">
                   {faceCameraActive ? (
                     <video 
                       ref={videoRef} 
@@ -881,9 +911,9 @@ export default function App() {
                       className="w-full h-full object-cover transform -scale-x-100"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 space-y-3 p-6 text-center">
-                      <Camera className="w-12 h-12 opacity-30" />
-                      <p className="text-xs font-medium">Tahlilni boshlash uchun kamerani yoqing</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 space-y-2 p-4 text-center">
+                      <Camera className="w-8 h-8 opacity-30" />
+                      <p className="text-[10px] font-medium leading-tight">Tahlilni boshlash uchun kamerani yoqing</p>
                     </div>
                   )}
 
@@ -946,17 +976,19 @@ export default function App() {
                       </h3>
                       <button 
                         onClick={() => {
-                          const blob = new Blob([faceResult], {type: "text/plain;charset=utf-8"});
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.txt`;
-                          a.click();
-                          URL.revokeObjectURL(url);
+                          const doc = new jsPDF();
+                          doc.setFont("helvetica", "bold");
+                          doc.setFontSize(16);
+                          doc.text("Psixolog AI - Yuz Tahlili", 20, 20);
+                          doc.setFont("helvetica", "normal");
+                          doc.setFontSize(12);
+                          const lines = doc.splitTextToSize(faceResult || "", 170);
+                          doc.text(lines, 20, 35);
+                          doc.save(`Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.pdf`);
                         }}
-                        className="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors"
+                        className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors"
                       >
-                        Yuklab olish
+                        PDF Yuklab olish
                       </button>
                     </div>
                     <div className="bg-stone-50 border border-stone-200 p-5 rounded-2xl text-sm text-slate-700 leading-relaxed whitespace-pre-line custom-scrollbar max-h-96 overflow-y-auto">
@@ -972,28 +1004,28 @@ export default function App() {
           {activeTab === 'tests' && (
             <div className="space-y-4 md:space-y-6" id="tab_tests_view">
               {/* Tests Sub-Navigation */}
-              <div className="flex bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full max-w-lg mx-auto shadow-inner border border-stone-200/50">
+              <div className="flex overflow-x-auto hide-scrollbar gap-2 bg-stone-100/80 p-1.5 rounded-2xl w-full max-w-2xl mx-auto shadow-inner border border-stone-200/50">
                 <button 
                   onClick={() => setTestsSubTab('eysenck')} 
-                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'eysenck' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                  className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${testsSubTab === 'eysenck' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
                 >
                   Temperament
                 </button>
                 <button 
                   onClick={() => setTestsSubTab('stress')} 
-                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'stress' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                  className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${testsSubTab === 'stress' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
                 >
                   Stress Testi
                 </button>
                 <button 
                   onClick={() => setTestsSubTab('color')} 
-                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'color' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                  className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${testsSubTab === 'color' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
                 >
                   Ranglar
                 </button>
                 <button 
                   onClick={() => setTestsSubTab('dashboard')} 
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'dashboard' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                  className={`flex-shrink-0 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${testsSubTab === 'dashboard' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
                 >
                   Natijalar {(eyResult || pssResult || colorResult) && <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>}
                 </button>
@@ -1399,9 +1431,9 @@ export default function App() {
         {activeTab === 'ai-chat' && (
           <div className="max-w-4xl mx-auto h-full animate-fade-in" id="tab_chat_view">
             {/* Chat Box Interface */}
-            <div className="glass-card rounded-2xl md:rounded-3xl flex flex-col h-[calc(100vh-170px)] sm:h-[calc(100vh-120px)] overflow-visible shadow-md relative" id="chat_box_interface">
+            <div className="glass-card rounded-2xl md:rounded-3xl flex flex-col h-[calc(100dvh-140px)] sm:h-[calc(100dvh-120px)] overflow-visible shadow-md relative" id="chat_box_interface">
               {/* Chat Header */}
-              <div className="bg-white/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex flex-wrap items-center justify-between z-20 rounded-t-2xl md:rounded-t-3xl" id="chat_header">
+              <div className="bg-white/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex flex-wrap items-center justify-between z-20 rounded-t-2xl md:rounded-t-3xl shrink-0" id="chat_header">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg relative shadow-md">
                     S
@@ -1531,28 +1563,28 @@ export default function App() {
         {activeTab === 'practices' && (
           <div className="max-w-2xl mx-auto space-y-6 w-full animate-slide-up">
             {/* Practices Sub-Navigation */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-1 sm:gap-2 bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full mx-auto shadow-inner border border-stone-200/50">
+            <div className="flex overflow-x-auto hide-scrollbar gap-2 bg-stone-100/80 p-1.5 rounded-2xl w-full mx-auto shadow-inner border border-stone-200/50">
               <button 
                 onClick={() => setPracticesSubTab('breathing')} 
-                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'breathing' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${practicesSubTab === 'breathing' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
                 Nafas Mashqi
               </button>
               <button 
                 onClick={() => setPracticesSubTab('shredder')} 
-                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'shredder' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${practicesSubTab === 'shredder' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
                 Xavotirni Parchalash
               </button>
               <button 
                 onClick={() => setPracticesSubTab('affirmations')} 
-                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'affirmations' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${practicesSubTab === 'affirmations' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
                 Afirmatsiyalar
               </button>
               <button 
                 onClick={() => setPracticesSubTab('gratitude')} 
-                className={`flex-1 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'gratitude' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                className={`flex-shrink-0 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 ${practicesSubTab === 'gratitude' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
                 Minnadorchilik
               </button>
@@ -1560,20 +1592,20 @@ export default function App() {
 
             {/* Breathing Exercise */}
             {practicesSubTab === 'breathing' && (
-              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_breathing_view">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-teal-50 to-emerald-50 rounded-full blur-[100px] opacity-60 pointer-events-none"></div>
-                <div className="space-y-4 relative z-10">
-                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Wind className="w-6 h-6" />
+              <div className="bg-white rounded-3xl p-5 sm:p-6 text-center space-y-4 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_breathing_view">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-gradient-to-br from-teal-50 to-emerald-50 rounded-full blur-[60px] opacity-60 pointer-events-none"></div>
+                <div className="space-y-2 relative z-10">
+                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Wind className="w-5 h-5" />
                   </div>
-                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Nafas Mashqi (4-7-8 Usuli)</h2>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Tinchlanish va stress gormonlarini kamaytirish uchun qadimiy hind yoga amaliyotiga asoslangan, ilmiy tasdiqlangan tinchlanish mashqi.
+                  <h2 className="font-display font-bold text-lg text-slate-900">Nafas Mashqi (4-7-8)</h2>
+                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Tinchlanish va stress gormonlarini kamaytirish uchun nafas mashqi.
                   </p>
                 </div>
 
                 {/* Breathing Animation Canvas */}
-                <div className="relative w-56 h-56 mx-auto flex items-center justify-center animate-float relative z-10" id="breathing_visualizer">
+                <div className="relative w-40 h-40 mx-auto flex items-center justify-center animate-float relative z-10 my-4" id="breathing_visualizer">
                   {/* Outer wave ripples */}
                   <div className={`absolute inset-0 rounded-full border-2 border-emerald-300/30 transition-all duration-1000 ${
                     breathingPhase === 'inhale' ? 'scale-125 opacity-100' : 'scale-90 opacity-0'
@@ -1585,26 +1617,26 @@ export default function App() {
                   {/* Breathing Ball */}
                   <div 
                     className={`rounded-full flex flex-col items-center justify-center text-slate-900 transition-all shadow-[0_0_40px_rgba(16,185,129,0.2)] ${
-                      breathingPhase === 'inhale' ? 'w-52 h-52 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
-                      breathingPhase === 'hold' ? 'w-52 h-52 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
-                      breathingPhase === 'exhale' ? 'w-32 h-32 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
-                      'w-32 h-32 bg-white border-2 border-emerald-100'
+                      breathingPhase === 'inhale' ? 'w-36 h-36 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
+                      breathingPhase === 'hold' ? 'w-36 h-36 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
+                      breathingPhase === 'exhale' ? 'w-24 h-24 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
+                      'w-24 h-24 bg-white border-2 border-emerald-100'
                     }`}
                     id="breathing_ball"
                   >
                     {breathingPhase === 'idle' ? (
-                      <div className="space-y-1.5" id="breath_idle_ui">
-                        <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Tayyormisiz?</p>
-                        <span className="font-bold text-slate-800 text-sm">Boshlash</span>
+                      <div className="space-y-1" id="breath_idle_ui">
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Tayyormisiz?</p>
+                        <span className="font-bold text-slate-800 text-xs">Boshlash</span>
                       </div>
                     ) : (
                       <div className="space-y-1" id="breath_active_ui">
-                        <p className="text-[10px] text-emerald-700 uppercase font-extrabold tracking-widest animate-pulse">
+                        <p className="text-[9px] text-emerald-700 uppercase font-extrabold tracking-widest animate-pulse">
                           {breathingPhase === 'inhale' ? "Nafas oling" :
                            breathingPhase === 'hold' ? "Nafasni ushlang" :
                            "Nafas chiqaring"}
                         </p>
-                        <span className="font-black text-4xl text-slate-900 block">{breathingTimer}s</span>
+                        <span className="font-black text-2xl text-slate-900 block">{breathingTimer}s</span>
                         <p className="text-[9px] text-slate-500">Sikl: {breathingCycles}</p>
                       </div>
                     )}
@@ -1612,95 +1644,98 @@ export default function App() {
                 </div>
 
                 {/* Control buttons */}
-                <div className="space-y-3" id="breathing_controls">
+                <div className="space-y-3 relative z-10 max-w-[200px] mx-auto" id="breathing_controls">
                   {breathingPhase === 'idle' ? (
                     <button
                       id="btn_start_breathing"
                       onClick={startBreathing}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer active:scale-98"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer active:scale-98 w-full"
                     >
-                      Mashqni boshlash
+                      Boshlash
                     </button>
                   ) : (
                     <button
                       id="btn_stop_breathing"
                       onClick={stopBreathing}
-                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-6 py-2.5 rounded-xl text-sm transition border border-rose-200 cursor-pointer active:scale-98"
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-6 py-2.5 rounded-xl text-sm transition border border-rose-200 cursor-pointer active:scale-98 w-full"
                     >
                       To'xtatish
                     </button>
                   )}
+                </div>
 
-                  {/* Instructions */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4" id="breathing_instruction_box">
-                    <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
-                      <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs mb-3">1</div>
-                      <span className="font-bold text-slate-800 block text-sm">Nafas olish (4s)</span>
-                      <p className="text-slate-500 text-xs">Burun orqali chuqur va xotirjam nafas oling.</p>
-                    </div>
-                    <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
-                      <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xs mb-3">2</div>
-                      <span className="font-bold text-slate-800 block text-sm">Ushlab turish (7s)</span>
-                      <p className="text-slate-500 text-xs">O'pkani to'ldirib, havoni ichkarida saqlang.</p>
-                    </div>
-                    <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
-                      <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs mb-3">3</div>
-                      <span className="font-bold text-slate-800 block text-sm">Chiqarish (8s)</span>
-                      <p className="text-slate-500 text-xs">Og'iz orqali sekin va ohista havoni chiqaring.</p>
-                    </div>
+                {/* Instructions Row */}
+                <div className="flex gap-2 justify-center pt-2 relative z-10" id="breathing_instruction_box">
+                  <div className="flex-1 bg-white p-2 rounded-xl border border-stone-100 shadow-sm">
+                    <span className="font-bold text-slate-800 block text-[10px]">1. Olish(4s)</span>
+                  </div>
+                  <div className="flex-1 bg-white p-2 rounded-xl border border-stone-100 shadow-sm">
+                    <span className="font-bold text-slate-800 block text-[10px]">2. Ushlash(7s)</span>
+                  </div>
+                  <div className="flex-1 bg-white p-2 rounded-xl border border-stone-100 shadow-sm">
+                    <span className="font-bold text-slate-800 block text-[10px]">3. Chiqarish(8s)</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Worry Shredder */}
+            {/* Anxiety Shredder */}
             {practicesSubTab === 'shredder' && (
-              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-6 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_shredder_view">
-                <div className="space-y-4 relative z-10">
-                  <div className="bg-gradient-to-br from-rose-100 to-orange-100 text-rose-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Brain className="w-6 h-6" />
+              <div className="bg-white rounded-3xl p-5 sm:p-6 text-center space-y-4 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_shredder_view">
+                <div className="space-y-2 relative z-10">
+                  <div className="bg-gradient-to-br from-rose-100 to-orange-100 text-rose-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Trash2 className="w-5 h-5" />
                   </div>
-                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Xavotirni Parchalash</h2>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Sizni qiynayotgan, xavotirga solayotgan yoki siqayotgan o&apos;ylarni quyiga yozing va ularni ruhiy jihatdan yo&apos;q qiling. Ushbu usul kognitiv-bixevioral terapiyada salbiy o&apos;ylarni kognitiv ajratish uchun ishlatiladi.
+                  <h2 className="font-display font-bold text-lg text-slate-900">Xavotirni Parchalash</h2>
+                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Sizni qiynayotgan xavotirlarni yozing va parchalab tashlang.
                   </p>
                 </div>
 
-                <div className="relative max-w-sm mx-auto mt-6">
-                  <textarea
-                    value={worryText}
-                    onChange={(e) => setWorryText(e.target.value)}
-                    disabled={isShredding}
-                    placeholder="Sizni nima o'ylantiryapti? Bu yerga yozing..."
-                    className={`w-full min-h-[120px] p-4 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-rose-200 focus:border-rose-300 outline-none resize-none transition-all bg-white relative z-10 shadow-sm ${
-                      isShredding ? 'animate-vibrate opacity-0 transition-opacity duration-500 delay-300' : ''
-                    }`}
-                  ></textarea>
+                <div className="relative max-w-sm mx-auto mt-4" id="shredder_machine">
+                  {/* Paper to be shredded */}
+                  <div className={`transition-all duration-1000 ease-in-out origin-top
+                    ${isShredding ? 'translate-y-24 opacity-0 scale-y-0' : 'translate-y-0 opacity-100 scale-y-100'}
+                  `}>
+                    <textarea
+                      value={worryText}
+                      onChange={(e) => setWorryText(e.target.value)}
+                      disabled={isShredding}
+                      placeholder="Men ...dan xavotirdaman."
+                      className="w-full h-24 p-4 rounded-xl border border-stone-200 bg-[#fffaeb] text-stone-800 text-sm shadow-inner focus:outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-200 transition-all resize-none custom-scrollbar"
+                    />
+                  </div>
 
-                  {/* Shredder effect overlay */}
+                  {/* Shredder Machine visual */}
+                  <div className="absolute bottom-[-10px] left-0 right-0 h-8 bg-slate-800 rounded-lg shadow-lg flex items-center justify-center border-t-4 border-slate-900 overflow-hidden z-20">
+                    <div className="w-3/4 h-1 bg-black rounded-full opacity-50"></div>
+                  </div>
+
+                  {/* Confetti after shredding */}
                   {isShredding && (
-                    <div className="absolute top-0 left-0 w-full h-full flex flex-wrap justify-center items-center pointer-events-none z-20 overflow-visible">
-                      {[...Array(60)].map((_, i) => {
-                        const rx = (Math.random() - 0.5) * 800 + "px";
-                        const ry = (Math.random() - 0.5) * 800 + "px";
-                        const rr = (Math.random() - 0.5) * 1080 + "deg";
-                        const delay = Math.random() * 0.2;
-                        const colors = ['bg-rose-400', 'bg-emerald-400', 'bg-sky-400', 'bg-amber-400', 'bg-purple-400', 'bg-white', 'bg-slate-200'];
+                    <div className="absolute -bottom-10 left-0 right-0 h-32 pointer-events-none z-10 flex justify-center">
+                      {[...Array(20)].map((_, i) => {
+                        const rx = (Math.random() - 0.5) * 200;
+                        const ry = (Math.random() - 0.5) * 100;
+                        const rr = Math.random() * 360;
+                        const delay = Math.random() * 0.5;
+                        const colors = ['bg-rose-400', 'bg-orange-300', 'bg-amber-200', 'bg-slate-300'];
                         const color = colors[Math.floor(Math.random() * colors.length)];
-                        const width = Math.random() * 8 + 4 + "px";
-                        const height = Math.random() * 16 + 8 + "px";
+                        const width = 4 + Math.random() * 6;
+                        const height = 8 + Math.random() * 12;
+                        
                         return (
                           <div 
-                            key={i} 
-                            className={`absolute ${color} rounded-sm shadow-sm animate-shred`}
+                            key={i}
+                            className={`absolute ${color} rounded-sm animate-confetti`}
                             style={{ 
-                              width,
+                              width, 
                               height,
                               left: '50%',
                               top: '50%',
-                              '--scatter-x': rx,
-                              '--scatter-y': ry,
-                              '--scatter-r': rr,
+                              '--scatter-x': rx + "px",
+                              '--scatter-y': ry + "px",
+                              '--scatter-r': rr + "deg",
                               animationDelay: `${delay}s` 
                             } as React.CSSProperties}
                           ></div>
@@ -1710,18 +1745,18 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="mt-6 max-w-sm mx-auto">
+                <div className="mt-4 max-w-sm mx-auto z-20 relative">
                   {shredderMessage ? (
-                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-700 text-sm font-semibold flex items-center justify-center gap-2 animate-slide-up">
-                      <Check className="w-5 h-5" /> {shredderMessage}
+                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-700 text-xs font-semibold flex items-center justify-center gap-2 animate-slide-up">
+                      <Check className="w-4 h-4" /> {shredderMessage}
                     </div>
                   ) : (
                     <button
                       onClick={handleShredWorry}
                       disabled={!worryText.trim() || isShredding}
-                      className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
+                      className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
                     >
-                      <Trash2 className="w-4 h-4" /> Parchalab Yo&apos;q Qilish
+                      <Trash2 className="w-4 h-4" /> Yo'q Qilish
                     </button>
                   )}
                 </div>
@@ -1730,29 +1765,28 @@ export default function App() {
 
             {/* Affirmations */}
             {practicesSubTab === 'affirmations' && (
-              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_affirmations_view">
-                <div className="space-y-4 relative z-10">
-                  <div className="bg-gradient-to-br from-amber-100 to-yellow-50 text-amber-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Star className="w-6 h-6" />
+              <div className="bg-white rounded-3xl p-5 sm:p-6 text-center space-y-4 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_affirmations_view">
+                <div className="space-y-2 relative z-10">
+                  <div className="bg-gradient-to-br from-amber-100 to-yellow-50 text-amber-600 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Star className="w-5 h-5" />
                   </div>
-                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Kunlik Afirmatsiyalar</h2>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Miyangizni ijobiy o&apos;ylarga dasturlash uchun quyidagi so&apos;zlarni ovoz chiqarib o&apos;qing. Bu sizga o&apos;z-o&apos;zingizga ishonchni tiklashga yordam beradi.
+                  <h2 className="font-display font-bold text-lg text-slate-900">Kunlik Afirmatsiyalar</h2>
+                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Ovoz chiqarib o'qib, o'zingizga ishonchni oshiring.
                   </p>
                 </div>
 
-                <div className="relative max-w-md mx-auto min-h-[160px] flex items-center justify-center p-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100/50 rounded-3xl shadow-sm group">
-                  <p className="text-lg sm:text-xl font-bold text-slate-800 leading-snug">
+                <div className="relative max-w-sm mx-auto min-h-[120px] flex items-center justify-center p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100/50 rounded-2xl shadow-sm group">
+                  <p className="text-sm sm:text-base font-bold text-slate-800 leading-snug">
                     {currentAffirmation || "Afirmatsiyani olish uchun pastdagi tugmani bosing!"}
                   </p>
                 </div>
 
-                <div className="max-w-xs mx-auto">
+                <div className="max-w-[200px] mx-auto">
                   <button
                     onClick={() => setCurrentAffirmation(AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)])}
-                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3.5 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2 active:scale-95"
-                  >
-                    <RefreshCw className="w-4 h-4" /> Yangi Afirmatsiya
+                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2 active:scale-95"
+                    <RefreshCw className="w-3.5 h-3.5" /> Yangi Afirmatsiya
                   </button>
                 </div>
               </div>
@@ -1760,21 +1794,21 @@ export default function App() {
 
             {/* Gratitude Journal */}
             {practicesSubTab === 'gratitude' && (
-              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-6 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_gratitude_view">
-                <div className="space-y-4 relative z-10">
-                  <div className="bg-gradient-to-br from-pink-100 to-rose-50 text-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Heart className="w-6 h-6 fill-pink-200" />
+              <div className="bg-white rounded-3xl p-5 sm:p-6 text-center space-y-4 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_gratitude_view">
+                <div className="space-y-2 relative z-10">
+                  <div className="bg-gradient-to-br from-pink-100 to-rose-50 text-pink-600 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Heart className="w-5 h-5 fill-pink-200" />
                   </div>
-                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Minnadorchilik Kundaligi</h2>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Bugun qaysi 3 ta narsa uchun xursandsiz? Minnadorchilik yozish miyani baxtli bo&apos;lishga va tushkunlikni yengishga o&apos;rgatadi.
+                  <h2 className="font-display font-bold text-lg text-slate-900">Minnadorchilik Kundaligi</h2>
+                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Bugun qaysi 3 ta narsa uchun xursandsiz? Minnadorchilik tushkunlikni yengishga yordam beradi.
                   </p>
                 </div>
 
-                <div className="max-w-md mx-auto space-y-3 mt-4 text-left">
+                <div className="max-w-sm mx-auto space-y-2 mt-4 text-left">
                   {[0, 1, 2].map((index) => (
-                    <div key={index} className="flex gap-3 items-start">
-                      <div className="w-8 h-8 rounded-full bg-pink-100 text-pink-600 font-bold flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                    <div key={index} className="flex gap-2 items-start">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-pink-100 text-pink-600 font-bold flex items-center justify-center shrink-0 mt-1 sm:mt-0 shadow-sm text-xs sm:text-sm">
                         {index + 1}
                       </div>
                       <input
@@ -1787,16 +1821,16 @@ export default function App() {
                           setGratitudeSaved(false);
                         }}
                         placeholder="Men shuning uchun minnadorman..."
-                        className="flex-1 p-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 transition-all bg-stone-50"
+                        className="flex-1 p-2 sm:p-3 rounded-xl border border-stone-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 transition-all bg-stone-50"
                       />
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 max-w-sm mx-auto">
+                <div className="mt-4 max-w-sm mx-auto">
                   {gratitudeSaved ? (
-                    <div className="p-4 bg-pink-50 rounded-xl border border-pink-100 text-pink-700 text-sm font-semibold flex items-center justify-center gap-2 animate-slide-up">
-                      <Check className="w-5 h-5" /> Saqlandi! Bugun ajoyib kun bo&apos;ladi.
+                    <div className="p-3 bg-pink-50 rounded-xl border border-pink-100 text-pink-700 text-xs font-semibold flex items-center justify-center gap-2 animate-slide-up">
+                      <Check className="w-4 h-4" /> Saqlandi!
                     </div>
                   ) : (
                     <button
@@ -1805,7 +1839,7 @@ export default function App() {
                           setGratitudeSaved(true);
                         }
                       }}
-                      className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
+                      className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
                     >
                       <Heart className="w-4 h-4" /> Kundalikni Saqlash
                     </button>
@@ -2261,7 +2295,7 @@ export default function App() {
         </main>
 
         {/* MOBILE BOTTOM NAVIGATION */}
-        {activeTab !== 'welcome' && (
+        {activeTab !== 'welcome' && !isKeyboardOpen && (
           <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-200 pb-safe z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]" id="mobile_bottom_nav">
           <div className="flex items-center justify-around p-1.5 px-2">
             <button onClick={() => setActiveTab('tests')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`}>
