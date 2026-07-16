@@ -24,7 +24,8 @@ import {
   Award, 
   PhoneCall,
   Key,
-  ChevronDown
+  ChevronDown,
+  Trash2
 } from 'lucide-react';
 
 // Scientific Eysenck Temperament Inventory questions
@@ -77,6 +78,17 @@ const PSS_QUESTIONS: PssQuestion[] = [
   { id: 10, text: "Oxirgi bir oy davomida qiyinchiliklar shunchalik ko'payib ketganidan, ularni yengib o'tolmaydigandek qanchalik tez-tez his qildingiz?", isReversed: false }
 ];
 
+const LUSCHER_COLORS = [
+  { id: 'blue', color: 'bg-blue-600', name: 'Ko\'k' },
+  { id: 'green', color: 'bg-emerald-600', name: 'Yashil' },
+  { id: 'red', color: 'bg-red-600', name: 'Qizil' },
+  { id: 'yellow', color: 'bg-yellow-400', name: 'Sariq' },
+  { id: 'violet', color: 'bg-purple-600', name: 'Binafsha' },
+  { id: 'brown', color: 'bg-amber-800', name: 'Jigarrang' },
+  { id: 'black', color: 'bg-slate-900', name: 'Qora' },
+  { id: 'gray', color: 'bg-slate-400', name: 'Kulrang' },
+];
+
 interface MoodLog {
   id: string;
   date: string;
@@ -87,10 +99,11 @@ interface MoodLog {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'breathing' | 'mood' | 'info'>('tests');
-  const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'dashboard'>('eysenck');
+  const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'practices' | 'mood' | 'info'>('tests');
+  const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
+  const [practicesSubTab, setPracticesSubTab] = useState<'breathing' | 'shredder'>('breathing');
 
   // --- EYSENCK TEST STATE ---
   const [eyQuestionIndex, setEyQuestionIndex] = useState(0);
@@ -149,6 +162,15 @@ export default function App() {
   const [breathingPhase, setBreathingPhase] = useState<'idle' | 'inhale' | 'hold' | 'exhale'>('idle');
   const [breathingTimer, setBreathingTimer] = useState(0);
   const [breathingCycles, setBreathingCycles] = useState(0);
+
+  // --- COLOR TEST STATE ---
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [colorResult, setColorResult] = useState<string | null>(null);
+
+  // --- WORRY SHREDDER STATE ---
+  const [worryText, setWorryText] = useState('');
+  const [isShredding, setIsShredding] = useState(false);
+  const [shredderMessage, setShredderMessage] = useState('');
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -274,7 +296,6 @@ export default function App() {
         advice = "Diqqat, sizda yuqori stress darajasi aniqlandi. Ruhiy yuklamangiz o'ta kuchli bo'lib, hayotingiz va sog'ligingizga ta'sir qilishi mumkin. Shoshilinch ravishda yuklamalarni kamaytiring, yaqinlaringizdan yordam so'rang, nafas olish mashqlarini bajaring va professional mutaxassis yoki 1003 ishonch raqami bilan bog'lanish haqida o'ylang.";
         color = 'text-rose-600 bg-rose-50 border-rose-200';
       }
-
       const resObj = { score: totalScore, level, advice, color };
       setPssResult(resObj);
       setPssCompleted(true);
@@ -288,6 +309,51 @@ export default function App() {
     setPssCompleted(false);
     setPssResult(null);
     localStorage.removeItem('psixologik_pss_result');
+  };
+
+  // --- COLOR TEST LOGIC ---
+  const handleColorSelect = (colorId: string) => {
+    if (selectedColors.includes(colorId)) return;
+    
+    const newColors = [...selectedColors, colorId];
+    setSelectedColors(newColors);
+
+    if (newColors.length === 3) {
+      // Generate result based on the primary color (first choice).
+      const primary = newColors[0];
+      
+      let resultText = '';
+      if (primary === 'blue') resultText = "Siz hozirda tinchlik, xotirjamlik va o'zaro tushunishga muhtojsiz. Atrofdagi shovqinlardan charchagansiz va ruhiy dam olishni xohlaysiz.";
+      else if (primary === 'green') resultText = "Sizda hozir o'z qadr-qimmatingizni his qilish, mustaqillik va muvaffaqiyatga erishish ehtiyoji kuchli. O'zingizni tasdiqlashni istayapsiz.";
+      else if (primary === 'red') resultText = "Siz g'ayratga to'lasiz. Harakat qilish, qiyinchiliklarni yengish va natijalarga erishish istagi yuqori. Biroq, biroz asabiy zo'riqish ham bo'lishi mumkin.";
+      else if (primary === 'yellow') resultText = "Siz kelajakka umid bilan qarayapsiz. Yangiliklarni kutish, o'zgarishlar va erkinlikka intilish kayfiyatidasiz. Hayotingizda yorqinlik yetishmayapti.";
+      else if (primary === 'violet') resultText = "Sizda hozir biroz hayolparastlik va sehrli/mo'jizaviy narsalarga ishonish kayfiyati bor. Reallikdan biroz qochish va o'z orzularingiz dunyosida yashashni xohlaysiz.";
+      else if (primary === 'brown') resultText = "Sizga jismoniy qulaylik, xavfsizlik va g'amxo'rlik juda zarur. Stress yoki kasallikdan charchagan bo'lishingiz va iliqlik izlayotgan bo'lishingiz mumkin.";
+      else if (primary === 'black') resultText = "Sizda hozir qandaydir norozilik, isyon yoki reallikni inkor etish holati ustun. Hamma narsani o'zgartirishni yoki muammolardan qochishni xohlayapsiz.";
+      else if (primary === 'gray') resultText = "Siz o'zingizni tashqi ta'sirlardan himoya qilmoqchisiz. Mas'uliyatdan qochish, 'ko'rinmas' bo'lish va hech narsaga aralashmaslikni afzal ko'ryapsiz.";
+
+      resultText += " (Ushbu xulosa psixologik Luscher metodikasi asosida sizning hozirgi hissiy holatingizni ifodalaydi).";
+      setColorResult(resultText);
+    }
+  };
+
+  const resetColorTest = () => {
+    setSelectedColors([]);
+    setColorResult(null);
+  };
+
+  // --- WORRY SHREDDER LOGIC ---
+  const handleShredWorry = () => {
+    if (!worryText.trim()) return;
+    setIsShredding(true);
+    setTimeout(() => {
+      setWorryText('');
+      setShredderMessage("Xavotir parchalandi! Bu endi sizga zarar bera olmaydi.");
+      setTimeout(() => {
+        setIsShredding(false);
+        setShredderMessage('');
+      }, 3000);
+    }, 1500); // 1.5s shredding animation
   };
 
   // --- AI CHAT LOGIC ---
@@ -525,10 +591,12 @@ export default function App() {
             <Activity className="w-5 h-5" /> <span>Testlar</span>
           </button>
           <button onClick={() => setActiveTab('ai-chat')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'ai-chat' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <MessageSquare className="w-5 h-5" /> <span>AI Sodiq</span>
+            <MessageSquare className={`w-5 h-5 ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`} />
+            Ruhshunos bilan Chat
           </button>
-          <button onClick={() => setActiveTab('breathing')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'breathing' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <Wind className="w-5 h-5" /> <span>Nafas mashqi</span>
+          <button onClick={() => setActiveTab('practices')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'practices' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <Wind className={`w-5 h-5 ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`} />
+            Amaliyotlar
           </button>
           <button onClick={() => setActiveTab('mood')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'mood' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
             <Smile className="w-5 h-5" /> <span>Kundalik</span>
@@ -551,7 +619,7 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 bg-stone-50/30 relative">
         
         {/* MOBILE HEADER */}
-        <header className="md:hidden flex items-center justify-between p-3 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
+        <header className="md:hidden flex items-center justify-between p-6 sm:p-5 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
           <div className="flex items-center gap-2">
             <div className="bg-emerald-600 text-white p-1.5 rounded-lg shadow-xs">
               <Brain className="w-4 h-4" />
@@ -585,17 +653,23 @@ export default function App() {
                   Stress Testi
                 </button>
                 <button 
+                  onClick={() => setTestsSubTab('color')} 
+                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'color' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                >
+                  Ranglar
+                </button>
+                <button 
                   onClick={() => setTestsSubTab('dashboard')} 
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'dashboard' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
                 >
-                  Natijalar {(eyResult || pssResult) && <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>}
+                  Natijalar {(eyResult || pssResult || colorResult) && <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>}
                 </button>
               </div>
 
             {/* Top diagnostic state */}
             {testsSubTab === 'dashboard' && (
-              <div className="animate-fade-in">
-              {(eyResult || pssResult) ? (
+              <div className="animate-fade-in space-y-6">
+              {(eyResult || pssResult || colorResult) ? (
               <div className="bg-white border border-stone-200/80 rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-sm space-y-6" id="diagnostic_dashboard">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
                   <div className="flex items-center gap-2.5">
@@ -668,6 +742,16 @@ export default function App() {
                   )}
                 </div>
 
+                {/* Color Test Summary */}
+                {colorResult && (
+                  <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-3">
+                     <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Ranglar Psixologiyasi</span>
+                     </div>
+                     <p className="text-sm text-slate-700 leading-relaxed">{colorResult}</p>
+                  </div>
+                )}
+
                 {/* Eysenck Coordinate Grid Plotting (Only if Eysenck completed) */}
                 {eyResult && (
                   <div className="p-6 bg-stone-50 rounded-2xl border border-stone-200/40" id="coordinate_grid_box">
@@ -705,17 +789,17 @@ export default function App() {
                         ></div>
                       </div>
 
-                      <div className="text-xs space-y-2 max-w-sm">
-                        <p className="font-semibold text-slate-700">Grafikni o&apos;qish:</p>
-                        <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
-                          <li><strong>X o&apos;qi (Ekstraversiya):</strong> O&apos;ng tomonga siljigan sari ochiqlik va muloqotga kirishuvchanlik oshadi.</li>
-                          <li><strong>Y o&apos;qi (Neyrotizm):</strong> Yuqoriga siljigan sari hissiyotlar ta&apos;sirchanligi va asabiylik darajasi oshadi.</li>
-                          <li>Yashil nuqta sizning asab tizimingizning boshqa odamlar bilan solishtirgandagi aniq pozitsiyasini ifodalaydi.</li>
-                        </ul>
-                      </div>
                     </div>
                   </div>
                 )}
+
+                <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 flex items-start gap-3 mt-4">
+                  <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    <strong>Muhim eslatma (Tibbiy disclaimer):</strong> Ushbu testlar shaxsiy psixologik tahlil uchun mo'ljallangan va professional tibbiy yoki klinik tashxis hisoblanmaydi. Agar siz o'zingizda jiddiy tushkunlik, kuchli stress yoki nevroz holatlarini sezsangiz mutaxassis psixoterapevtga murojaat qilishni tavsiya qilamiz.
+                  </p>
+                </div>
+
               </div>
               ) : (
                 <div className="text-center p-10 bg-white rounded-3xl border border-stone-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] max-w-2xl mx-auto">
@@ -914,6 +998,66 @@ export default function App() {
                 </div>
               </div>
               )}
+              {/* COLOR PSYCHOLOGY TEST INTERFACE */}
+              {testsSubTab === 'color' && (
+              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 animate-fade-in" id="color_test_card">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-100/80 to-purple-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-purple-500"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 p-2.5 rounded-xl shadow-sm border border-blue-100/50">
+                      <Compass className="w-5 h-5" />
+                    </div>
+                    <h2 className="font-display font-bold text-base sm:text-lg text-slate-900">3. Ranglar Psixologiyasi Testi</h2>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed">
+                    Ushbu test Maks Lyusher (Max Lüscher) uslubiga asoslangan bo&apos;lib, sizning yashirin ruhiy va hissiy ehtiyojlaringizni aniqlab beradi. Iltimos, o&apos;ylamasdan hozirgi vaqtda o&apos;zingizga eng yoqadigan uchta rangni ketma-ket tanlang.
+                  </p>
+
+                  {!colorResult ? (
+                    <div className="space-y-4 pt-1" id="color_question_area">
+                      {/* Status */}
+                      <div className="flex justify-between text-xs font-semibold text-slate-600 mb-2">
+                        <span>Tanlangan ranglar: {selectedColors.length} / 3</span>
+                      </div>
+
+                      {/* Color grid */}
+                      <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-2">
+                        {LUSCHER_COLORS.map(colorObj => {
+                          const isSelected = selectedColors.includes(colorObj.id);
+                          return (
+                            <button
+                              key={colorObj.id}
+                              onClick={() => handleColorSelect(colorObj.id)}
+                              disabled={isSelected}
+                              className={`w-full aspect-square rounded-2xl ${colorObj.color} flex flex-col items-center justify-center transition-all duration-300 shadow-sm
+                                ${isSelected ? 'opacity-20 scale-95 ring-2 ring-offset-2 ring-slate-400' : 'hover:scale-105 hover:shadow-md hover:ring-2 hover:ring-offset-2 hover:ring-emerald-400 cursor-pointer'}
+                              `}
+                            >
+                               {isSelected && <Check className="w-6 h-6 text-white" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 pt-2" id="color_finished_area">
+                      <div className="flex flex-col gap-3 p-4 rounded-2xl bg-blue-50/50 border border-blue-100 text-sm text-slate-700 leading-relaxed">
+                        <strong className="text-slate-900">Natija:</strong>
+                        {colorResult}
+                      </div>
+                      <button 
+                        onClick={resetColorTest}
+                        className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition pt-2"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Qaytadan tanlash</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              )}
             </div>
           </div>
         )}
@@ -1075,100 +1219,163 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: DEEP BREATHING EXERCISE */}
-        {activeTab === 'breathing' && (
-          <div className="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-slide-up relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_breathing_view">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-teal-50 to-emerald-50 rounded-full blur-[100px] opacity-60 pointer-events-none"></div>
-            <div className="space-y-4 relative z-10">
-              <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                <Wind className="w-6 h-6" />
-              </div>
-              <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Nafas Mashqi (4-7-8 Usuli)</h2>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                Tinchlanish va stress gormonlarini kamaytirish uchun qadimiy hind yoga amaliyotiga asoslangan, ilmiy tasdiqlangan tinchlanish mashqi.
-              </p>
-            </div>
-
-            {/* Breathing Animation Canvas */}
-            <div className="relative w-56 h-56 mx-auto flex items-center justify-center animate-float relative z-10" id="breathing_visualizer">
-              {/* Outer wave ripples */}
-              <div className={`absolute inset-0 rounded-full border-2 border-emerald-300/30 transition-all duration-1000 ${
-                breathingPhase === 'inhale' ? 'scale-125 opacity-100' : 'scale-90 opacity-0'
-              }`}></div>
-              <div className={`absolute inset-0 rounded-full border border-teal-300/40 transition-all duration-1000 delay-150 ${
-                breathingPhase === 'inhale' ? 'scale-110 opacity-100' : 'scale-90 opacity-0'
-              }`}></div>
-
-              {/* Breathing Ball */}
-              <div 
-                className={`rounded-full flex flex-col items-center justify-center text-slate-900 transition-all shadow-[0_0_40px_rgba(16,185,129,0.2)] ${
-                  breathingPhase === 'inhale' ? 'w-52 h-52 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
-                  breathingPhase === 'hold' ? 'w-52 h-52 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
-                  breathingPhase === 'exhale' ? 'w-32 h-32 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
-                  'w-32 h-32 bg-white border-2 border-emerald-100'
-                }`}
-                id="breathing_ball"
+        {/* TAB 3: PRACTICES */}
+        {activeTab === 'practices' && (
+          <div className="max-w-2xl mx-auto space-y-6 w-full animate-slide-up">
+            {/* Practices Sub-Navigation */}
+            <div className="flex bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full mx-auto shadow-inner border border-stone-200/50">
+              <button 
+                onClick={() => setPracticesSubTab('breathing')} 
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'breathing' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
               >
-                {breathingPhase === 'idle' ? (
-                  <div className="space-y-1.5" id="breath_idle_ui">
-                    <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Tayyormisiz?</p>
-                    <span className="font-bold text-slate-800 text-sm">Boshlash</span>
-                  </div>
-                ) : (
-                  <div className="space-y-1" id="breath_active_ui">
-                    <p className="text-[10px] text-emerald-700 uppercase font-extrabold tracking-widest animate-pulse">
-                      {breathingPhase === 'inhale' ? "Nafas oling" :
-                       breathingPhase === 'hold' ? "Nafasni ushlang" :
-                       "Nafas chiqaring"}
-                    </p>
-                    <span className="font-black text-4xl text-slate-900 block">{breathingTimer}s</span>
-                    <p className="text-[9px] text-slate-500">Sikl: {breathingCycles}</p>
-                  </div>
-                )}
-              </div>
+                Nafas Mashqi
+              </button>
+              <button 
+                onClick={() => setPracticesSubTab('shredder')} 
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${practicesSubTab === 'shredder' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+              >
+                Xavotirni Parchalash
+              </button>
             </div>
 
-            {/* Control buttons */}
-            <div className="space-y-3" id="breathing_controls">
-              {breathingPhase === 'idle' ? (
-                <button
-                  id="btn_start_breathing"
-                  onClick={startBreathing}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer active:scale-98"
-                >
-                  Mashqni boshlash
-                </button>
-              ) : (
-                <button
-                  id="btn_stop_breathing"
-                  onClick={stopBreathing}
-                  className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-6 py-2.5 rounded-xl text-sm transition border border-rose-200 cursor-pointer active:scale-98"
-                >
-                  To&apos;xtatish
-                </button>
-              )}
+            {/* Breathing Exercise */}
+            {practicesSubTab === 'breathing' && (
+              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_breathing_view">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-teal-50 to-emerald-50 rounded-full blur-[100px] opacity-60 pointer-events-none"></div>
+                <div className="space-y-4 relative z-10">
+                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Wind className="w-6 h-6" />
+                  </div>
+                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Nafas Mashqi (4-7-8 Usuli)</h2>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Tinchlanish va stress gormonlarini kamaytirish uchun qadimiy hind yoga amaliyotiga asoslangan, ilmiy tasdiqlangan tinchlanish mashqi.
+                  </p>
+                </div>
 
-              {/* Instructions */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4" id="breathing_instruction_box">
-                <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs mb-3">1</div>
-                  <span className="font-bold text-slate-800 block text-sm">Nafas olish (4s)</span>
-                  <p className="text-slate-500 text-xs">Burun orqali chuqur va xotirjam nafas oling.</p>
+                {/* Breathing Animation Canvas */}
+                <div className="relative w-56 h-56 mx-auto flex items-center justify-center animate-float relative z-10" id="breathing_visualizer">
+                  {/* Outer wave ripples */}
+                  <div className={`absolute inset-0 rounded-full border-2 border-emerald-300/30 transition-all duration-1000 ${
+                    breathingPhase === 'inhale' ? 'scale-125 opacity-100' : 'scale-90 opacity-0'
+                  }`}></div>
+                  <div className={`absolute inset-0 rounded-full border border-teal-300/40 transition-all duration-1000 delay-150 ${
+                    breathingPhase === 'inhale' ? 'scale-110 opacity-100' : 'scale-90 opacity-0'
+                  }`}></div>
+
+                  {/* Breathing Ball */}
+                  <div 
+                    className={`rounded-full flex flex-col items-center justify-center text-slate-900 transition-all shadow-[0_0_40px_rgba(16,185,129,0.2)] ${
+                      breathingPhase === 'inhale' ? 'w-52 h-52 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
+                      breathingPhase === 'hold' ? 'w-52 h-52 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
+                      breathingPhase === 'exhale' ? 'w-32 h-32 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
+                      'w-32 h-32 bg-white border-2 border-emerald-100'
+                    }`}
+                    id="breathing_ball"
+                  >
+                    {breathingPhase === 'idle' ? (
+                      <div className="space-y-1.5" id="breath_idle_ui">
+                        <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Tayyormisiz?</p>
+                        <span className="font-bold text-slate-800 text-sm">Boshlash</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-1" id="breath_active_ui">
+                        <p className="text-[10px] text-emerald-700 uppercase font-extrabold tracking-widest animate-pulse">
+                          {breathingPhase === 'inhale' ? "Nafas oling" :
+                           breathingPhase === 'hold' ? "Nafasni ushlang" :
+                           "Nafas chiqaring"}
+                        </p>
+                        <span className="font-black text-4xl text-slate-900 block">{breathingTimer}s</span>
+                        <p className="text-[9px] text-slate-500">Sikl: {breathingCycles}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
-                  <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xs mb-3">2</div>
-                  <span className="font-bold text-slate-800 block text-sm">Ushlab turish (7s)</span>
-                  <p className="text-slate-500 text-xs">O&apos;pkani to&apos;ldirib, havoni ichkarida saqlang.</p>
-                </div>
-                <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs mb-3">3</div>
-                  <span className="font-bold text-slate-800 block text-sm">Chiqarish (8s)</span>
-                  <p className="text-slate-500 text-xs">Og&apos;iz orqali sekin va ohista havoni chiqaring.</p>
+
+                {/* Control buttons */}
+                <div className="space-y-3" id="breathing_controls">
+                  {breathingPhase === 'idle' ? (
+                    <button
+                      id="btn_start_breathing"
+                      onClick={startBreathing}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer active:scale-98"
+                    >
+                      Mashqni boshlash
+                    </button>
+                  ) : (
+                    <button
+                      id="btn_stop_breathing"
+                      onClick={stopBreathing}
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-6 py-2.5 rounded-xl text-sm transition border border-rose-200 cursor-pointer active:scale-98"
+                    >
+                      To'xtatish
+                    </button>
+                  )}
+
+                  {/* Instructions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4" id="breathing_instruction_box">
+                    <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
+                      <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs mb-3">1</div>
+                      <span className="font-bold text-slate-800 block text-sm">Nafas olish (4s)</span>
+                      <p className="text-slate-500 text-xs">Burun orqali chuqur va xotirjam nafas oling.</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
+                      <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xs mb-3">2</div>
+                      <span className="font-bold text-slate-800 block text-sm">Ushlab turish (7s)</span>
+                      <p className="text-slate-500 text-xs">O'pkani to'ldirib, havoni ichkarida saqlang.</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-2 hover:shadow-md transition">
+                      <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs mb-3">3</div>
+                      <span className="font-bold text-slate-800 block text-sm">Chiqarish (8s)</span>
+                      <p className="text-slate-500 text-xs">Og'iz orqali sekin va ohista havoni chiqaring.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Worry Shredder */}
+            {practicesSubTab === 'shredder' && (
+              <div className="bg-white rounded-3xl p-6 sm:p-10 text-center space-y-6 animate-fade-in relative overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100" id="tab_shredder_view">
+                <div className="space-y-4 relative z-10">
+                  <div className="bg-gradient-to-br from-rose-100 to-orange-100 text-rose-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Brain className="w-6 h-6" />
+                  </div>
+                  <h2 className="font-display font-bold text-lg sm:text-xl md:text-2xl text-slate-900">Xavotirni Parchalash</h2>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Sizni qiynayotgan, xavotirga solayotgan yoki siqayotgan o&apos;ylarni quyiga yozing va ularni ruhiy jihatdan yo&apos;q qiling. Ushbu usul kognitiv-bixevioral terapiyada salbiy o&apos;ylarni kognitiv ajratish uchun ishlatiladi.
+                  </p>
+                </div>
+
+                <div className="relative z-10 w-full max-w-md mx-auto space-y-4">
+                  <textarea
+                    value={worryText}
+                    onChange={(e) => setWorryText(e.target.value)}
+                    placeholder="Sizni nima xavotirga solmoqda? Bu yerga yozing..."
+                    disabled={isShredding}
+                    className={`w-full p-4 border border-stone-200 rounded-2xl resize-none h-32 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50 bg-stone-50 transition-all duration-[1500ms] ${isShredding ? 'translate-y-full opacity-0 scale-y-0 blur-sm' : ''}`}
+                  />
+                  
+                  {shredderMessage && (
+                    <div className="text-emerald-600 font-bold text-sm py-2 animate-fade-in">
+                      {shredderMessage}
+                    </div>
+                  )}
+
+                  {!isShredding && !shredderMessage && (
+                    <button
+                      onClick={handleShredWorry}
+                      disabled={!worryText.trim()}
+                      className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" /> Parchalab Yo&apos;q Qilish
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
+
 
         {/* TAB 4: MOOD DIARY */}
         {activeTab === 'mood' && (
@@ -1502,11 +1709,11 @@ export default function App() {
             </button>
             <button onClick={() => setActiveTab('ai-chat')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`}>
               <MessageSquare className={`w-5 h-5 mb-1 ${activeTab === 'ai-chat' ? 'scale-110' : ''} transition-transform`} />
-              <span className="text-[9px] font-bold">AI Chat</span>
+              <span className="text-[10px] font-bold">Chat</span>
             </button>
-            <button onClick={() => setActiveTab('breathing')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'breathing' ? 'text-emerald-600' : 'text-slate-400'}`}>
-              <Wind className={`w-5 h-5 mb-1 ${activeTab === 'breathing' ? 'scale-110' : ''} transition-transform`} />
-              <span className="text-[9px] font-bold">Nafas</span>
+            <button onClick={() => setActiveTab('practices')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <Wind className={`w-5 h-5 mb-1 ${activeTab === 'practices' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[10px] font-bold">Amaliyot</span>
             </button>
             <button onClick={() => setActiveTab('mood')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'mood' ? 'text-emerald-600' : 'text-slate-400'}`}>
               <Smile className={`w-5 h-5 mb-1 ${activeTab === 'mood' ? 'scale-110' : ''} transition-transform`} />
