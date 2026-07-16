@@ -343,10 +343,9 @@ export default function App() {
         setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
         setFaceLoading(false);
         return;
-      }
-
-      const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+      }      const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
       let success = false;
+      let modelErrors: string[] = [];
 
       for (const modelName of models) {
         try {
@@ -373,20 +372,14 @@ export default function App() {
             break;
           }
         } catch (err: any) {
-          const status = err?.message || '';
-          if (status.includes('429') || status.includes('quota') || status.includes('RESOURCE_EXHAUSTED')) {
-            console.warn(`Model ${modelName} quota exceeded, trying next...`);
-            continue;
-          }
-          console.error('Face analysis error:', err);
-          setFaceError(`Xatolik: ${err.message || 'Noma\'lum xato'}`);
-          success = true; // stop loop
-          break;
+          const errStr = err?.message || err?.toString() || '';
+          console.warn(`Face analysis: Model ${modelName} failed: ${errStr}`);
+          modelErrors.push(`${modelName}: ${errStr}`);
         }
       }
 
       if (!success) {
-        setFaceError('Barcha modellar uchun so\'rov limiti tugagan. Iltimos, bir necha daqiqadan so\'ng qayta urinib ko\'ring.');
+        setFaceError(`Yuz tahlilida xatolik yuz berdi. Tafsilotlar:\n${modelErrors.join('\n')}`);
       }
     }
     setFaceLoading(false);
@@ -621,6 +614,7 @@ export default function App() {
 
         if (apiKey && apiKey.trim()) {
           const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          let modelErrors: string[] = [];
           for (const modelName of models) {
             try {
               const ai = new GoogleGenAI({
@@ -649,13 +643,14 @@ export default function App() {
                 break;
               }
             } catch (modelErr: any) {
-              const errStr = modelErr?.message || '';
-              console.warn(`Model ${modelName} failed: ${errStr}, trying next...`);
+              const errStr = modelErr?.message || modelErr?.toString() || '';
+              console.warn(`Model ${modelName} failed: ${errStr}`);
+              modelErrors.push(`${modelName}: ${errStr}`);
               continue;
             }
           }
           if (!success) {
-            assistantText = "⚠️ Hozirda barcha AI modellari uchun so'rov limiti tugagan. Iltimos, bir necha daqiqadan so'ng qayta urinib ko'ring. (Bepul API limitdan foydalanayapsiz - kunda ma'lum miqdordagi so'rov bepul beriladi)";
+            assistantText = `⚠️ Ruhshunos AIga ulanib bo'lmadi. Tafsilotlar:\n${modelErrors.join('\n')}`;
           }
         } else {
           assistantText = "Siz ushbu ilovani GitHub orqali yuklab, Vercel/GitHub Pages kabi statik xostingga joylaganga o'xshaysiz. AI Ruhshunos ishlashi uchun Vercel boshqaruv panelida 'VITE_GEMINI_API_KEY' muhit o'zgaruvchisini (Environment Variable) o'rnating, yoki o'ng tomondagi 'Ulanish Ma'lumotlari' qismida shaxsiy Gemini API kalitingizni kiriting.";
