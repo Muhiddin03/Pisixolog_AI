@@ -338,7 +338,7 @@ export default function App() {
       const base64Image = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
       stopCamera();
 
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
+      const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
         setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
         setFaceLoading(false);
@@ -617,7 +617,7 @@ export default function App() {
 
       // 2. Fallback to direct client-side Gemini API if backend failed or is not running
       if (!success) {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
+        const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
 
         if (apiKey && apiKey.trim()) {
           const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
