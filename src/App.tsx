@@ -376,61 +376,86 @@ export default function App() {
       const base64Image = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
       stopCamera();
 
-      const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
-        setFaceLoading(false);
-        return;
-      }      const defaultModels = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
-      const models = selectedModel ? [selectedModel, ...defaultModels] : defaultModels;
       let success = false;
       let modelErrors: string[] = [];
 
-      for (const modelName of models) {
-        let attempts = 3;
-        let responseText = '';
-        for (let i = 0; i < attempts; i++) {
-          try {
-            const ai = new GoogleGenAI({ 
-              apiKey,
-              httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-            });
-            const result = await ai.models.generateContent({
-              model: modelName,
-              contents: [{
-                role: 'user',
-                parts: [
-                  { text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting." },
-                  { inlineData: { data: base64Image, mimeType: 'image/jpeg' } }
-                ]
-              }]
-            });
-            responseText = result.text || '';
-            break;
-          } catch (err: any) {
-            const errStr = err?.message || err?.toString() || '';
-            const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
-            if (isUnavailable && i < attempts - 1) {
-              console.warn(`Face analysis: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
-              await new Promise(resolve => setTimeout(resolve, 1500));
-              continue;
-            }
-            console.warn(`Face analysis: Model ${modelName} failed: ${errStr}`);
-            modelErrors.push(`${modelName}: ${errStr}`);
-            break;
+      // 1. Try to fetch from Express Server side first (runs securely on Vercel backend)
+      try {
+        const res = await fetch('/api/analyze-face', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Image })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.text) {
+            setFaceResult(data.text);
+            setFaceSubTab('result'); // Switch to result tab
+            setShowFaceModal(true); // Optional: still show modal to notify
+            success = true;
           }
         }
-        if (responseText) {
-          setFaceResult(responseText);
-          setFaceSubTab('result'); // Switch to result tab
-          setShowFaceModal(true); // Optional: still show modal to notify
-          success = true;
-          break;
-        }
+      } catch (err) {
+        console.warn("Backend face analysis failed or not available. Falling back to direct client-side Gemini API...");
       }
 
+      // 2. Fallback to direct client-side Gemini API
       if (!success) {
-        setFaceError(`Yuz tahlilida xatolik yuz berdi. Tafsilotlar:\n${modelErrors.join('\n')}`);
+        const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
+        if (apiKey && apiKey.trim()) {
+          const defaultModels = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const models = selectedModel ? [selectedModel, ...defaultModels] : defaultModels;
+
+          for (const modelName of models) {
+            let attempts = 3;
+            let responseText = '';
+            for (let i = 0; i < attempts; i++) {
+              try {
+                const ai = new GoogleGenAI({ 
+                  apiKey,
+                  httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+                });
+                const result = await ai.models.generateContent({
+                  model: modelName,
+                  contents: [{
+                    role: 'user',
+                    parts: [
+                      { text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting." },
+                      { inlineData: { data: base64Image, mimeType: 'image/jpeg' } }
+                    ]
+                  }]
+                });
+                responseText = result.text || '';
+                break;
+              } catch (err: any) {
+                const errStr = err?.message || err?.toString() || '';
+                const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
+                if (isUnavailable && i < attempts - 1) {
+                  console.warn(`Face analysis: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
+                  await new Promise(resolve => setTimeout(resolve, 1500));
+                  continue;
+                }
+                console.warn(`Face analysis: Model ${modelName} failed: ${errStr}`);
+                modelErrors.push(`${modelName}: ${errStr}`);
+                break;
+              }
+            }
+            if (responseText) {
+              setFaceResult(responseText);
+              setFaceSubTab('result'); // Switch to result tab
+              setShowFaceModal(true); // Optional: still show modal to notify
+              success = true;
+              break;
+            }
+          }
+
+          if (!success) {
+            setFaceError(`Yuz tahlilida xatolik yuz berdi. Tafsilotlar:\n${modelErrors.join('\n')}`);
+          }
+        } else {
+          setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
+        }
       }
     }
     setFaceLoading(false);

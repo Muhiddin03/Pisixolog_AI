@@ -76,20 +76,127 @@ Sizning vazifalaringiz:
         parts: [{ text: message }]
       });
 
-      console.log("Gemini API so'rovi yuborilmoqda...");
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents,
-        config: {
-          systemInstruction,
-          temperature: 0.7,
+      console.log("Gemini API so'rovi yuborilmoqda (consult)...");
+      
+      const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-1.5-pro'];
+      let success = false;
+      let responseText = '';
+      let errors: string[] = [];
+
+      for (const modelName of models) {
+        let attempts = 3;
+        for (let i = 0; i < attempts; i++) {
+          try {
+            const response = await ai.models.generateContent({
+              model: modelName,
+              contents,
+              config: {
+                systemInstruction,
+                temperature: 0.7,
+              }
+            });
+            responseText = response.text || '';
+            success = true;
+            break;
+          } catch (err: any) {
+            const errStr = err.message || err.toString();
+            const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
+            if (isUnavailable && i < attempts - 1) {
+              console.warn(`Consult: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              continue;
+            }
+            console.warn(`Consult: Model ${modelName} failed: ${errStr}`);
+            errors.push(`${modelName}: ${errStr}`);
+            break;
+          }
+        }
+        if (success) break;
+      }
+
+      if (!success) {
+        throw new Error(`Barcha urinishlar muvaffaqiyatsiz tugadi:\n${errors.join('\n')}`);
+      }
+
+      console.log("Gemini API javobi olindi (consult).");
+      res.json({ text: responseText });
+    } catch (error: any) {
+      console.error("Gemini API xatoligi:", error);
+      res.status(500).json({ 
+        error: `Gemini API xatoligi: ${error.message || error.toString()}` 
+      });
+    }
+  });
+
+  app.post('/api/analyze-face', async (req, res) => {
+    try {
+      const { image } = req.body;
+      const currentApiKey = process.env.GEMINI_API_KEY;
+
+      if (!currentApiKey) {
+        console.error("Xatolik: GEMINI_API_KEY o'rnatilmagan.");
+        return res.status(500).json({ 
+          error: "Tizimda GEMINI_API_KEY (API kaliti) topilmadi. Iltimos, AI Studio Settings (Secrets) bo'limida GEMINI_API_KEY kalitini qo'shing." 
+        });
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: currentApiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
         }
       });
 
-      console.log("Gemini API javobi olindi.");
-      res.json({ text: response.text });
+      console.log("Gemini API so'rovi yuborilmoqda (analyze-face)...");
+      
+      const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-1.5-pro'];
+      let success = false;
+      let responseText = '';
+      let errors: string[] = [];
+
+      for (const modelName of models) {
+        let attempts = 3;
+        for (let i = 0; i < attempts; i++) {
+          try {
+            const response = await ai.models.generateContent({
+              model: modelName,
+              contents: [{
+                role: 'user',
+                parts: [
+                  { text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting." },
+                  { inlineData: { data: image, mimeType: 'image/jpeg' } }
+                ]
+              }]
+            });
+            responseText = response.text || '';
+            success = true;
+            break;
+          } catch (err: any) {
+            const errStr = err.message || err.toString();
+            const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
+            if (isUnavailable && i < attempts - 1) {
+              console.warn(`Analyze face: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              continue;
+            }
+            console.warn(`Analyze face: Model ${modelName} failed: ${errStr}`);
+            errors.push(`${modelName}: ${errStr}`);
+            break;
+          }
+        }
+        if (success) break;
+      }
+
+      if (!success) {
+        throw new Error(`Barcha urinishlar muvaffaqiyatsiz tugadi:\n${errors.join('\n')}`);
+      }
+
+      console.log("Gemini API javobi olindi (analyze-face).");
+      res.json({ text: responseText });
     } catch (error: any) {
-      console.error("Gemini API xatoligi:", error);
+      console.error("Gemini API xatoligi (analyze-face):", error);
       res.status(500).json({ 
         error: `Gemini API xatoligi: ${error.message || error.toString()}` 
       });
