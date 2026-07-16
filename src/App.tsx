@@ -2256,6 +2256,42 @@ export default function App() {
               </div>
 
               <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
+                    <Key className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm">Shaxsiy AI Kaliti (API Key)</h3>
+                    <p className="text-[10px] text-slate-500">Limitingiz tugagan bo'lsa yangi API kalit kiritishingiz mumkin.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    placeholder="Sizning Gemini API kalitingiz..."
+                    value={customApiKey}
+                    onChange={(e) => saveCustomApiKey(e.target.value)}
+                    className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-slate-800"
+                  />
+                  {customApiKey && (
+                    <button
+                      onClick={() => {
+                        saveCustomApiKey('');
+                        alert("API kalit o'chirildi.");
+                      }}
+                      className="px-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition"
+                      title="O'chirish"
+                    >
+                      O'chirish
+                    </button>
+                  )}
+                </div>
+                {customApiKey && (
+                  <p className="text-[10px] text-emerald-600 font-bold mt-2">✓ Shaxsiy kalit ulangan va ishlatilmoqda.</p>
+                )}
+              </div>
+
+              <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
                 <div className="flex justify-between items-end mb-2">
                   <h3 className="font-bold text-slate-800 text-sm">Xotira sarfi</h3>
                   <span className="text-[10px] sm:text-xs font-semibold text-slate-500">
