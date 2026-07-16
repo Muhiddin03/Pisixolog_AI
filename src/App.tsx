@@ -281,13 +281,28 @@ export default function App() {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    
+    // Resize image to max 800px to avoid payload too large errors
+    const maxDim = 800;
+    let width = video.videoWidth;
+    let height = video.videoHeight;
+    if (width > maxDim || height > maxDim) {
+      if (width > height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+    
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      // Get base64 without data type prefix
-      const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+      // Get base64 with lower quality to save bandwidth
+      const base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
       stopCamera(); // Turn off camera immediately after capturing the frame to save power
 
       try {
@@ -329,11 +344,11 @@ export default function App() {
         if (response && response.text) {
           setFaceResult(response.text);
         } else {
-          alert("Tahlilni olishda xatolik yuz berdi.");
+          alert("Tahlilni olishda xatolik yuz berdi: Bo'sh javob.");
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("AI Analysis Error:", err);
-        alert("Xatolik: Tarmoq muammosi yoki kalit noto'g'ri.");
+        alert(`Tarmoq yoki API Xatosi: ${err.message || err.toString()}`);
       }
     }
     setFaceLoading(false);
