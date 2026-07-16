@@ -502,9 +502,9 @@ export default function App() {
 
   // Render different tabs
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900 pb-6 md:pb-0" id="app_root">
+    <div className="min-h-screen bg-mesh-pattern text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900 pb-6 md:pb-0" id="app_root">
       {/* HEADER SECTION */}
-      <header className="sticky top-0 z-50 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-stone-200/60 px-4 py-3" id="header_section">
+      <header className="sticky top-0 z-50 glass-panel border-b border-white/60 px-4 py-3" id="header_section">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-2.5">
@@ -524,45 +524,45 @@ export default function App() {
             </a>
           </div>
 
-          <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200/60 overflow-x-auto no-scrollbar max-w-full" id="main_navigation">
+          <div className="flex items-center gap-1.5 bg-white/40 p-1.5 rounded-2xl border border-white/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] overflow-x-auto no-scrollbar max-w-full" id="main_navigation">
             <button 
               id="nav_tests"
               onClick={() => setActiveTab('tests')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 shrink-0 ${activeTab === 'tests' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'tests' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
-              <Activity className="w-3.5 h-3.5 text-emerald-600" />
+              <Activity className={`w-4 h-4 ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Testlar</span>
             </button>
             <button 
               id="nav_chat"
               onClick={() => setActiveTab('ai-chat')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 shrink-0 ${activeTab === 'ai-chat' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'ai-chat' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+              <MessageSquare className={`w-4 h-4 ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>AI Sodiq</span>
             </button>
             <button 
               id="nav_breathing"
               onClick={() => setActiveTab('breathing')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 shrink-0 ${activeTab === 'breathing' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'breathing' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
-              <Wind className="w-3.5 h-3.5 text-emerald-600" />
+              <Wind className={`w-4 h-4 ${activeTab === 'breathing' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Nafas</span>
             </button>
             <button 
               id="nav_mood"
               onClick={() => setActiveTab('mood')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 shrink-0 ${activeTab === 'mood' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'mood' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
-              <Smile className="w-3.5 h-3.5 text-emerald-600" />
+              <Smile className={`w-4 h-4 ${activeTab === 'mood' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Kundalik</span>
             </button>
             <button 
               id="nav_info"
               onClick={() => setActiveTab('info')} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 shrink-0 ${activeTab === 'info' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'info' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+              <BookOpen className={`w-4 h-4 ${activeTab === 'info' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Maslahatlar</span>
             </button>
           </div>
@@ -709,8 +709,9 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* EYSENCK TEST INTERFACE */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-6 flex flex-col justify-between" id="eysenck_test_card">
-                <div>
+              <div className="glass-card rounded-3xl p-6 md:p-8 space-y-6 flex flex-col justify-between group relative overflow-hidden" id="eysenck_test_card">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+                <div className="relative z-10">
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className="bg-emerald-50 text-emerald-700 p-2 rounded-xl">
                       <Brain className="w-5 h-5" />
@@ -738,8 +739,8 @@ export default function App() {
                       </div>
 
                       {/* Question Text */}
-                      <div className="p-6 bg-stone-50 rounded-2xl border border-stone-200/50 min-h-[100px] flex items-center justify-center">
-                        <p className="font-bold text-base text-slate-800 text-center leading-relaxed">
+                      <div className="p-6 bg-white rounded-2xl border border-stone-100 min-h-[120px] flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] transform transition-all duration-300 hover:shadow-md">
+                        <p className="font-bold text-base md:text-lg text-slate-800 text-center leading-relaxed">
                           {EYSENCK_QUESTIONS[eyQuestionIndex].text}
                         </p>
                       </div>
@@ -749,14 +750,14 @@ export default function App() {
                         <button 
                           id="btn_ey_yes"
                           onClick={() => handleEyAnswer(true)}
-                          className="py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-bold text-sm transition-all duration-200 cursor-pointer shadow-sm active:scale-98"
+                          className="py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
                         >
                           Ha
                         </button>
                         <button 
                           id="btn_ey_no"
                           onClick={() => handleEyAnswer(false)}
-                          className="py-3 rounded-xl border border-stone-300 hover:bg-stone-50 text-slate-700 font-bold text-sm transition-all duration-200 cursor-pointer shadow-sm active:scale-98"
+                          className="py-3.5 rounded-2xl bg-white border border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95"
                         >
                           Yo&apos;q
                         </button>
@@ -782,8 +783,9 @@ export default function App() {
               </div>
 
               {/* STRESS TEST INTERFACE */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-6 flex flex-col justify-between" id="stress_test_card">
-                <div>
+              <div className="glass-card rounded-3xl p-6 md:p-8 space-y-6 flex flex-col justify-between group relative overflow-hidden" id="stress_test_card">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+                <div className="relative z-10">
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className="bg-emerald-50 text-emerald-700 p-2 rounded-xl">
                       <Activity className="w-5 h-5" />
@@ -811,14 +813,14 @@ export default function App() {
                       </div>
 
                       {/* Question text */}
-                      <div className="p-6 bg-stone-50 rounded-2xl border border-stone-200/50 min-h-[100px] flex items-center justify-center">
-                        <p className="font-bold text-base text-slate-800 text-center leading-relaxed">
+                      <div className="p-6 bg-white rounded-2xl border border-stone-100 min-h-[120px] flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] transform transition-all duration-300 hover:shadow-md">
+                        <p className="font-bold text-base md:text-lg text-slate-800 text-center leading-relaxed">
                           {PSS_QUESTIONS[pssQuestionIndex].text}
                         </p>
                       </div>
 
                       {/* 5 Options */}
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2.5">
                         {[
                           { val: 0, label: "Hech qachon" },
                           { val: 1, label: "Deyarli hech qachon" },
@@ -830,9 +832,10 @@ export default function App() {
                             key={opt.val}
                             id={`btn_pss_opt_${opt.val}`}
                             onClick={() => handlePssAnswer(opt.val)}
-                            className="w-full text-left py-2.5 px-4 rounded-xl border border-stone-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-slate-900 transition-all text-xs font-semibold text-slate-700 cursor-pointer shadow-xs active:scale-99"
+                            className="w-full text-left py-3 px-5 rounded-2xl bg-white border border-stone-200 hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 hover:text-emerald-800 transition-all text-xs md:text-sm font-semibold text-slate-700 cursor-pointer shadow-sm active:scale-95 group flex items-center justify-between"
                           >
-                            {opt.val} - {opt.label}
+                            <span>{opt.label}</span>
+                            <span className="w-6 h-6 rounded-full bg-stone-100 flex items-center justify-center text-[10px] font-bold text-stone-400 group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors">{opt.val}</span>
                           </button>
                         ))}
                       </div>
@@ -863,13 +866,13 @@ export default function App() {
         {activeTab === 'ai-chat' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8" id="tab_chat_view">
             {/* Chat Box Interface */}
-            <div className="lg:col-span-2 bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm flex flex-col h-[480px] sm:h-[600px] overflow-hidden order-1 lg:order-2" id="chat_box_interface">
+            <div className="lg:col-span-2 glass-card rounded-2xl md:rounded-3xl flex flex-col h-[500px] sm:h-[600px] overflow-hidden order-1 lg:order-2 border-t border-white/80" id="chat_box_interface">
               {/* Chat Header */}
-              <div className="bg-stone-50 border-b border-stone-100 px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between" id="chat_header">
+              <div className="bg-white/60 backdrop-blur-md border-b border-white/50 px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between" id="chat_header">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold relative">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold relative shadow-md">
                     S
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full animate-pulse"></span>
                   </div>
                   <div>
                     <h3 className="font-display font-bold text-xs sm:text-sm text-slate-900">Ruhshunos Sodiq</h3>
@@ -882,19 +885,19 @@ export default function App() {
               </div>
 
               {/* Messages display */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-[#FAF9F5]/40" id="chat_messages_area">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 bg-transparent" id="chat_messages_area">
                 {chatHistory.map((msg, idx) => (
                   <div 
                     key={idx} 
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     id={`chat_msg_${idx}`}
                   >
-                    <div className={`max-w-[85%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed shadow-xs ${
+                    <div className={`max-w-[85%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed shadow-sm ${
                       msg.role === 'user' 
-                        ? 'bg-emerald-600 text-white rounded-tr-none' 
-                        : 'bg-white border border-stone-200 text-slate-800 rounded-tl-none'
+                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-tr-sm' 
+                        : 'bg-white border border-stone-100/50 text-slate-800 rounded-tl-sm'
                     }`}>
-                      <p className="whitespace-pre-line font-medium">{msg.text}</p>
+                      <p className="whitespace-pre-line font-medium leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
                 ))}
@@ -915,28 +918,28 @@ export default function App() {
               </div>
 
               {/* Chat Input form */}
-              <form onSubmit={sendChatMessage} className="p-3 sm:p-4 bg-white border-t border-stone-100 flex gap-2" id="chat_input_form">
+              <form onSubmit={sendChatMessage} className="p-3 sm:p-4 bg-white/70 backdrop-blur-md border-t border-white/50 flex gap-2" id="chat_input_form">
                 <input
                   id="input_chat_text"
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Xavotirlaringizni yozing..."
-                  className="flex-1 bg-stone-50 border border-stone-200 rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 text-slate-800 font-medium transition"
+                  className="flex-1 bg-white border border-stone-200/60 rounded-2xl px-4 py-3 sm:py-3.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 font-medium transition shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
                 />
                 <button
                   id="btn_chat_send"
                   type="submit"
                   disabled={chatLoading || !chatInput.trim()}
-                  className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-300 text-white p-3 sm:p-3.5 rounded-2xl transition shadow-xs flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+                  className="bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3.5 sm:p-4 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </form>
             </div>
 
             {/* Sidebar with current context */}
-            <div className="lg:col-span-1 bg-white border border-stone-200 rounded-2xl md:rounded-3xl p-5 shadow-sm space-y-4 lg:space-y-5 h-fit order-2 lg:order-1" id="chat_context_sidebar">
+            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-6 shadow-sm space-y-4 lg:space-y-6 h-fit order-2 lg:order-1" id="chat_context_sidebar">
               <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                 <Shield className="w-5 h-5 text-emerald-600" />
                 <h3 className="font-display font-bold text-sm text-slate-900">Ulanish Ma&apos;lumotlari</h3>
@@ -1019,8 +1022,9 @@ export default function App() {
 
         {/* TAB 3: DEEP BREATHING EXERCISE */}
         {activeTab === 'breathing' && (
-          <div className="max-w-xl mx-auto bg-white border border-stone-200 rounded-2xl md:rounded-3xl p-5 sm:p-8 shadow-sm text-center space-y-6 sm:space-y-8 animate-fade-in" id="tab_breathing_view">
-            <div className="space-y-2">
+          <div className="max-w-xl mx-auto glass-card rounded-2xl md:rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-slide-up relative overflow-hidden" id="tab_breathing_view">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-100 rounded-full blur-[80px] opacity-40 pointer-events-none"></div>
+            <div className="space-y-3 relative z-10">
               <div className="bg-emerald-50 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
                 <Wind className="w-6 h-6" />
               </div>
@@ -1031,19 +1035,22 @@ export default function App() {
             </div>
 
             {/* Breathing Animation Canvas */}
-            <div className="relative w-72 h-72 mx-auto flex items-center justify-center" id="breathing_visualizer">
+            <div className="relative w-72 h-72 mx-auto flex items-center justify-center animate-float relative z-10" id="breathing_visualizer">
               {/* Outer wave ripples */}
-              <div className={`absolute inset-0 rounded-full border border-emerald-100 transition-all duration-1000 ${
-                breathingPhase === 'inhale' ? 'scale-110 opacity-100' : 'scale-90 opacity-20'
+              <div className={`absolute inset-0 rounded-full border-2 border-emerald-300/30 transition-all duration-1000 ${
+                breathingPhase === 'inhale' ? 'scale-125 opacity-100' : 'scale-90 opacity-0'
+              }`}></div>
+              <div className={`absolute inset-0 rounded-full border border-teal-300/40 transition-all duration-1000 delay-150 ${
+                breathingPhase === 'inhale' ? 'scale-110 opacity-100' : 'scale-90 opacity-0'
               }`}></div>
 
               {/* Breathing Ball */}
               <div 
-                className={`rounded-full flex flex-col items-center justify-center text-slate-900 transition-all shadow-md ${
-                  breathingPhase === 'inhale' ? 'w-64 h-64 bg-emerald-100/90 duration-[4000ms]' :
-                  breathingPhase === 'hold' ? 'w-64 h-64 bg-teal-100/95 duration-[7000ms]' :
-                  breathingPhase === 'exhale' ? 'w-40 h-40 bg-emerald-50 duration-[8000ms]' :
-                  'w-40 h-40 bg-stone-50 border border-stone-200'
+                className={`rounded-full flex flex-col items-center justify-center text-slate-900 transition-all shadow-[0_0_40px_rgba(16,185,129,0.2)] ${
+                  breathingPhase === 'inhale' ? 'w-64 h-64 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
+                  breathingPhase === 'hold' ? 'w-64 h-64 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
+                  breathingPhase === 'exhale' ? 'w-40 h-40 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
+                  'w-40 h-40 bg-white border-2 border-emerald-100'
                 }`}
                 id="breathing_ball"
               >
@@ -1107,9 +1114,9 @@ export default function App() {
 
         {/* TAB 4: MOOD DIARY */}
         {activeTab === 'mood' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8" id="tab_mood_view">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 animate-slide-up" id="tab_mood_view">
             {/* New entry logging */}
-            <div className="lg:col-span-1 bg-white border border-stone-200 rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-sm space-y-5 h-fit" id="mood_form_box">
+            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-6 shadow-sm space-y-6 h-fit" id="mood_form_box">
               <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                 <Smile className="w-5 h-5 text-emerald-600" />
                 <h3 className="font-display font-bold text-base text-slate-900">Bugungi kayfiyatingiz</h3>
@@ -1134,13 +1141,13 @@ export default function App() {
                         setSelectedMood(item.label);
                         setSelectedMoodEmoji(item.emoji);
                       }}
-                      className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1 cursor-pointer ${
+                      className={`p-3 rounded-2xl border text-center transition-all duration-300 flex flex-col items-center gap-1.5 cursor-pointer hover:-translate-y-1 hover:shadow-md ${
                         selectedMood === item.label 
-                          ? 'border-emerald-500 bg-emerald-50/50 text-slate-950 font-bold' 
-                          : 'border-stone-200 hover:bg-stone-50 text-slate-600'
+                          ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-white text-emerald-900 font-bold scale-105 shadow-md ring-2 ring-emerald-500/20' 
+                          : 'border-stone-200 bg-white text-slate-600'
                       }`}
                     >
-                      <span className="text-2xl">{item.emoji}</span>
+                      <span className="text-3xl filter drop-shadow-sm">{item.emoji}</span>
                       <span className="text-[10px] leading-tight block truncate w-full">{item.label}</span>
                     </button>
                   ))}
@@ -1211,8 +1218,8 @@ export default function App() {
             {/* Logs display and trends */}
             <div className="lg:col-span-2 space-y-6" id="mood_history_box">
               {/* Simple weekly mood trend SVG Chart */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm" id="mood_analytics_panel">
-                <h3 className="font-bold text-sm text-slate-900 mb-4 flex items-center gap-2">
+              <div className="glass-card rounded-3xl p-6 md:p-8" id="mood_analytics_panel">
+                <h3 className="font-bold text-base text-slate-900 mb-6 flex items-center gap-2">
                   <Smile className="w-4 h-4 text-emerald-600" />
                   <span>Ruhiy o&apos;zgarishlar dinamikasi (Oxirgi qaydlar)</span>
                 </h3>
@@ -1256,10 +1263,10 @@ export default function App() {
               </div>
 
               {/* Saved lists */}
-              <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm space-y-4" id="mood_history_list">
-                <h3 className="font-bold text-sm text-slate-900 border-b border-stone-100 pb-3">Sizning kundalik ruhiy tarixingiz</h3>
+              <div className="glass-card rounded-3xl p-6 md:p-8 space-y-5" id="mood_history_list">
+                <h3 className="font-bold text-base text-slate-900 border-b border-stone-100 pb-3">Sizning kundalik ruhiy tarixingiz</h3>
                 {moodLogs.length > 0 ? (
-                  <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1" id="mood_logs_scroller">
+                  <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar" id="mood_logs_scroller">
                     {moodLogs.map((log) => (
                       <div 
                         key={log.id} 
