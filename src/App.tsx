@@ -88,6 +88,8 @@ interface MoodLog {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'breathing' | 'mood' | 'info'>('tests');
+  const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'dashboard'>('eysenck');
+  const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
 
   // --- EYSENCK TEST STATE ---
   const [eyQuestionIndex, setEyQuestionIndex] = useState(0);
@@ -575,8 +577,32 @@ export default function App() {
           {/* TAB 1: TESTS & DIAGNOSTICS */}
           {activeTab === 'tests' && (
             <div className="space-y-4 md:space-y-6" id="tab_tests_view">
+              {/* Tests Sub-Navigation */}
+              <div className="flex bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full max-w-lg mx-auto shadow-inner border border-stone-200/50">
+                <button 
+                  onClick={() => setTestsSubTab('eysenck')} 
+                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'eysenck' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                >
+                  Temperament
+                </button>
+                <button 
+                  onClick={() => setTestsSubTab('stress')} 
+                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'stress' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                >
+                  Stress Testi
+                </button>
+                <button 
+                  onClick={() => setTestsSubTab('dashboard')} 
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${testsSubTab === 'dashboard' ? 'bg-white text-emerald-700 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                >
+                  Natijalar {(eyResult || pssResult) && <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>}
+                </button>
+              </div>
+
             {/* Top diagnostic state */}
-            {(eyResult || pssResult) && (
+            {testsSubTab === 'dashboard' && (
+              <div className="animate-fade-in">
+              {(eyResult || pssResult) ? (
               <div className="bg-white border border-stone-200/80 rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-sm space-y-6" id="diagnostic_dashboard">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
                   <div className="flex items-center gap-2.5">
@@ -698,11 +724,21 @@ export default function App() {
                   </div>
                 )}
               </div>
+              ) : (
+                <div className="text-center p-10 bg-white rounded-3xl border border-stone-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] max-w-2xl mx-auto">
+                   <div className="bg-stone-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-stone-300">
+                     <Award className="w-8 h-8" />
+                   </div>
+                   <p className="text-slate-500 font-medium">Hozircha natijalar yo&apos;q. Iltimos, testlardan birini yakunlang.</p>
+                </div>
+              )}
+              </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="max-w-2xl mx-auto w-full">
               {/* EYSENCK TEST INTERFACE */}
-              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500" id="eysenck_test_card">
+              {testsSubTab === 'eysenck' && (
+              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 animate-fade-in" id="eysenck_test_card">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-100/80 to-teal-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                 <div className="relative z-10">
@@ -775,9 +811,11 @@ export default function App() {
                   )}
                 </div>
               </div>
+              )}
 
               {/* STRESS TEST INTERFACE */}
-              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500" id="stress_test_card">
+              {testsSubTab === 'stress' && (
+              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 animate-fade-in" id="stress_test_card">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-amber-100/80 to-rose-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-rose-400"></div>
                 <div className="relative z-10">
@@ -853,6 +891,7 @@ export default function App() {
                   )}
                 </div>
               </div>
+              )}
             </div>
           </div>
         )}
@@ -1111,9 +1150,26 @@ export default function App() {
 
         {/* TAB 4: MOOD DIARY */}
         {activeTab === 'mood' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 animate-slide-up max-w-6xl mx-auto" id="tab_mood_view">
+          <div className="animate-slide-up max-w-2xl mx-auto space-y-6 w-full" id="tab_mood_view">
+            {/* Mood Sub-Navigation */}
+            <div className="flex bg-stone-100/80 p-1.5 rounded-2xl sm:rounded-full w-full mx-auto shadow-inner border border-stone-200/50">
+              <button 
+                onClick={() => setMoodSubTab('log')} 
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${moodSubTab === 'log' ? 'bg-white text-amber-600 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+              >
+                Kayfiyat kiritish
+              </button>
+              <button 
+                onClick={() => setMoodSubTab('history')} 
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl sm:rounded-full transition-all duration-300 ${moodSubTab === 'history' ? 'bg-white text-amber-600 shadow-[0_2px_10px_rgb(0,0,0,0.06)]' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+              >
+                Tarix va Dinamika
+              </button>
+            </div>
+
             {/* New entry logging */}
-            <div className="lg:col-span-1 bg-white rounded-3xl p-5 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 space-y-6 h-fit relative overflow-hidden" id="mood_form_box">
+            {moodSubTab === 'log' && (
+            <div className="bg-white rounded-3xl p-5 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 space-y-6 h-fit relative overflow-hidden animate-fade-in" id="mood_form_box">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100/50 rounded-full blur-3xl -z-10"></div>
               <div className="flex items-center gap-3 border-b border-stone-100 pb-4">
                 <div className="bg-amber-50 text-amber-600 p-2 rounded-xl">
@@ -1214,9 +1270,11 @@ export default function App() {
                 Qaydni saqlash
               </button>
             </div>
+            )}
 
             {/* Mood History */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-5 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 space-y-5 h-fit" id="mood_history_box">
+            {moodSubTab === 'history' && (
+            <div className="bg-white rounded-3xl p-5 md:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 space-y-5 h-fit animate-fade-in" id="mood_history_box">
               <div className="flex items-center gap-3 border-b border-stone-100 pb-4">
                 <div className="bg-indigo-50 text-indigo-600 p-2 rounded-xl">
                   <Calendar className="w-5 h-5" />
@@ -1310,6 +1368,7 @@ export default function App() {
                 )}
               </div>
             </div>
+            )}
           </div>
         )}
 
