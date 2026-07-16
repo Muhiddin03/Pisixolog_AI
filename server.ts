@@ -10,7 +10,7 @@ async function startServer() {
   const app = express();
   app.use(express.json());
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     console.warn("Ogohlantirish: GEMINI_API_KEY topilmadi. AI maslahatchisi ishlamasligi mumkin.");
   }
@@ -27,7 +27,7 @@ async function startServer() {
   app.post('/api/consult', async (req, res) => {
     try {
       const { message, history, context } = req.body;
-      const currentApiKey = process.env.GEMINI_API_KEY;
+      const currentApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
       if (!currentApiKey) {
         console.error("Xatolik: GEMINI_API_KEY o'rnatilmagan.");
@@ -131,7 +131,7 @@ Sizning vazifalaringiz:
   app.post('/api/analyze-face', async (req, res) => {
     try {
       const { image } = req.body;
-      const currentApiKey = process.env.GEMINI_API_KEY;
+      const currentApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
       if (!currentApiKey) {
         console.error("Xatolik: GEMINI_API_KEY o'rnatilmagan.");
