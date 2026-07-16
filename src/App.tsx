@@ -344,7 +344,7 @@ export default function App() {
         return;
       }
 
-      const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite'];
+      const models = ['gemini-2.0-flash-lite', 'gemini-2.0-flash', 'gemini-2.5-flash'];
       let success = false;
 
       for (const modelName of models) {
@@ -617,7 +617,7 @@ export default function App() {
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
 
         if (apiKey && apiKey.trim()) {
-          const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite'];
+          const models = ['gemini-2.0-flash-lite', 'gemini-2.0-flash', 'gemini-2.5-flash'];
           for (const modelName of models) {
             try {
               const ai = new GoogleGenAI({
