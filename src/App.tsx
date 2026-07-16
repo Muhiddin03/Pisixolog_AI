@@ -117,11 +117,12 @@ interface MoodLog {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'welcome' | 'tests' | 'ai-chat' | 'practices' | 'mood' | 'face' | 'info' | 'settings'>('welcome');
-  const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
-  const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
-  const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
-  const [practicesSubTab, setPracticesSubTab] = useState<'breathing' | 'shredder' | 'affirmations' | 'gratitude'>('breathing');
+  const [activeTab, setActiveTab] = useState<'welcome'|'tests'|'ai-chat'|'practices'|'face'|'mood'|'info'|'settings'>('welcome');
+  const [testsSubTab, setTestsSubTab] = useState<'eysenck'|'stress'|'color'|'dashboard'>('eysenck');
+  const [practicesSubTab, setPracticesSubTab] = useState<'breathing'|'shredder'|'affirmations'|'gratitude'>('breathing');
+  const [moodSubTab, setMoodSubTab] = useState<'log'|'history'>('log');
+  const [tempInfoTab, setTempInfoTab] = useState<'sangvinik'|'xolerik'|'flegmatik'|'melanxolik'>('sangvinik');
+  const [faceSubTab, setFaceSubTab] = useState<'camera'|'result'>('camera');
 
   // Helper to load state
   const loadState = <T,>(key: string, defaultVal: T): T => {
@@ -353,7 +354,7 @@ export default function App() {
             apiKey,
             httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
           });
-          const response = await ai.models.generateContent({
+          const result = await ai.models.generateContent({
             model: modelName,
             contents: [{
               role: 'user',
@@ -363,9 +364,11 @@ export default function App() {
               ]
             }]
           });
-          if (response && response.text) {
-            setFaceResult(response.text);
-            setShowFaceModal(true);
+          const responseText = result.response.text();
+          if (responseText) {
+            setFaceResult(responseText);
+            setFaceSubTab('result'); // Switch to result tab
+            setShowFaceModal(true); // Optional: still show modal to notify
             success = true;
             break;
           }
@@ -647,11 +650,8 @@ export default function App() {
               }
             } catch (modelErr: any) {
               const errStr = modelErr?.message || '';
-              if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('RESOURCE_EXHAUSTED')) {
-                console.warn(`Model ${modelName} quota exceeded, trying next...`);
-                continue;
-              }
-              throw modelErr;
+              console.warn(`Model ${modelName} failed: ${errStr}, trying next...`);
+              continue;
             }
           }
           if (!success) {
@@ -906,150 +906,185 @@ export default function App() {
           {activeTab === 'face' && (
             <div className="space-y-4 max-w-xl mx-auto animate-slide-up" id="tab_face_view">
 
-              {/* Result shown at TOP when available */}
-              {faceResult && (
-                <div className="bg-white rounded-3xl p-5 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-emerald-100 animate-fade-in" id="face_result_card">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
-                      <span className="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><Check className="w-4 h-4" /></span>
-                      Tahlil Xulosasi
-                    </h3>
-                    <button
-                      onClick={() => {
-                        const doc = new jsPDF();
-                        doc.setFont("helvetica", "bold");
-                        doc.setFontSize(16);
-                        doc.text("Psixolog AI - Yuz Tahlili", 20, 20);
-                        doc.setFont("helvetica", "normal");
-                        doc.setFontSize(11);
-                        const lines = doc.splitTextToSize(faceResult || "", 170);
-                        doc.text(lines, 20, 35);
-                        doc.save(`Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.pdf`);
-                      }}
-                      className="text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1"
-                    >
-                      <Download className="w-3 h-3" /> PDF
-                    </button>
-                  </div>
-                  <div className="bg-stone-50 border border-stone-100 p-4 rounded-2xl text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line custom-scrollbar max-h-64 overflow-y-auto">
-                    {faceResult}
-                  </div>
-                  <button
-                    onClick={() => { setFaceResult(null); }}
-                    className="mt-3 text-xs text-slate-400 hover:text-rose-500 transition flex items-center gap-1"
-                  >
-                    <RefreshCw className="w-3 h-3" /> Yangi tahlil
-                  </button>
-                </div>
-              )}
+              {/* Face Sub-Navigation */}
+              <div className="flex bg-stone-100/80 p-1.5 rounded-full w-full mx-auto shadow-inner border border-stone-200/50">
+                <button 
+                  onClick={() => setFaceSubTab('camera')} 
+                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 ${faceSubTab === 'camera' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                >
+                  Kamera
+                </button>
+                <button 
+                  onClick={() => setFaceSubTab('result')} 
+                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 ${faceSubTab === 'result' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-stone-200/50'}`}
+                >
+                  Natija {faceResult && <span className="inline-block w-2 h-2 ml-1 rounded-full bg-rose-500 animate-pulse"></span>}
+                </button>
+              </div>
 
-              {/* Error shown at top */}
-              {faceError && (
-                <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-rose-700 text-sm">Tahlilni amalga oshirib bo'lmadi</p>
-                    <p className="text-xs text-rose-600 mt-1 leading-relaxed">{faceError}</p>
-                    <button onClick={() => setFaceError(null)} className="text-xs text-rose-500 underline mt-2">Yopish</button>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100 rounded-full blur-[40px] opacity-60"></div>
-                
-                <div className="text-center space-y-2 mb-4 relative z-10">
-                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Camera className="w-6 h-6" />
-                  </div>
-                  <h2 className="font-display font-bold text-lg text-slate-900">Yuz Fiziognomiyasi va Emotsiya</h2>
-                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Kameraga qarab turing. Sun'iy intellekt sizning yuz tuzilishingiz orqali psixologik holatingizni tahlil qiladi.
-                  </p>
-                </div>
-
-                {/* Camera Container */}
-                <div className="relative w-full max-w-[250px] mx-auto aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner mb-4 border-2 border-stone-100">
-                  {faceCameraActive ? (
-                    <video 
-                      ref={videoRef} 
-                      autoPlay 
-                      playsInline 
-                      muted 
-                      className="w-full h-full object-cover transform -scale-x-100"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 space-y-2 p-4 text-center">
-                      <Camera className="w-8 h-8 opacity-30" />
-                      <p className="text-[10px] font-medium leading-tight">Tahlilni boshlash uchun kamerani yoqing</p>
-                    </div>
-                  )}
-
-                  {/* Scanning Overlay Animation */}
-                  {faceLoading && (
-                    <div className="absolute inset-0 z-10">
-                      <div className="w-full h-full bg-emerald-500/20"></div>
-                      <div className="w-full h-1 bg-emerald-400 absolute top-0 left-0 shadow-[0_0_15px_rgba(52,211,153,1)] animate-scan"></div>
-                    </div>
-                  )}
-                </div>
-
-                <canvas ref={canvasRef} className="hidden" />
-
-                <div className="flex justify-center gap-3">
-                  {!faceCameraActive ? (
-                    <button 
-                      onClick={startCamera}
-                      className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2"
-                    >
-                      <Camera className="w-4 h-4" />
-                      Kamerani Yoqish
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={analyzeFace}
-                      disabled={faceLoading}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-70"
-                    >
-                      {faceLoading ? (
-                        <><RefreshCw className="w-4 h-4 animate-spin" />Tahlil qilinmoqda...</>
-                      ) : (
-                        <><Brain className="w-4 h-4" />Tahlil Qilish</>
-                      )}
-                    </button>
-                  )}
-                  {faceCameraActive && !faceLoading && (
-                    <button 
-                      onClick={stopCamera}
-                      className="bg-stone-200 hover:bg-stone-300 text-slate-700 px-4 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
-                    >
-                      Bekor
-                    </button>
-                  )}
-                </div>
-
-                {/* Face Analysis Done Modal */}
-                {showFaceModal && (
-                  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in space-y-5">
-                      <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                        <Check className="w-8 h-8" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-xl text-slate-900 mb-2">Tahlil Yakunlandi</h3>
-                        <p className="text-sm text-slate-500">Natija yuqorida ko'rsatildi. Ko'rish uchun quyidagi tugmani bosing.</p>
-                      </div>
-                      <button 
-                        onClick={() => setShowFaceModal(false)}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95"
+              {/* Result shown in RESULT tab */}
+              {faceSubTab === 'result' && (
+                <>
+                {faceResult ? (
+                  <div className="bg-white rounded-3xl p-5 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-emerald-100 animate-fade-in" id="face_result_card">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
+                        <span className="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><Check className="w-4 h-4" /></span>
+                        Tahlil Xulosasi
+                      </h3>
+                      <button
+                        onClick={() => {
+                          const doc = new jsPDF();
+                          doc.setFont("helvetica", "bold");
+                          doc.setFontSize(16);
+                          doc.text("Psixolog AI - Yuz Tahlili", 20, 20);
+                          doc.setFont("helvetica", "normal");
+                          doc.setFontSize(11);
+                          const lines = doc.splitTextToSize(faceResult || "", 170);
+                          doc.text(lines, 20, 35);
+                          doc.save(`Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.pdf`);
+                        }}
+                        className="text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1"
                       >
-                        Natijani Ko'rish ↑
+                        <Download className="w-3 h-3" /> PDF
                       </button>
+                    </div>
+                    <div className="bg-stone-50 border border-stone-100 p-4 rounded-2xl text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line custom-scrollbar overflow-y-auto">
+                      {faceResult}
+                    </div>
+                    <button
+                      onClick={() => { setFaceResult(null); setFaceSubTab('camera'); }}
+                      className="mt-3 text-xs text-slate-400 hover:text-rose-500 transition flex items-center gap-1"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Yangi tahlil
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center p-10 bg-white rounded-3xl border border-stone-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mx-auto">
+                     <div className="bg-stone-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-stone-300">
+                       <Camera className="w-8 h-8" />
+                     </div>
+                     <p className="text-slate-500 font-medium">Hozircha natijalar yo'q. Iltimos, kamera orqali yuzingizni tahlil qiling.</p>
+                     <button onClick={() => setFaceSubTab('camera')} className="mt-4 px-4 py-2 bg-emerald-50 text-emerald-600 font-bold text-xs rounded-xl hover:bg-emerald-100">Kamerani ochish</button>
+                  </div>
+                )}
+                </>
+              )}
+
+              {/* Camera shown in CAMERA tab */}
+              {faceSubTab === 'camera' && (
+                <>
+                {faceError && (
+                  <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-rose-700 text-sm">Tahlilni amalga oshirib bo'lmadi</p>
+                      <p className="text-xs text-rose-600 mt-1 leading-relaxed">{faceError}</p>
+                      <button onClick={() => setFaceError(null)} className="text-xs text-rose-500 underline mt-2">Yopish</button>
                     </div>
                   </div>
                 )}
 
-              </div>
+                <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100 rounded-full blur-[40px] opacity-60"></div>
+                  
+                  <div className="text-center space-y-2 mb-4 relative z-10">
+                    <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                      <Camera className="w-6 h-6" />
+                    </div>
+                    <h2 className="font-display font-bold text-lg text-slate-900">Yuz Fiziognomiyasi va Emotsiya</h2>
+                    <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                      Kameraga qarab turing. Sun'iy intellekt sizning yuz tuzilishingiz orqali psixologik holatingizni tahlil qiladi.
+                    </p>
+                  </div>
+
+                  {/* Camera Container */}
+                  <div className="relative w-full max-w-[250px] mx-auto aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner mb-4 border-2 border-stone-100">
+                    {faceCameraActive ? (
+                      <video 
+                        ref={videoRef} 
+                        autoPlay 
+                        playsInline 
+                        muted 
+                        className="w-full h-full object-cover transform -scale-x-100"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 space-y-2 p-4 text-center">
+                        <Camera className="w-8 h-8 opacity-30" />
+                        <p className="text-[10px] font-medium leading-tight">Tahlilni boshlash uchun kamerani yoqing</p>
+                      </div>
+                    )}
+
+                    {/* Scanning Overlay Animation */}
+                    {faceLoading && (
+                      <div className="absolute inset-0 z-10">
+                        <div className="w-full h-full bg-emerald-500/20"></div>
+                        <div className="w-full h-1 bg-emerald-400 absolute top-0 left-0 shadow-[0_0_15px_rgba(52,211,153,1)] animate-scan"></div>
+                      </div>
+                    )}
+                  </div>
+
+                  <canvas ref={canvasRef} className="hidden" />
+
+                  <div className="flex justify-center gap-3">
+                    {!faceCameraActive ? (
+                      <button 
+                        onClick={startCamera}
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2"
+                      >
+                        <Camera className="w-4 h-4" />
+                        Kamerani Yoqish
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={analyzeFace}
+                        disabled={faceLoading}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-70"
+                      >
+                        {faceLoading ? (
+                          <><RefreshCw className="w-4 h-4 animate-spin" />Tahlil qilinmoqda...</>
+                        ) : (
+                          <><Brain className="w-4 h-4" />Tahlil Qilish</>
+                        )}
+                      </button>
+                    )}
+                    {faceCameraActive && !faceLoading && (
+                      <button 
+                        onClick={stopCamera}
+                        className="bg-stone-200 hover:bg-stone-300 text-slate-700 px-4 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
+                      >
+                        Bekor
+                      </button>
+                    )}
+                  </div>
+                </div>
+                </>
+              )}
+
+              {/* Face Analysis Done Modal */}
+              {showFaceModal && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                  <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in space-y-5">
+                    <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                      <Check className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-xl text-slate-900 mb-2">Tahlil Yakunlandi</h3>
+                      <p className="text-sm text-slate-500">Natija "Natija" bo'limiga yuklandi. Ko'rish uchun quyidagi tugmani bosing.</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setShowFaceModal(false);
+                        setFaceSubTab('result');
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95"
+                    >
+                      Natijani Ko'rish
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
 
