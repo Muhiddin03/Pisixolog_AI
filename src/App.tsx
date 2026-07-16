@@ -115,9 +115,7 @@ interface MoodLog {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'welcome' | 'tests' | 'ai-chat' | 'practices' | 'mood' | 'info' | 'settings'>(() => {
-    return localStorage.getItem('psixologik_welcomed') === 'true' ? 'tests' : 'welcome';
-  });
+  const [activeTab, setActiveTab] = useState<'welcome' | 'tests' | 'ai-chat' | 'practices' | 'mood' | 'info' | 'settings'>('welcome');
   const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
@@ -621,65 +619,69 @@ export default function App() {
     <div className="flex h-screen overflow-hidden bg-stone-50 text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900" id="app_root">
       
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-stone-200 bg-white shadow-[2px_0_10px_rgba(0,0,0,0.02)] z-20 shrink-0" id="desktop_sidebar">
-        <div className="p-5 border-b border-stone-100 flex items-center gap-3">
-          <div className="bg-emerald-600 text-white p-2.5 rounded-2xl shadow-sm">
-            <Brain className="w-6 h-6" />
+      {activeTab !== 'welcome' && (
+        <aside className="hidden md:flex flex-col w-64 border-r border-stone-200 bg-white shadow-[2px_0_10px_rgba(0,0,0,0.02)] z-20 shrink-0" id="desktop_sidebar">
+          <div className="p-5 border-b border-stone-100 flex items-center gap-3">
+            <div className="bg-emerald-600 text-white p-2.5 rounded-2xl shadow-sm">
+              <Brain className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="font-display font-bold text-lg text-slate-900 leading-none">Psixolog AI</h1>
+              <p className="text-[11px] text-emerald-600 font-medium mt-0.5">Shaxsiy maslahatchi</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display font-bold text-lg text-slate-900 leading-none">Psixolog AI</h1>
-            <p className="text-[11px] text-emerald-600 font-medium mt-0.5">Shaxsiy maslahatchi</p>
-          </div>
-        </div>
 
-        <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
-          <button onClick={() => setActiveTab('tests')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'tests' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <Activity className="w-5 h-5" /> <span>Testlar</span>
-          </button>
-          <button onClick={() => setActiveTab('ai-chat')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'ai-chat' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <MessageSquare className={`w-5 h-5 ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`} />
-            Ruhshunos bilan Chat
-          </button>
-          <button onClick={() => setActiveTab('practices')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'practices' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <Wind className={`w-5 h-5 ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`} />
-            Amaliyotlar
-          </button>
-          <button onClick={() => setActiveTab('mood')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'mood' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <Smile className="w-5 h-5" /> <span>Kundalik</span>
-          </button>
-          <button onClick={() => setActiveTab('info')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'info' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <BookOpen className="w-5 h-5" /> <span>Maslahatlar</span>
-          </button>
-          <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'settings' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
-            <Settings className="w-5 h-5" /> <span>Sozlamalar</span>
-          </button>
-        </nav>
+          <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
+            <button onClick={() => setActiveTab('tests')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'tests' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <Activity className="w-5 h-5" /> <span>Testlar</span>
+            </button>
+            <button onClick={() => setActiveTab('ai-chat')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'ai-chat' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <MessageSquare className={`w-5 h-5 ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`} />
+              Ruhshunos bilan Chat
+            </button>
+            <button onClick={() => setActiveTab('practices')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'practices' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <Wind className={`w-5 h-5 ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`} />
+              Amaliyotlar
+            </button>
+            <button onClick={() => setActiveTab('mood')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'mood' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <Smile className="w-5 h-5" /> <span>Kundalik</span>
+            </button>
+            <button onClick={() => setActiveTab('info')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'info' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <BookOpen className="w-5 h-5" /> <span>Maslahatlar</span>
+            </button>
+            <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'settings' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <Settings className="w-5 h-5" /> <span>Sozlamalar</span>
+            </button>
+          </nav>
 
-        <div className="p-4 border-t border-stone-100 bg-stone-50/50">
-          <div className="bg-white border border-stone-200 rounded-2xl p-3 text-center shadow-sm">
-            <AlertCircle className="w-5 h-5 text-rose-500 mx-auto mb-1.5" />
-            <span className="text-[10px] text-slate-500 block mb-1">Favqulodda yordam telefoni</span>
-            <span className="font-bold text-rose-600 text-sm block">1003 yoki 103</span>
+          <div className="p-4 border-t border-stone-100 bg-stone-50/50">
+            <div className="bg-white border border-stone-200 rounded-2xl p-3 text-center shadow-sm">
+              <AlertCircle className="w-5 h-5 text-rose-500 mx-auto mb-1.5" />
+              <span className="text-[10px] text-slate-500 block mb-1">Favqulodda yordam telefoni</span>
+              <span className="font-bold text-rose-600 text-sm block">1003 yoki 103</span>
+            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      )}
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 bg-stone-50/30 relative">
+      <div className={`flex-1 flex flex-col min-w-0 bg-stone-50/30 relative ${activeTab === 'welcome' ? 'md:bg-white' : ''}`}>
         
         {/* MOBILE HEADER */}
-        <header className="md:hidden flex items-center justify-between p-6 sm:p-5 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="bg-emerald-600 text-white p-1.5 rounded-lg shadow-xs">
-              <Brain className="w-4 h-4" />
+        {activeTab !== 'welcome' && (
+          <header className="md:hidden flex items-center justify-between p-6 sm:p-5 border-b border-stone-200 bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="bg-emerald-600 text-white p-1.5 rounded-lg shadow-xs">
+                <Brain className="w-4 h-4" />
+              </div>
+              <h1 className="font-display font-bold text-sm text-slate-900">Psixolog AI</h1>
             </div>
-            <h1 className="font-display font-bold text-sm text-slate-900">Psixolog AI</h1>
-          </div>
-          <a href="tel:1003" className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold active:scale-95 transition-transform">
-            <PhoneCall className="w-3.5 h-3.5" />
-            <span>Yordam</span>
-          </a>
-        </header>
+            <a href="tel:1003" className="flex items-center gap-1 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold active:scale-95 transition-transform">
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span>Yordam</span>
+            </a>
+          </header>
+        )}
 
         {/* SCROLLABLE MAIN CONTENT */}
         <main className="flex-1 overflow-y-auto w-full relative p-3 md:p-6 pb-24 md:pb-10 custom-scrollbar" id="main_content_container">
@@ -2021,7 +2023,8 @@ export default function App() {
         </main>
 
         {/* MOBILE BOTTOM NAVIGATION */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-200 pb-safe z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]" id="mobile_bottom_nav">
+        {activeTab !== 'welcome' && (
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-200 pb-safe z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]" id="mobile_bottom_nav">
           <div className="flex items-center justify-around p-1.5 px-2">
             <button onClick={() => setActiveTab('tests')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`}>
               <Activity className={`w-5 h-5 mb-1 ${activeTab === 'tests' ? 'scale-110' : ''} transition-transform`} />
@@ -2049,6 +2052,7 @@ export default function App() {
             </button>
           </div>
         </nav>
+        )}
       </div>
     </div>
   );
