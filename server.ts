@@ -78,7 +78,7 @@ Sizning vazifalaringiz:
 
       console.log("Gemini API so'rovi yuborilmoqda (consult)...");
       
-      const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-1.5-pro'];
+      const models = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-3.5-pro', 'gemini-1.5-pro'];
       let success = false;
       let responseText = '';
       let errors: string[] = [];
@@ -151,7 +151,7 @@ Sizning vazifalaringiz:
 
       console.log("Gemini API so'rovi yuborilmoqda (analyze-face)...");
       
-      const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-1.5-pro'];
+      const models = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-3.5-pro', 'gemini-1.5-pro'];
       let success = false;
       let responseText = '';
       let errors: string[] = [];

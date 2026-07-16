@@ -428,7 +428,7 @@ export default function App() {
       if (!success) {
         const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
         if (apiKey && apiKey.trim()) {
-          const defaultModels = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const defaultModels = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
           const models = selectedModel ? [selectedModel, ...defaultModels] : defaultModels;
 
           for (const modelName of models) {
@@ -713,7 +713,7 @@ export default function App() {
         const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
 
         if (apiKey && apiKey.trim()) {
-          const defaultModels = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const defaultModels = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
           const models = selectedModel ? [selectedModel, ...defaultModels] : defaultModels;
           let modelErrors: string[] = [];
           for (const modelName of models) {
