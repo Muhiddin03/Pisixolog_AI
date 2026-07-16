@@ -23,7 +23,8 @@ import {
   ArrowRight, 
   Award, 
   PhoneCall,
-  Key
+  Key,
+  ChevronDown
 } from 'lucide-react';
 
 // Scientific Eysenck Temperament Inventory questions
@@ -710,8 +711,8 @@ export default function App() {
                     </div>
                     <h2 className="font-bold text-sm text-slate-900">1. Temperament Testi (Eysenck)</h2>
                   </div>
-                  <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
-                    Test 2 ta asosiy ustunni aniqlaydi: Muloqot xulqi va Hissiy barqarorlik. Faqat ha/yo&apos;q shaklida javob bering.
+                  <p className="text-[11px] text-slate-500 mb-4 leading-relaxed">
+                    Ushbu test shaxsiyatning 2 ta asosiy ustunini aniqlaydi: Muloqot xulqi (Ekstraversiya/Introversiya) va Hissiy barqarorlik (Neyrotizm). Iltimos, barcha 20 ta savolga faqat "Ha" yoki "Yo'q" shaklida samimiy javob bering.
                   </p>
 
                   {!eyCompleted ? (
@@ -784,8 +785,8 @@ export default function App() {
                     </div>
                     <h2 className="font-bold text-sm text-slate-900">2. Stress darajasi (PSS-10)</h2>
                   </div>
-                  <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
-                    Oxirgi 1 oy davomidagi hayotiy stress darajangizni o&apos;lchash uchun holatlarni belgilang (0: Hech qachon, 4: Juda ko&apos;p).
+                  <p className="text-[11px] text-slate-500 mb-4 leading-relaxed">
+                    Ushbu xalqaro miqyosda tan olingan so&apos;rovnoma (Perceived Stress Scale) orqali oxirgi 1 oy davomidagi hayotiy stress darajangizni o&apos;lchang. Har bir holat uchun qanchalik tez-tez yuz berishini belgilang (0: Hech qachon, 4: Juda tez-tez).
                   </p>
 
                   {!pssCompleted ? (
@@ -856,38 +857,116 @@ export default function App() {
 
         {/* TAB 2: AI CONSULTANT CHAT */}
         {activeTab === 'ai-chat' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8" id="tab_chat_view">
+          <div className="max-w-4xl mx-auto h-full animate-fade-in" id="tab_chat_view">
             {/* Chat Box Interface */}
-            <div className="lg:col-span-2 glass-card rounded-2xl md:rounded-3xl flex flex-col h-[400px] sm:h-[450px] overflow-hidden order-1 lg:order-2 border-t border-white/80" id="chat_box_interface">
+            <div className="glass-card rounded-2xl md:rounded-3xl flex flex-col h-[calc(100vh-170px)] sm:h-[calc(100vh-120px)] overflow-visible shadow-md relative" id="chat_box_interface">
               {/* Chat Header */}
-              <div className="bg-white/60 backdrop-blur-md border-b border-white/50 px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between" id="chat_header">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold relative shadow-md">
+              <div className="bg-white/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex flex-wrap items-center justify-between z-20 rounded-t-2xl md:rounded-t-3xl" id="chat_header">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg relative shadow-md">
                     S
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-white rounded-full animate-pulse"></span>
+                    <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full animate-pulse"></span>
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-xs sm:text-sm text-slate-900">Ruhshunos Sodiq</h3>
-                    <p className="text-[9px] sm:text-[10px] text-emerald-600 font-semibold">Tizimda faol • Empatik AI Maslahatchi</p>
+                    <h3 className="font-display font-bold text-sm sm:text-base text-slate-900">Sodiq <span className="hidden sm:inline-block text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md ml-1 font-semibold">AI Ruhshunos</span></h3>
+                    <p className="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Sizni tinglashga doim tayyor</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] sm:text-[10px] bg-slate-100 px-2 py-1 rounded-md text-slate-500 font-semibold border border-stone-200/50">CBT Metodi</span>
-                </div>
+                
+                {/* Collapsible Info Menu */}
+                <details className="group relative mt-2 w-full sm:w-auto sm:mt-0">
+                  <summary className="text-[11px] bg-emerald-50/80 text-emerald-700 px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-2 font-bold hover:bg-emerald-100 transition list-none border border-emerald-200 shadow-sm active:scale-95">
+                    <span className="flex items-center gap-1.5"><Shield className="w-4 h-4" /> Ulanish sozlamalari</span>
+                    <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                  </summary>
+                  
+                  {/* Dropdown Box */}
+                  <div className="absolute right-0 top-full mt-2 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50">
+                    <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
+                      Ruhshunos Sodiq sizning topshirgan test natijalaringizni to&apos;g&apos;ridan-to&apos;g&apos;ri tahlil qila oladi. Muloqotingiz maxfiy.
+                    </p>
+                    
+                    <div className="space-y-2 mb-3">
+                      {eyResult ? (
+                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px]">
+                          <span className="font-bold text-emerald-900 block">Temperament:</span>
+                          <span className="text-emerald-700">{eyResult.title}</span>
+                        </div>
+                      ) : (
+                        <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
+                          Siz hali Temperament testini topshirmadingiz.
+                        </div>
+                      )}
+
+                      {pssResult ? (
+                        <div className={`p-2.5 rounded-xl border text-[11px] ${pssResult.color}`}>
+                          <span className="font-bold block">Stress holati:</span>
+                          <span>{pssResult.level} ({pssResult.score}/40)</span>
+                        </div>
+                      ) : (
+                        <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
+                          Siz hali Stress testini topshirmadingiz.
+                        </div>
+                      )}
+                    </div>
+
+                    {(eyResult || pssResult) && (
+                      <button
+                        id="btn_inject_results"
+                        onClick={() => {
+                          let infoText = "Mening test natijalarim:\n";
+                          if (eyResult) infoText += `- Temperament: ${eyResult.title}\n`;
+                          if (pssResult) infoText += `- Stress: ${pssResult.level} (${pssResult.score}/40)\n`;
+                          infoText += "Menga ushbu ko'rsatkichlar bo'yicha maxsus va ilmiy tavsiyalar bera olasizmi?";
+                          setChatInput(infoText);
+                        }}
+                        className="w-full text-center py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-sm cursor-pointer active:scale-95 mb-3"
+                      >
+                        Natijalarni yozish maydoniga joylash
+                      </button>
+                    )}
+
+                    {/* Static Hosting API Key settings panel */}
+                    <div className="pt-3 border-t border-stone-100 space-y-2">
+                      <span className="text-[10px] font-bold text-slate-700 flex items-center gap-1.5">
+                        <Key className="w-3.5 h-3.5 text-emerald-600" />
+                        Vercel uchun API Kaliti
+                      </span>
+                      <div className="flex gap-1.5">
+                        <input
+                          type="password"
+                          placeholder="Gemini API kaliti..."
+                          value={customApiKey}
+                          onChange={(e) => saveCustomApiKey(e.target.value)}
+                          className="flex-1 bg-stone-50 border border-stone-200 rounded-lg px-2 py-1.5 text-[10px] focus:outline-none focus:border-emerald-500 text-slate-800"
+                        />
+                        {customApiKey && (
+                          <button
+                            onClick={() => saveCustomApiKey('')}
+                            className="px-2 bg-rose-50 border border-rose-100 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-100 transition cursor-pointer"
+                            title="O'chirish"
+                          >
+                            X
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </details>
               </div>
 
               {/* Messages display */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 bg-transparent custom-scrollbar" id="chat_messages_area">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-stone-50/50 custom-scrollbar relative z-0" id="chat_messages_area">
                 {chatHistory.map((msg, idx) => (
                   <div 
                     key={idx} 
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     id={`chat_msg_${idx}`}
                   >
-                    <div className={`max-w-[85%] rounded-2xl p-2.5 sm:p-3 text-xs leading-relaxed shadow-sm ${
+                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed shadow-sm ${
                       msg.role === 'user' 
-                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-tr-sm' 
-                        : 'bg-white border border-stone-100/50 text-slate-800 rounded-tl-sm'
+                        ? 'bg-gradient-to-br from-emerald-600 to-teal-500 text-white rounded-tr-sm shadow-emerald-500/20' 
+                        : 'bg-white border border-stone-200/60 text-slate-800 rounded-tl-sm'
                     }`}>
                       <p className="whitespace-pre-line font-medium leading-relaxed">{msg.text}</p>
                     </div>
@@ -896,9 +975,9 @@ export default function App() {
                 
                 {chatLoading && (
                   <div className="flex justify-start" id="chat_loading_indicator">
-                    <div className="bg-white border border-stone-200 rounded-2xl rounded-tl-none p-4 shadow-xs flex items-center gap-2">
-                      <span className="text-xs text-slate-500 font-medium">Sodiq javob yozmoqda</span>
-                      <span className="flex gap-1">
+                    <div className="bg-white border border-stone-200 rounded-2xl rounded-tl-none p-4 shadow-sm flex items-center gap-3">
+                      <span className="text-xs text-slate-500 font-medium">Sodiq o&apos;ylamoqda</span>
+                      <span className="flex gap-1.5">
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"></span>
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
@@ -906,108 +985,29 @@ export default function App() {
                     </div>
                   </div>
                 )}
-                <div ref={chatEndRef} />
+                <div ref={chatEndRef} className="h-2" />
               </div>
 
               {/* Chat Input form */}
-              <form onSubmit={sendChatMessage} className="p-2 sm:p-3 bg-white/70 backdrop-blur-md border-t border-white/50 flex gap-2" id="chat_input_form">
+              <form onSubmit={sendChatMessage} className="p-3 sm:p-4 bg-white/90 backdrop-blur-xl border-t border-stone-200 flex gap-2 sm:gap-3 rounded-b-2xl md:rounded-b-3xl z-10 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]" id="chat_input_form">
                 <input
                   id="input_chat_text"
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Xavotirlaringizni yozing..."
-                  className="flex-1 bg-white border border-stone-200/60 rounded-2xl px-3 py-2 sm:py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 font-medium transition shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+                  placeholder="O'z his-tuyg'ularingiz bilan bo'lishing..."
+                  className="flex-1 bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 sm:py-3.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-800 font-medium transition shadow-inner"
                 />
                 <button
                   id="btn_chat_send"
                   type="submit"
                   disabled={chatLoading || !chatInput.trim()}
-                  className="bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2.5 sm:p-3 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center cursor-pointer"
+                  className="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 sm:px-5 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline-block font-bold text-sm">Yuborish</span>
                 </button>
               </form>
-            </div>
-
-            {/* Sidebar with current context */}
-            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm space-y-3 lg:space-y-4 h-fit order-2 lg:order-1" id="chat_context_sidebar">
-              <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
-                <Shield className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-display font-bold text-sm text-slate-900">Ulanish Ma&apos;lumotlari</h3>
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Ruhshunos Sodiq sizning topshirgan test natijalaringizni to&apos;g&apos;ridan-to&apos;g&apos;ri tahlil qila oladi. Muloqotingiz maxfiy va xavfsiz.
-              </p>
-
-              <div className="space-y-3 pt-1" id="sidebar_results_status">
-                {eyResult ? (
-                  <div className="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-100 text-xs">
-                    <span className="font-bold text-emerald-800 block mb-1">Temperament:</span>
-                    <span className="text-slate-700">{eyResult.title}</span>
-                  </div>
-                ) : (
-                  <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/50 border-dashed text-xs text-slate-400">
-                    Siz hali Temperament testini topshirmadingiz.
-                  </div>
-                )}
-
-                {pssResult ? (
-                  <div className={`p-3.5 rounded-xl border text-xs ${pssResult.color}`}>
-                    <span className="font-bold block mb-1">Stress (PSS-10):</span>
-                    <span>{pssResult.level} stress ({pssResult.score}/40 ball)</span>
-                  </div>
-                ) : (
-                  <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/50 border-dashed text-xs text-slate-400">
-                    Siz hali Stress testini topshirmadingiz.
-                  </div>
-                )}
-              </div>
-
-              {(eyResult || pssResult) && (
-                <button
-                  id="btn_inject_results"
-                  onClick={() => {
-                    let infoText = "Mening test natijalarim:\n";
-                    if (eyResult) infoText += `- Temperament: ${eyResult.title}\n`;
-                    if (pssResult) infoText += `- Stress: ${pssResult.level} (${pssResult.score}/40)\n`;
-                    infoText += "Menga ushbu ko'rsatkichlar bo'yicha maxsus va ilmiy tavsiyalar bera olasizmi?";
-                    setChatInput(infoText);
-                  }}
-                  className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer active:scale-98"
-                >
-                  Natijalarni yozish maydoniga joylash
-                </button>
-              )}
-
-              {/* Static Hosting API Key settings panel */}
-              <div className="pt-3.5 border-t border-stone-100 space-y-2" id="static_api_key_settings">
-                <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
-                  <Key className="w-3.5 h-3.5 text-emerald-600" />
-                  Statik (Vercel) API Kaliti
-                </span>
-                <p className="text-[10px] text-slate-500 leading-tight">
-                  Ilovani GitHub/Vercel-ga joylaganingizda, o'z shaxsiy Gemini API kalitingizni kiritsangiz bo'ladi (kalit faqat brauzeringizda xavfsiz saqlanadi).
-                </p>
-                <div className="flex gap-1.5">
-                  <input
-                    type="password"
-                    placeholder="Sizning Gemini API kalitingiz..."
-                    value={customApiKey}
-                    onChange={(e) => saveCustomApiKey(e.target.value)}
-                    className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-emerald-500 text-slate-800"
-                  />
-                  {customApiKey && (
-                    <button
-                      onClick={() => saveCustomApiKey('')}
-                      className="px-2.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-100 transition"
-                      title="O'chirish"
-                    >
-                      X
-                    </button>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         )}
