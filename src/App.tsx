@@ -206,6 +206,7 @@ export default function App() {
 
   // --- UI STATE ---
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [showChatInfo, setShowChatInfo] = useState(false);
 
   // --- STORAGE USAGE STATE ---
   const [storageUsage, setStorageUsage] = useState({ bytes: 0, percent: 0 });
@@ -353,7 +354,7 @@ export default function App() {
           }
         });
         const response = await ai.models.generateContent({
-          model: 'gemini-3.5-flash',
+          model: 'gemini-2.0-flash',
           contents: [
             {
               role: 'user',
@@ -641,7 +642,7 @@ export default function App() {
             ];
 
             const response = await ai.models.generateContent({
-              model: 'gemini-3.5-flash',
+              model: 'gemini-2.0-flash',
               contents: contents,
               config: {
                 systemInstruction: "Sizning ismingiz - Sodiq. Siz ilmiy-psixologik, o'ta xushmuomala, empatik, xavfsiz va tushunadigan AI maslahatchisiz. Foydalanuvchining his-tuyg'ularini qo'llab-quvvatlang, kognitiv-bixevioral terapiya (CBT) tamoyillari asosida ilmiy yondashing. Qisqa va tushunarli, o'zbek tilida javob bering."
@@ -1478,60 +1479,66 @@ export default function App() {
                 </div>
                 
                 {/* Collapsible Info Menu */}
-                <details className="group relative mt-2 w-full sm:w-auto sm:mt-0">
-                  <summary className="text-[11px] bg-emerald-50/80 text-emerald-700 px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-2 font-bold hover:bg-emerald-100 transition list-none border border-emerald-200 shadow-sm active:scale-95">
+                <div className="relative mt-2 w-full sm:w-auto sm:mt-0">
+                  <button
+                    onClick={() => setShowChatInfo(prev => !prev)}
+                    className="text-[11px] bg-emerald-50/80 text-emerald-700 px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-2 font-bold hover:bg-emerald-100 transition border border-emerald-200 shadow-sm active:scale-95 w-full sm:w-auto"
+                  >
                     <span className="flex items-center gap-1.5"><Shield className="w-4 h-4" /> Ulanish sozlamalari</span>
-                    <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
-                  </summary>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showChatInfo ? 'rotate-180' : ''}`} />
+                  </button>
                   
                   {/* Dropdown Box */}
-                  <div className="absolute right-0 top-full mt-2 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50">
-                    <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
-                      Ruhshunos Sodiq sizning topshirgan test natijalaringizni to&apos;g&apos;ridan-to&apos;g&apos;ri tahlil qila oladi. Muloqotingiz maxfiy.
-                    </p>
-                    
-                    <div className="space-y-2 mb-3">
-                      {eyResult ? (
-                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px]">
-                          <span className="font-bold text-emerald-900 block">Temperament:</span>
-                          <span className="text-emerald-700">{eyResult.title}</span>
-                        </div>
-                      ) : (
-                        <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
-                          Siz hali Temperament testini topshirmadingiz.
-                        </div>
+                  {showChatInfo && (
+                    <div className="absolute right-0 top-full mt-2 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50">
+                      <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
+                        Ruhshunos Sodiq sizning topshirgan test natijalaringizni to&apos;g&apos;ridan-to&apos;g&apos;ri tahlil qila oladi. Muloqotingiz maxfiy.
+                      </p>
+                      
+                      <div className="space-y-2 mb-3">
+                        {eyResult ? (
+                          <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px]">
+                            <span className="font-bold text-emerald-900 block">Temperament:</span>
+                            <span className="text-emerald-700">{eyResult.title}</span>
+                          </div>
+                        ) : (
+                          <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
+                            Siz hali Temperament testini topshirmadingiz.
+                          </div>
+                        )}
+
+                        {pssResult ? (
+                          <div className={`p-2.5 rounded-xl border text-[11px] ${pssResult.color}`}>
+                            <span className="font-bold block">Stress holati:</span>
+                            <span>{pssResult.level} ({pssResult.score}/40)</span>
+                          </div>
+                        ) : (
+                          <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
+                            Siz hali Stress testini topshirmadingiz.
+                          </div>
+                        )}
+                      </div>
+
+                      {(eyResult || pssResult) && (
+                        <button
+                          id="btn_inject_results"
+                          onClick={() => {
+                            let infoText = "Mening test natijalarim:\n";
+                            if (eyResult) infoText += `- Temperament: ${eyResult.title}\n`;
+                            if (pssResult) infoText += `- Stress: ${pssResult.level} (${pssResult.score}/40)\n`;
+                            infoText += "Menga ushbu ko'rsatkichlar bo'yicha maxsus va ilmiy tavsiyalar bera olasizmi?";
+                            setChatInput(infoText);
+                            setShowChatInfo(false);
+                          }}
+                          className="w-full text-center py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-sm cursor-pointer active:scale-95 mb-3"
+                        >
+                          Natijalarni yozish maydoniga joylash
+                        </button>
                       )}
 
-                      {pssResult ? (
-                        <div className={`p-2.5 rounded-xl border text-[11px] ${pssResult.color}`}>
-                          <span className="font-bold block">Stress holati:</span>
-                          <span>{pssResult.level} ({pssResult.score}/40)</span>
-                        </div>
-                      ) : (
-                        <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 border-dashed text-[10px] text-slate-400">
-                          Siz hali Stress testini topshirmadingiz.
-                        </div>
-                      )}
                     </div>
-
-                    {(eyResult || pssResult) && (
-                      <button
-                        id="btn_inject_results"
-                        onClick={() => {
-                          let infoText = "Mening test natijalarim:\n";
-                          if (eyResult) infoText += `- Temperament: ${eyResult.title}\n`;
-                          if (pssResult) infoText += `- Stress: ${pssResult.level} (${pssResult.score}/40)\n`;
-                          infoText += "Menga ushbu ko'rsatkichlar bo'yicha maxsus va ilmiy tavsiyalar bera olasizmi?";
-                          setChatInput(infoText);
-                        }}
-                        className="w-full text-center py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-sm cursor-pointer active:scale-95 mb-3"
-                      >
-                        Natijalarni yozish maydoniga joylash
-                      </button>
-                    )}
-
-                  </div>
-                </details>
+                  )}
+                </div>
               </div>
 
               {/* Messages display */}
@@ -1724,53 +1731,51 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="relative max-w-sm mx-auto mt-4" id="shredder_machine">
+                <div className="relative max-w-sm mx-auto mt-6 pb-10" id="shredder_machine">
                   {/* Paper to be shredded */}
-                  <div className={`transition-all duration-1000 ease-in-out origin-top
-                    ${isShredding ? 'translate-y-24 opacity-0 scale-y-0' : 'translate-y-0 opacity-100 scale-y-100'}
+                  <div className={`transition-all duration-700 ease-in-out origin-bottom
+                    ${isShredding ? 'opacity-0 scale-y-0 -translate-y-2' : 'opacity-100 scale-y-100'}
                   `}>
                     <textarea
                       value={worryText}
                       onChange={(e) => setWorryText(e.target.value)}
                       disabled={isShredding}
                       placeholder="Men ...dan xavotirdaman."
-                      className="w-full h-24 p-4 rounded-xl border border-stone-200 bg-[#fffaeb] text-stone-800 text-sm shadow-inner focus:outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-200 transition-all resize-none custom-scrollbar"
+                      className="w-full h-28 p-4 rounded-t-xl border border-stone-200 bg-[#fffef0] text-stone-800 text-sm shadow-inner focus:outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-200 transition-all resize-none custom-scrollbar font-medium leading-relaxed"
                     />
                   </div>
 
                   {/* Shredder Machine visual */}
-                  <div className="absolute bottom-[-10px] left-0 right-0 h-8 bg-slate-800 rounded-lg shadow-lg flex items-center justify-center border-t-4 border-slate-900 overflow-hidden z-20">
-                    <div className="w-3/4 h-1 bg-black rounded-full opacity-50"></div>
+                  <div className={`h-10 bg-gradient-to-r from-slate-700 via-slate-800 to-slate-700 rounded-b-xl shadow-lg flex items-center justify-around px-2 border-t-4 border-slate-900 overflow-hidden relative z-20 ${isShredding ? 'animate-vibrate' : ''}`}>
+                    {[...Array(10)].map((_, i) => (
+                      <div key={i} className="w-0.5 h-6 bg-slate-600 rounded-full" />
+                    ))}
                   </div>
 
-                  {/* Confetti after shredding */}
+                  {/* Paper strips falling out */}
                   {isShredding && (
-                    <div className="absolute -bottom-10 left-0 right-0 h-32 pointer-events-none z-10 flex justify-center">
-                      {[...Array(20)].map((_, i) => {
-                        const rx = (Math.random() - 0.5) * 200;
-                        const ry = (Math.random() - 0.5) * 100;
-                        const rr = Math.random() * 360;
-                        const delay = Math.random() * 0.5;
-                        const colors = ['bg-rose-400', 'bg-orange-300', 'bg-amber-200', 'bg-slate-300'];
+                    <div className="absolute top-full left-0 right-0 pointer-events-none z-10 flex justify-center gap-0.5 flex-wrap">
+                      {[...Array(24)].map((_, i) => {
+                        const rx = (Math.random() - 0.5) * 180;
+                        const ry = 60 + Math.random() * 120;
+                        const rr = (Math.random() - 0.5) * 60;
+                        const delay = Math.random() * 0.6;
+                        const colors = ['bg-rose-300', 'bg-orange-200', 'bg-amber-100', 'bg-slate-200', 'bg-red-200', 'bg-yellow-200'];
                         const color = colors[Math.floor(Math.random() * colors.length)];
-                        const width = 4 + Math.random() * 6;
-                        const height = 8 + Math.random() * 12;
-                        
                         return (
-                          <div 
+                          <div
                             key={i}
-                            className={`absolute ${color} rounded-sm animate-confetti`}
-                            style={{ 
-                              width, 
-                              height,
-                              left: '50%',
-                              top: '50%',
-                              '--scatter-x': rx + "px",
-                              '--scatter-y': ry + "px",
-                              '--scatter-r': rr + "deg",
-                              animationDelay: `${delay}s` 
+                            className={`${color} rounded-[1px] animate-shred`}
+                            style={{
+                              width: '6px',
+                              height: `${16 + Math.random() * 20}px`,
+                              '--scatter-x': rx + 'px',
+                              '--scatter-y': ry + 'px',
+                              '--scatter-r': rr + 'deg',
+                              animationDelay: `${delay}s`,
+                              animationDuration: '1.2s'
                             } as React.CSSProperties}
-                          ></div>
+                          />
                         );
                       })}
                     </div>
