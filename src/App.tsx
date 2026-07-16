@@ -200,6 +200,7 @@ export default function App() {
   const [faceCameraActive, setFaceCameraActive] = useState(false);
   const [faceLoading, setFaceLoading] = useState(false);
   const [faceResult, setFaceResult] = useState<string | null>(() => loadState('psixologik_face_result', null));
+  const [showFaceModal, setShowFaceModal] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -373,6 +374,7 @@ export default function App() {
 
         if (response && response.text) {
           setFaceResult(response.text);
+          setShowFaceModal(true);
         } else {
           alert("Tahlilni olishda xatolik yuz berdi: Bo'sh javob.");
         }
@@ -392,6 +394,14 @@ export default function App() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, chatLoading]);
+
+  // Scroll to top on navigation change
+  useEffect(() => {
+    const mainContent = document.getElementById('main_content_container');
+    if (mainContent) {
+      mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [activeTab, testsSubTab, practicesSubTab]);
 
   // --- EYSENCK LOGIC ---
   const handleEyAnswer = (answer: boolean) => {
@@ -838,8 +848,8 @@ export default function App() {
         )}
 
         {/* SCROLLABLE MAIN CONTENT */}
-        <main className={`flex-1 overflow-y-auto w-full relative p-3 md:p-6 ${isKeyboardOpen ? 'pb-2' : 'pb-24 md:pb-10'} custom-scrollbar`} id="main_content_container">
-          <div className="max-w-4xl mx-auto">
+        <main className={`flex-1 overflow-y-auto w-full relative ${activeTab === 'ai-chat' ? 'p-0 pb-[70px] md:pb-0' : 'p-3 md:p-6'} ${isKeyboardOpen ? '' : activeTab !== 'ai-chat' ? 'pb-24 md:pb-10' : ''} custom-scrollbar`} id="main_content_container">
+          <div className={`max-w-4xl mx-auto ${activeTab === 'ai-chat' ? 'h-full flex flex-col' : ''}`}>
           
           {/* TAB 0: WELCOME SCREEN */}
           {activeTab === 'welcome' && (
@@ -901,7 +911,7 @@ export default function App() {
                 </div>
 
                 {/* Camera Container */}
-                <div className="relative w-full max-w-[200px] mx-auto aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner mb-4 border-2 border-stone-100">
+                <div className="relative w-full max-w-[250px] mx-auto aspect-square bg-slate-900 rounded-2xl overflow-hidden shadow-inner mb-4 border-2 border-stone-100">
                   {faceCameraActive ? (
                     <video 
                       ref={videoRef} 
@@ -996,6 +1006,28 @@ export default function App() {
                     </div>
                   </div>
                 )}
+
+                {/* Face Analysis Notification Modal */}
+                {showFaceModal && (
+                  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in space-y-5">
+                      <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                        <Check className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-xl text-slate-900 mb-2">Tahlil Yakunlandi</h3>
+                        <p className="text-sm text-slate-500">Sizning yuz tuzilishingiz va emotsiyangiz muvaffaqiyatli tahlil qilindi.</p>
+                      </div>
+                      <button 
+                        onClick={() => setShowFaceModal(false)}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95"
+                      >
+                        Natijani Ko'rish
+                      </button>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           )}
@@ -1429,9 +1461,9 @@ export default function App() {
 
         {/* TAB 2: AI CONSULTANT CHAT */}
         {activeTab === 'ai-chat' && (
-          <div className="max-w-4xl mx-auto h-full animate-fade-in" id="tab_chat_view">
+          <div className="w-full h-full flex flex-col animate-fade-in" id="tab_chat_view">
             {/* Chat Box Interface */}
-            <div className="glass-card rounded-2xl md:rounded-3xl flex flex-col h-[calc(100dvh-140px)] sm:h-[calc(100dvh-120px)] overflow-visible shadow-md relative" id="chat_box_interface">
+            <div className="bg-stone-50 md:glass-card md:rounded-3xl flex flex-col flex-1 overflow-hidden shadow-md relative" id="chat_box_interface">
               {/* Chat Header */}
               <div className="bg-white/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex flex-wrap items-center justify-between z-20 rounded-t-2xl md:rounded-t-3xl shrink-0" id="chat_header">
                 <div className="flex items-center gap-3">
@@ -1599,8 +1631,8 @@ export default function App() {
                     <Wind className="w-5 h-5" />
                   </div>
                   <h2 className="font-display font-bold text-lg text-slate-900">Nafas Mashqi (4-7-8)</h2>
-                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Tinchlanish va stress gormonlarini kamaytirish uchun nafas mashqi.
+                  <p className="text-[10px] sm:text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                    Ushbu mashq asab tizimini tinchlantirish, yurak urishini me'yorga keltirish va o'tkir stress (vahima) holatidan tezda chiqish uchun eng samarali usullardan biridir. 4 soniya nafas oling, 7 soniya ushlab turing va 8 soniya nafas chiqaring.
                   </p>
                 </div>
 
@@ -1687,8 +1719,8 @@ export default function App() {
                     <Trash2 className="w-5 h-5" />
                   </div>
                   <h2 className="font-display font-bold text-lg text-slate-900">Xavotirni Parchalash</h2>
-                  <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Sizni qiynayotgan xavotirlarni yozing va parchalab tashlang.
+                  <p className="text-[10px] sm:text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                    Psixologiyada "Kognitiv tozalash" deb ataluvchi bu usul sizga miyangizdagi ortiqcha tashvishlarni jismoniy harakat orqali yo'qotish hissini beradi. Sizni qiynayotgan xavotirlarni yozing va parchalab tashlang.
                   </p>
                 </div>
 
@@ -2197,8 +2229,8 @@ export default function App() {
               <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
                 <div className="flex justify-between items-end mb-2">
                   <h3 className="font-bold text-slate-800 text-sm">Xotira sarfi</h3>
-                  <span className="text-xs font-semibold text-slate-500">
-                    {(storageUsage.bytes / 1024).toFixed(2)} KB / 5 MB
+                  <span className="text-[10px] sm:text-xs font-semibold text-slate-500">
+                    Ishlatilgan: {(storageUsage.bytes / 1024).toFixed(1)} KB | Qolgan: {((5 * 1024 * 1024 - storageUsage.bytes) / (1024 * 1024)).toFixed(2)} MB
                   </span>
                 </div>
                 <div className="w-full bg-stone-100 rounded-full h-2.5 mb-2 overflow-hidden">
