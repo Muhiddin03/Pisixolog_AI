@@ -84,7 +84,7 @@ Sizning vazifalaringiz:
       let errors: string[] = [];
 
       for (const modelName of models) {
-        let attempts = 3;
+        let attempts = 2;
         for (let i = 0; i < attempts; i++) {
           try {
             const response = await ai.models.generateContent({
@@ -102,8 +102,8 @@ Sizning vazifalaringiz:
             const errStr = err.message || err.toString();
             const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
             if (isUnavailable && i < attempts - 1) {
-              console.warn(`Consult: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
-              await new Promise(resolve => setTimeout(resolve, 1500));
+              console.warn(`Consult: Model ${modelName} returned 503, retrying in 0.5s (attempt ${i + 1}/2)...`);
+              await new Promise(resolve => setTimeout(resolve, 500));
               continue;
             }
             console.warn(`Consult: Model ${modelName} failed: ${errStr}`);
@@ -157,7 +157,7 @@ Sizning vazifalaringiz:
       let errors: string[] = [];
 
       for (const modelName of models) {
-        let attempts = 3;
+        let attempts = 2;
         for (let i = 0; i < attempts; i++) {
           try {
             const response = await ai.models.generateContent({
@@ -177,8 +177,8 @@ Sizning vazifalaringiz:
             const errStr = err.message || err.toString();
             const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
             if (isUnavailable && i < attempts - 1) {
-              console.warn(`Analyze face: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
-              await new Promise(resolve => setTimeout(resolve, 1500));
+              console.warn(`Analyze face: Model ${modelName} returned 503, retrying in 0.5s (attempt ${i + 1}/2)...`);
+              await new Promise(resolve => setTimeout(resolve, 500));
               continue;
             }
             console.warn(`Analyze face: Model ${modelName} failed: ${errStr}`);

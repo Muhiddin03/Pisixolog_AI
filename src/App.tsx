@@ -246,6 +246,7 @@ export default function App() {
 
   // --- UI STATE ---
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [showChatInfo, setShowChatInfo] = useState(false);
 
   // --- STORAGE USAGE STATE ---
@@ -294,11 +295,34 @@ export default function App() {
       handleVisualViewportResize();
     }
 
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        setIsInputFocused(true);
+      }
+    };
+
+    const handleFocusOut = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        setTimeout(() => {
+          if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+            setIsInputFocused(false);
+          }
+        }, 100);
+      }
+    };
+
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleVisualViewportResize);
       }
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
     };
   }, [activeTab, chatHistory, moodLogs, eyResult, pssResult]);
 
@@ -935,7 +959,7 @@ export default function App() {
           className={`flex-1 w-full relative ${
             activeTab === 'ai-chat'
               ? 'overflow-hidden p-0'
-              : `overflow-y-auto p-3 md:p-6 ${isKeyboardOpen ? 'pb-4' : 'pb-24 md:pb-10'}`
+              : `overflow-y-auto p-3 md:p-6 ${(isKeyboardOpen || isInputFocused) ? 'pb-4' : 'pb-24 md:pb-10'}`
           } custom-scrollbar`}
           id="main_content_container"
         >
@@ -1145,29 +1169,7 @@ export default function App() {
                 </>
               )}
 
-              {/* Face Analysis Done Modal */}
-              {showFaceModal && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in space-y-5">
-                    <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                      <Check className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-xl text-slate-900 mb-2">Tahlil Yakunlandi</h3>
-                      <p className="text-sm text-slate-500">Natija "Natija" bo'limiga yuklandi. Ko'rish uchun quyidagi tugmani bosing.</p>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setShowFaceModal(false);
-                        setFaceSubTab('result');
-                      }}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95"
-                    >
-                      Natijani Ko'rish
-                    </button>
-                  </div>
-                </div>
-              )}
+
 
             </div>
           )}
@@ -1601,7 +1603,7 @@ export default function App() {
 
         {/* TAB 2: AI CONSULTANT CHAT - Full messenger layout */}
         {activeTab === 'ai-chat' && (
-          <div className="absolute inset-0 flex flex-col pb-[76px] md:pb-0" id="tab_chat_view">
+          <div className={`absolute inset-0 flex flex-col ${(isKeyboardOpen || isInputFocused) ? 'pb-0' : 'pb-[76px]'} md:pb-0`} id="tab_chat_view">
             <div className="flex flex-col h-full bg-white" id="chat_box_interface">
 
               {/* Chat Header */}
@@ -2339,102 +2341,7 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
-                    <Key className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-800 text-sm">Shaxsiy AI Kaliti (API Key)</h3>
-                    <p className="text-[10px] text-slate-500">Limitingiz tugagan bo'lsa yangi API kalit kiritishingiz mumkin.</p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="password"
-                    placeholder="Sizning Gemini API kalitingiz..."
-                    value={customApiKey}
-                    onChange={(e) => saveCustomApiKey(e.target.value)}
-                    className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-slate-800"
-                  />
-                  {customApiKey && (
-                    <button
-                      onClick={() => {
-                        saveCustomApiKey('');
-                        alert("API kalit o'chirildi.");
-                      }}
-                      className="px-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition"
-                      title="O'chirish"
-                    >
-                      O'chirish
-                    </button>
-                  )}
-                </div>
-                {customApiKey && (
-                  <p className="text-[10px] text-emerald-600 font-bold mt-2">✓ Shaxsiy kalit ulangan va ishlatilmoqda.</p>
-                )}
-              </div>
 
-              <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
-                    <Brain className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-800 text-sm">AI Modelini Tanlash</h3>
-                    <p className="text-[10px] text-slate-500">Sizning kalitingiz uchun faol bo'lgan AI modelini tanlang.</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={fetchAvailableModels}
-                      disabled={modelListLoading}
-                      className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
-                    >
-                      {modelListLoading ? (
-                        <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          Tekshirilmoqda...
-                        </>
-                      ) : (
-                        "Mavjud Modellarni Aniqlash"
-                      )}
-                    </button>
-                    {availableModels.length > 0 && (
-                      <select
-                        value={selectedModel}
-                        onChange={(e) => {
-                          setSelectedModel(e.target.value);
-                          localStorage.setItem('SELECTED_GEMINI_MODEL', e.target.value);
-                        }}
-                        className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-800 font-medium cursor-pointer"
-                      >
-                        {availableModels.map((m) => (
-                          <option key={m} value={m}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-
-                  {modelListError && (
-                    <p className="text-[10px] text-rose-600 font-bold">Xatolik: {modelListError}</p>
-                  )}
-
-                  {availableModels.length > 0 ? (
-                    <p className="text-[10px] text-emerald-600 font-bold">
-                      ✓ Tanlangan model: <span className="underline">{selectedModel || 'Tanlanmagan'}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-400">
-                      Tugmani bossangiz, API kalitingizga tegishli barcha ishlaydigan modellar ro'yxati bu yerda chiqadi.
-                    </p>
-                  )}
-                </div>
-              </div>
 
               <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
                 <div className="flex justify-between items-end mb-2">
@@ -2538,7 +2445,7 @@ export default function App() {
         </main>
 
         {/* MOBILE BOTTOM NAVIGATION */}
-        {activeTab !== 'welcome' && !isKeyboardOpen && (
+        {activeTab !== 'welcome' && !isKeyboardOpen && !isInputFocused && (
           <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-200 pb-safe z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]" id="mobile_bottom_nav">
           <div className="flex items-center justify-around p-1.5 px-2">
             <button onClick={() => setActiveTab('tests')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`}>
@@ -2571,6 +2478,30 @@ export default function App() {
             </button>
           </div>
         </nav>
+        )}
+        {/* Face Analysis Done Modal at Global Level */}
+        {showFaceModal && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in space-y-5">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <Check className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl text-slate-900 mb-2">Tahlil Yakunlandi</h3>
+                <p className="text-sm text-slate-500">Natija "Natija" bo'limiga yuklandi. Ko'rish uchun quyidagi tugmani bosing.</p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowFaceModal(false);
+                  setActiveTab('face');
+                  setFaceSubTab('result');
+                }}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95"
+              >
+                Natijani Ko'rish
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
