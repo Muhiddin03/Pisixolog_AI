@@ -25,7 +25,10 @@ import {
   PhoneCall,
   Key,
   ChevronDown,
-  Trash2
+  Trash2,
+  Settings,
+  Database,
+  Download
 } from 'lucide-react';
 
 // Scientific Eysenck Temperament Inventory questions
@@ -112,43 +115,42 @@ interface MoodLog {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'practices' | 'mood' | 'info'>('tests');
+  const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'practices' | 'mood' | 'info' | 'settings'>('tests');
   const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
   const [practicesSubTab, setPracticesSubTab] = useState<'breathing' | 'shredder' | 'affirmations' | 'gratitude'>('breathing');
 
+  // Helper to load state
+  const loadState = <T,>(key: string, defaultVal: T): T => {
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return defaultVal;
+  };
+
   // --- EYSENCK TEST STATE ---
   const [eyQuestionIndex, setEyQuestionIndex] = useState(0);
   const [eyAnswers, setEyAnswers] = useState<boolean[]>([]);
-  const [eyCompleted, setEyCompleted] = useState(false);
-  const [eyResult, setEyResult] = useState<{
-    eScore: number;
-    nScore: number;
-    type: 'Sangvinik' | 'Xolerik' | 'Flegmatik' | 'Melanxolik';
-    title: string;
-    description: string;
-    advice: string;
-  } | null>(null);
+  const [eyCompleted, setEyCompleted] = useState(() => loadState('psixologik_ey_completed', false));
+  const [eyResult, setEyResult] = useState<any | null>(() => loadState('psixologik_ey_result', null));
 
   // --- PSS TEST STATE ---
   const [pssQuestionIndex, setPssQuestionIndex] = useState(0);
   const [pssAnswers, setPssAnswers] = useState<number[]>([]);
-  const [pssCompleted, setPssCompleted] = useState(false);
-  const [pssResult, setPssResult] = useState<{
-    score: number;
-    level: 'Past' | 'O\'rtacha' | 'Yuqori';
-    advice: string;
-    color: string;
-  } | null>(null);
+  const [pssCompleted, setPssCompleted] = useState(() => loadState('psixologik_pss_completed', false));
+  const [pssResult, setPssResult] = useState<any | null>(() => loadState('psixologik_pss_result', null));
 
   // --- CHAT STATE ---
-  const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
-    { 
-      role: 'assistant', 
-      text: "Salom! Men sizning shaxsiy psixologik maslahatchingiz - Ruhshunos Sodiqman. Bu yerda siz o'zingizni xavfsiz his qilishingiz mumkin. Quyidagi testlarni topshirib dilingizdagilarni yozsangiz, tahlillar orqali sizga yanada aniq va shaxsiy tavsiyalar beraman. Nimalar sizni bezovta qilyapti?" 
-    }
-  ]);
+  const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>(() => {
+    return loadState('psixologik_chat_history', [
+      { 
+        role: 'assistant', 
+        text: "Salom! Men sizning shaxsiy psixologik maslahatchingiz - Ruhshunos Sodiqman. Bu yerda siz o'zingizni xavfsiz his qilishingiz mumkin. Quyidagi testlarni topshirib dilingizdagilarni yozsangiz, tahlillar orqali sizga yanada aniq va shaxsiy tavsiyalar beraman. Nimalar sizni bezovta qilyapti?" 
+      }
+    ]);
+  });
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('VITE_GEMINI_API_KEY') || '');
@@ -164,7 +166,7 @@ export default function App() {
   };
 
   // --- MOOD STATE ---
-  const [moodLogs, setMoodLogs] = useState<MoodLog[]>([]);
+  const [moodLogs, setMoodLogs] = useState<MoodLog[]>(() => loadState('psixologik_mood_logs', []));
   const [selectedMood, setSelectedMood] = useState('Sog\'lom & Tinch');
   const [selectedMoodEmoji, setSelectedMoodEmoji] = useState('😊');
   const [moodNotes, setMoodNotes] = useState('');
@@ -177,8 +179,8 @@ export default function App() {
   const [breathingCycles, setBreathingCycles] = useState(0);
 
   // --- COLOR TEST STATE ---
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [colorResult, setColorResult] = useState<string | null>(null);
+  const [selectedColors, setSelectedColors] = useState<string[]>(() => loadState('psixologik_colors_selected', []));
+  const [colorResult, setColorResult] = useState<string | null>(() => loadState('psixologik_colors_result', null));
 
   // --- WORRY SHREDDER STATE ---
   const [worryText, setWorryText] = useState('');
@@ -189,29 +191,23 @@ export default function App() {
   const [currentAffirmation, setCurrentAffirmation] = useState('');
 
   // --- GRATITUDE STATE ---
-  const [gratitudeEntries, setGratitudeEntries] = useState<string[]>(['', '', '']);
-  const [gratitudeSaved, setGratitudeSaved] = useState(false);
+  const [gratitudeEntries, setGratitudeEntries] = useState<string[]>(() => loadState('psixologik_gratitude', ['', '', '']));
+  const [gratitudeSaved, setGratitudeSaved] = useState(() => loadState('psixologik_gratitude_saved', false));
 
-  // Load state from localStorage on mount
-  useEffect(() => {
-    const savedEy = localStorage.getItem('psixologik_ey_result');
-    if (savedEy) {
-      try { setEyResult(JSON.parse(savedEy)); setEyCompleted(true); } catch (e) {}
-    }
-    const savedPss = localStorage.getItem('psixologik_pss_result');
-    if (savedPss) {
-      try { setPssResult(JSON.parse(savedPss)); setPssCompleted(true); } catch (e) {}
-    }
-    const savedLogs = localStorage.getItem('psixologik_mood_logs');
-    if (savedLogs) {
-      try { setMoodLogs(JSON.parse(savedLogs)); } catch (e) {}
-    }
-  }, []);
+  // Auto-save effects
+  useEffect(() => { localStorage.setItem('psixologik_ey_result', JSON.stringify(eyResult)); }, [eyResult]);
+  useEffect(() => { localStorage.setItem('psixologik_ey_completed', JSON.stringify(eyCompleted)); }, [eyCompleted]);
+  useEffect(() => { localStorage.setItem('psixologik_pss_result', JSON.stringify(pssResult)); }, [pssResult]);
+  useEffect(() => { localStorage.setItem('psixologik_pss_completed', JSON.stringify(pssCompleted)); }, [pssCompleted]);
+  useEffect(() => { localStorage.setItem('psixologik_chat_history', JSON.stringify(chatHistory)); }, [chatHistory]);
+  useEffect(() => { localStorage.setItem('psixologik_mood_logs', JSON.stringify(moodLogs)); }, [moodLogs]);
+  useEffect(() => { localStorage.setItem('psixologik_colors_selected', JSON.stringify(selectedColors)); }, [selectedColors]);
+  useEffect(() => { localStorage.setItem('psixologik_colors_result', JSON.stringify(colorResult)); }, [colorResult]);
+  useEffect(() => { localStorage.setItem('psixologik_gratitude', JSON.stringify(gratitudeEntries)); }, [gratitudeEntries]);
+  useEffect(() => { localStorage.setItem('psixologik_gratitude_saved', JSON.stringify(gratitudeSaved)); }, [gratitudeSaved]);
 
-  // Save mood logs to localStorage
   const saveMoodLogs = (logs: MoodLog[]) => {
     setMoodLogs(logs);
-    localStorage.setItem('psixologik_mood_logs', JSON.stringify(logs));
   };
 
   // Auto scroll chat to bottom
@@ -623,6 +619,9 @@ export default function App() {
           </button>
           <button onClick={() => setActiveTab('info')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'info' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
             <BookOpen className="w-5 h-5" /> <span>Maslahatlar</span>
+          </button>
+          <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'settings' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+            <Settings className="w-5 h-5" /> <span>Sozlamalar</span>
           </button>
         </nav>
 
@@ -1153,31 +1152,6 @@ export default function App() {
                       </button>
                     )}
 
-                    {/* Static Hosting API Key settings panel */}
-                    <div className="pt-3 border-t border-stone-100 space-y-2">
-                      <span className="text-[10px] font-bold text-slate-700 flex items-center gap-1.5">
-                        <Key className="w-3.5 h-3.5 text-emerald-600" />
-                        Vercel uchun API Kaliti
-                      </span>
-                      <div className="flex gap-1.5">
-                        <input
-                          type="password"
-                          placeholder="Gemini API kaliti..."
-                          value={customApiKey}
-                          onChange={(e) => saveCustomApiKey(e.target.value)}
-                          className="flex-1 bg-stone-50 border border-stone-200 rounded-lg px-2 py-1.5 text-[10px] focus:outline-none focus:border-emerald-500 text-slate-800"
-                        />
-                        {customApiKey && (
-                          <button
-                            onClick={() => saveCustomApiKey('')}
-                            className="px-2 bg-rose-50 border border-rose-100 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-100 transition cursor-pointer"
-                            title="O'chirish"
-                          >
-                            X
-                          </button>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </details>
               </div>
@@ -1391,21 +1365,29 @@ export default function App() {
 
                   {/* Shredder effect overlay */}
                   {isShredding && (
-                    <div className="absolute top-0 left-0 w-full h-full flex flex-wrap justify-center pointer-events-none z-20">
-                      {[...Array(30)].map((_, i) => {
-                        const rx = (Math.random() - 0.5) * 400 + "px";
-                        const rr = (Math.random() - 0.5) * 720 + "deg";
-                        const delay = Math.random() * 0.3;
+                    <div className="absolute top-0 left-0 w-full h-full flex flex-wrap justify-center items-center pointer-events-none z-20 overflow-visible">
+                      {[...Array(60)].map((_, i) => {
+                        const rx = (Math.random() - 0.5) * 800 + "px";
+                        const ry = (Math.random() - 0.5) * 800 + "px";
+                        const rr = (Math.random() - 0.5) * 1080 + "deg";
+                        const delay = Math.random() * 0.2;
+                        const colors = ['bg-rose-400', 'bg-emerald-400', 'bg-sky-400', 'bg-amber-400', 'bg-purple-400', 'bg-white', 'bg-slate-200'];
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const width = Math.random() * 8 + 4 + "px";
+                        const height = Math.random() * 16 + 8 + "px";
                         return (
                           <div 
                             key={i} 
-                            className="absolute w-2 h-10 bg-slate-50 border border-stone-200 animate-shred rounded-sm shadow-sm"
+                            className={`absolute ${color} rounded-sm shadow-sm animate-shred`}
                             style={{ 
-                              left: `${(i / 30) * 100}%`,
-                              top: `${Math.random() * 20}%`,
+                              width,
+                              height,
+                              left: '50%',
+                              top: '50%',
                               '--scatter-x': rx,
+                              '--scatter-y': ry,
                               '--scatter-r': rr,
-                              animationDelay: `${0.3 + delay}s` 
+                              animationDelay: `${delay}s` 
                             } as React.CSSProperties}
                           ></div>
                         );
@@ -1841,6 +1823,106 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* TAB 6: SETTINGS / STORAGE MANAGEMENT */}
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl mx-auto space-y-6 w-full animate-slide-up" id="tab_settings_view">
+            <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm">
+                  <Database className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="font-display font-bold text-xl sm:text-2xl text-slate-900">Xotira va Maxfiylik</h2>
+                  <p className="text-xs text-slate-500 mt-1">Sizning ma'lumotlaringiz xavfsizligi</p>
+                </div>
+              </div>
+
+              <div className="bg-emerald-50 text-emerald-800 p-4 rounded-2xl border border-emerald-100 text-xs sm:text-sm leading-relaxed mb-8 flex gap-3">
+                <Shield className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <p>
+                  <strong>100% Maxfiy:</strong> Barcha test natijalaringiz, kundaligingiz va chat xabarlaringiz faqatgina ushbu brauzerning lokal xotirasida (Local Storage) saqlanadi. Ular hech qanday serverga yuborilmaydi. Agar siz boshqa qurilmadan kirsangiz, ma'lumotlarni ko'rmaysiz.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-slate-900">Ma'lumotlarni boshqarish</h3>
+                
+                <div className="grid gap-3">
+                  <button 
+                    onClick={() => {
+                      const data = {
+                        eyResult, pssResult, moodLogs, chatHistory, gratitudeEntries, selectedColors, colorResult
+                      };
+                      const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `psixologik_malumotlar_${new Date().toISOString().slice(0,10)}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="flex items-center justify-between p-4 rounded-2xl border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition group cursor-pointer text-left"
+                  >
+                    <div>
+                      <span className="font-bold text-sm text-slate-800 block group-hover:text-emerald-700">Ma'lumotlarni yuklab olish</span>
+                      <span className="text-[11px] text-slate-500">Barcha natijalaringizni .json fayl shaklida saqlang</span>
+                    </div>
+                    <Download className="w-5 h-5 text-slate-400 group-hover:text-emerald-600" />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      if(window.confirm("Chat tarixini o'chirishga ishonchingiz komilmi? Sodiq AI sizning avvalgi xabarlaringizni unutadi.")) {
+                        setChatHistory([{ role: 'assistant', text: "Salom! Men sizning shaxsiy psixologik maslahatchingiz - Ruhshunos Sodiqman. Bu yerda siz o'zingizni xavfsiz his qilishingiz mumkin..." }]);
+                      }
+                    }}
+                    className="flex items-center justify-between p-4 rounded-2xl border border-stone-200 hover:border-rose-200 hover:bg-rose-50/50 transition group cursor-pointer text-left"
+                  >
+                    <div>
+                      <span className="font-bold text-sm text-slate-800 block group-hover:text-rose-700">Chat tarixini tozalash</span>
+                      <span className="text-[11px] text-slate-500">Sodiq AI bilan bo'lgan suhbatlarni o'chirish</span>
+                    </div>
+                    <Trash2 className="w-5 h-5 text-slate-400 group-hover:text-rose-600" />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      if(window.confirm("Test natijalarini o'chirishga ishonchingiz komilmi?")) {
+                        setEyCompleted(false); setEyResult(null); setEyAnswers([]); setEyQuestionIndex(0);
+                        setPssCompleted(false); setPssResult(null); setPssAnswers([]); setPssQuestionIndex(0);
+                        setColorResult(null); setSelectedColors([]);
+                      }
+                    }}
+                    className="flex items-center justify-between p-4 rounded-2xl border border-stone-200 hover:border-rose-200 hover:bg-rose-50/50 transition group cursor-pointer text-left"
+                  >
+                    <div>
+                      <span className="font-bold text-sm text-slate-800 block group-hover:text-rose-700">Test natijalarini tozalash</span>
+                      <span className="text-[11px] text-slate-500">Barcha psixologik test ko'rsatkichlarini nollash</span>
+                    </div>
+                    <Trash2 className="w-5 h-5 text-slate-400 group-hover:text-rose-600" />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      if(window.confirm("DIQQAT! Ilovadagi barcha ma'lumotlarni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi!")) {
+                        localStorage.clear();
+                        window.location.reload();
+                      }
+                    }}
+                    className="flex items-center justify-between p-4 rounded-2xl border border-rose-200 bg-rose-50/30 hover:bg-rose-100 transition group cursor-pointer text-left mt-2"
+                  >
+                    <div>
+                      <span className="font-bold text-sm text-rose-700 block">Barcha ma'lumotlarni o'chirish</span>
+                      <span className="text-[11px] text-rose-600/80">Ilovani to'liq boshlang'ich holatiga qaytarish (Reset App)</span>
+                    </div>
+                    <AlertCircle className="w-5 h-5 text-rose-500" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
           </div>
         </main>
 
@@ -1866,6 +1948,10 @@ export default function App() {
             <button onClick={() => setActiveTab('info')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'info' ? 'text-emerald-600' : 'text-slate-400'}`}>
               <BookOpen className={`w-5 h-5 mb-1 ${activeTab === 'info' ? 'scale-110' : ''} transition-transform`} />
               <span className="text-[9px] font-bold">Ma'lumot</span>
+            </button>
+            <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'settings' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <Settings className={`w-5 h-5 mb-1 ${activeTab === 'settings' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[9px] font-bold">Sozlamalar</span>
             </button>
           </div>
         </nav>

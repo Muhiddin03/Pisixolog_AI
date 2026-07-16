@@ -55,6 +55,22 @@
   background: #94a3b8;
 }
 
+/* Custom Webkit Scrollbar for lists */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 /* Animations */
 @keyframes float {
   0% { transform: translateY(0px); }
@@ -84,20 +100,21 @@
 
 @keyframes shred {
   0% {
-    transform: translateY(0) scale(1) rotate(0deg);
+    transform: translate(0, 0) scale(1) rotate(0deg);
     opacity: 1;
   }
-  20% {
+  15% {
+    transform: translate(calc(var(--scatter-x, 0) * 0.1), calc(var(--scatter-y, -50px) * 0.1)) scale(1.1) rotate(calc(var(--scatter-r, 90deg) * 0.1));
     opacity: 1;
   }
   100% {
-    transform: translateY(200px) translateX(var(--scatter-x, 0)) scale(0) rotate(var(--scatter-r, 90deg));
+    transform: translate(var(--scatter-x, 0), var(--scatter-y, 200px)) scale(0) rotate(var(--scatter-r, 90deg));
     opacity: 0;
   }
 }
 
 .animate-shred {
-  animation: shred 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: shred 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes vibrate {
