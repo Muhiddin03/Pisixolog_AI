@@ -1786,6 +1786,7 @@ export default function App() {
                   <button
                     onClick={() => setCurrentAffirmation(AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)])}
                     className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-sm w-full cursor-pointer flex justify-center items-center gap-2 active:scale-95"
+                  >
                     <RefreshCw className="w-3.5 h-3.5" /> Yangi Afirmatsiya
                   </button>
                 </div>
