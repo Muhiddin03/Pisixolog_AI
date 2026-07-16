@@ -157,6 +157,44 @@ export default function App() {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('VITE_GEMINI_API_KEY') || '');
+  const [selectedModel, setSelectedModel] = useState<string>(() => localStorage.getItem('SELECTED_GEMINI_MODEL') || '');
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [modelListLoading, setModelListLoading] = useState<boolean>(false);
+  const [modelListError, setModelListError] = useState<string>('');
+
+  const fetchAvailableModels = async () => {
+    setModelListLoading(true);
+    setModelListError('');
+    const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      setModelListError("AI Kaliti topilmadi. Avval API Kalitini kiriting.");
+      setModelListLoading(false);
+      return;
+    }
+    try {
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+      });
+      const response = await ai.models.list();
+      if (response && response.page) {
+        const names = response.page.map((m: any) => m.name.replace('models/', ''));
+        setAvailableModels(names);
+        if (names.length > 0 && !selectedModel) {
+          const hasFlash35 = names.some(n => n.includes('gemini-3.5-flash'));
+          const defaultModel = hasFlash35 ? names.find(n => n.includes('gemini-3.5-flash')) : names[0];
+          setSelectedModel(defaultModel);
+          localStorage.setItem('SELECTED_GEMINI_MODEL', defaultModel);
+        }
+      } else {
+        setModelListError("Modellar ro'yxatini olib bo'lmadi.");
+      }
+    } catch (err: any) {
+      setModelListError(err.message || err.toString());
+    }
+    setModelListLoading(false);
+  };
+
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const saveCustomApiKey = (key: string) => {
@@ -343,7 +381,8 @@ export default function App() {
         setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
         setFaceLoading(false);
         return;
-      }      const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+      }      const defaultModels = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+      const models = selectedModel ? [selectedModel, ...defaultModels] : defaultModels;
       let success = false;
       let modelErrors: string[] = [];
 
@@ -625,7 +664,8 @@ export default function App() {
         const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
 
         if (apiKey && apiKey.trim()) {
-          const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const defaultModels = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const models = selectedModel ? [selectedModel, ...defaultModels] : defaultModels;
           let modelErrors: string[] = [];
           for (const modelName of models) {
             let attempts = 3;
@@ -2308,6 +2348,67 @@ export default function App() {
                 {customApiKey && (
                   <p className="text-[10px] text-emerald-600 font-bold mt-2">✓ Shaxsiy kalit ulangan va ishlatilmoqda.</p>
                 )}
+              </div>
+
+              <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
+                    <Brain className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm">AI Modelini Tanlash</h3>
+                    <p className="text-[10px] text-slate-500">Sizning kalitingiz uchun faol bo'lgan AI modelini tanlang.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={fetchAvailableModels}
+                      disabled={modelListLoading}
+                      className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+                    >
+                      {modelListLoading ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          Tekshirilmoqda...
+                        </>
+                      ) : (
+                        "Mavjud Modellarni Aniqlash"
+                      )}
+                    </button>
+                    {availableModels.length > 0 && (
+                      <select
+                        value={selectedModel}
+                        onChange={(e) => {
+                          setSelectedModel(e.target.value);
+                          localStorage.setItem('SELECTED_GEMINI_MODEL', e.target.value);
+                        }}
+                        className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-800 font-medium cursor-pointer"
+                      >
+                        {availableModels.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  {modelListError && (
+                    <p className="text-[10px] text-rose-600 font-bold">Xatolik: {modelListError}</p>
+                  )}
+
+                  {availableModels.length > 0 ? (
+                    <p className="text-[10px] text-emerald-600 font-bold">
+                      ✓ Tanlangan model: <span className="underline">{selectedModel || 'Tanlanmagan'}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400">
+                      Tugmani bossangiz, API kalitingizga tegishli barcha ishlaydigan modellar ro'yxati bu yerda chiqadi.
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
