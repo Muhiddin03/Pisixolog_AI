@@ -90,6 +90,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'breathing' | 'mood' | 'info'>('tests');
   const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
+  const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
 
   // --- EYSENCK TEST STATE ---
   const [eyQuestionIndex, setEyQuestionIndex] = useState(0);
@@ -563,14 +564,6 @@ export default function App() {
           </a>
         </header>
 
-        {/* EMERGENCY TICKER */}
-        <div className="bg-rose-50 border-b border-rose-100 px-3 py-2 text-center text-[10px] text-rose-700 font-semibold shrink-0">
-          <div className="flex items-center justify-center gap-1.5">
-            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>Ruhiy ko'mak ishonch telefoni: <strong className="font-bold underline">1003</strong></span>
-          </div>
-        </div>
-
         {/* SCROLLABLE MAIN CONTENT */}
         <main className="flex-1 overflow-y-auto w-full relative p-3 md:p-6 pb-24 md:pb-10 custom-scrollbar" id="main_content_container">
           <div className="max-w-4xl mx-auto">
@@ -738,77 +731,106 @@ export default function App() {
             <div className="max-w-2xl mx-auto w-full">
               {/* EYSENCK TEST INTERFACE */}
               {testsSubTab === 'eysenck' && (
-              <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 animate-fade-in" id="eysenck_test_card">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-100/80 to-teal-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 p-2.5 rounded-xl shadow-sm border border-emerald-100/50">
-                      <Brain className="w-5 h-5" />
+              <div className="space-y-6">
+                <div className="bg-white rounded-3xl p-5 sm:p-7 space-y-5 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 animate-fade-in" id="eysenck_test_card">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-100/80 to-teal-100/50 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-125 group-hover:opacity-70 transition-all duration-700"></div>
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 p-2.5 rounded-xl shadow-sm border border-emerald-100/50">
+                        <Brain className="w-5 h-5" />
+                      </div>
+                      <h2 className="font-display font-bold text-base sm:text-lg text-slate-900">1. Temperament Testi</h2>
                     </div>
-                    <h2 className="font-display font-bold text-base sm:text-lg text-slate-900">1. Temperament Testi</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed">
+                      Ushbu test shaxsiyatning 2 ta asosiy ustunini aniqlaydi: Muloqot xulqi (Ekstraversiya/Introversiya) va Hissiy barqarorlik (Neyrotizm). Iltimos, barcha 20 ta savolga faqat "Ha" yoki "Yo'q" shaklida samimiy javob bering.
+                    </p>
+
+                    {!eyCompleted ? (
+                      <div className="space-y-4 pt-1" id="ey_question_area">
+                        {/* Progress bar */}
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-xs font-semibold text-slate-600">
+                            <span>Savol {eyQuestionIndex + 1} / {EYSENCK_QUESTIONS.length}</span>
+                            <span>{Math.round(((eyQuestionIndex + 1) / EYSENCK_QUESTIONS.length) * 100)}%</span>
+                          </div>
+                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div 
+                              className="bg-emerald-600 h-full transition-all duration-300"
+                              style={{ width: `${((eyQuestionIndex) / EYSENCK_QUESTIONS.length) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* Question Text */}
+                        <div className="p-4 bg-white/80 rounded-xl border border-stone-100 min-h-[80px] flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                          <p className="font-bold text-sm md:text-base text-slate-800 text-center leading-relaxed">
+                            {EYSENCK_QUESTIONS[eyQuestionIndex].text}
+                          </p>
+                        </div>
+
+                        {/* Options */}
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-2">
+                          <button 
+                            id="btn_ey_yes"
+                            onClick={() => handleEyAnswer(true)}
+                            className="py-3 sm:py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95 flex items-center justify-center gap-2"
+                          >
+                            <Check className="w-4 h-4 hidden sm:block" /> Ha
+                          </button>
+                          <button 
+                            id="btn_ey_no"
+                            onClick={() => handleEyAnswer(false)}
+                            className="py-3 sm:py-3.5 rounded-2xl bg-white border-2 border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
+                          >
+                            Yo&apos;q
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 pt-2" id="ey_finished_area">
+                        <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm bg-emerald-50 p-3.5 rounded-xl border border-emerald-100">
+                          <Check className="w-5 h-5 flex-shrink-0" />
+                          <span>Tabriklaymiz, test muvaffaqiyatli yakunlandi! Natija yuqoridagi panelda aks etdi.</span>
+                        </div>
+                        <button 
+                          id="btn_reset_ey"
+                          onClick={resetEyTest}
+                          className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition pt-2"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Testni qaytadan topshirish</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed">
-                    Ushbu test shaxsiyatning 2 ta asosiy ustunini aniqlaydi: Muloqot xulqi (Ekstraversiya/Introversiya) va Hissiy barqarorlik (Neyrotizm). Iltimos, barcha 20 ta savolga faqat "Ha" yoki "Yo'q" shaklida samimiy javob bering.
-                  </p>
+                </div>
 
-                  {!eyCompleted ? (
-                    <div className="space-y-4 pt-1" id="ey_question_area">
-                      {/* Progress bar */}
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between text-xs font-semibold text-slate-600">
-                          <span>Savol {eyQuestionIndex + 1} / {EYSENCK_QUESTIONS.length}</span>
-                          <span>{Math.round(((eyQuestionIndex + 1) / EYSENCK_QUESTIONS.length) * 100)}%</span>
-                        </div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                          <div 
-                            className="bg-emerald-600 h-full transition-all duration-300"
-                            style={{ width: `${((eyQuestionIndex) / EYSENCK_QUESTIONS.length) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
+                {/* TEMPERAMENT INFO TABS */}
+                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 animate-fade-in" id="temp_info_box">
+                  <h3 className="font-bold text-slate-800 mb-4 text-center">Temperament turlari haqida ma'lumot</h3>
+                  
+                  <div className="flex flex-wrap gap-2 justify-center mb-5 border-b border-stone-100 pb-4">
+                    <button onClick={() => setTempInfoTab('sangvinik')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${tempInfoTab === 'sangvinik' ? 'bg-emerald-100 text-emerald-800 shadow-sm' : 'bg-stone-50 text-slate-500 hover:bg-stone-100'}`}>Sangvinik</button>
+                    <button onClick={() => setTempInfoTab('xolerik')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${tempInfoTab === 'xolerik' ? 'bg-amber-100 text-amber-800 shadow-sm' : 'bg-stone-50 text-slate-500 hover:bg-stone-100'}`}>Xolerik</button>
+                    <button onClick={() => setTempInfoTab('flegmatik')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${tempInfoTab === 'flegmatik' ? 'bg-blue-100 text-blue-800 shadow-sm' : 'bg-stone-50 text-slate-500 hover:bg-stone-100'}`}>Flegmatik</button>
+                    <button onClick={() => setTempInfoTab('melanxolik')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${tempInfoTab === 'melanxolik' ? 'bg-rose-100 text-rose-800 shadow-sm' : 'bg-stone-50 text-slate-500 hover:bg-stone-100'}`}>Melanxolik</button>
+                  </div>
 
-                      {/* Question Text */}
-                      <div className="p-4 bg-white/80 rounded-xl border border-stone-100 min-h-[80px] flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                        <p className="font-bold text-sm md:text-base text-slate-800 text-center leading-relaxed">
-                          {EYSENCK_QUESTIONS[eyQuestionIndex].text}
-                        </p>
-                      </div>
-
-                      {/* Options */}
-                      <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-2">
-                        <button 
-                          id="btn_ey_yes"
-                          onClick={() => handleEyAnswer(true)}
-                          className="py-3 sm:py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95 flex items-center justify-center gap-2"
-                        >
-                          <Check className="w-4 h-4 hidden sm:block" /> Ha
-                        </button>
-                        <button 
-                          id="btn_ey_no"
-                          onClick={() => handleEyAnswer(false)}
-                          className="py-3 sm:py-3.5 rounded-2xl bg-white border-2 border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
-                        >
-                          Yo&apos;q
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 pt-2" id="ey_finished_area">
-                      <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm bg-emerald-50 p-3.5 rounded-xl border border-emerald-100">
-                        <Check className="w-5 h-5 flex-shrink-0" />
-                        <span>Tabriklaymiz, test muvaffaqiyatli yakunlandi! Natija yuqoridagi panelda aks etdi.</span>
-                      </div>
-                      <button 
-                        id="btn_reset_ey"
-                        onClick={resetEyTest}
-                        className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition pt-2"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Testni qaytadan topshirish</span>
-                      </button>
-                    </div>
-                  )}
+                  <div className="text-sm text-slate-600 leading-relaxed min-h-[100px] flex items-center justify-center p-2">
+                    {tempInfoTab === 'sangvinik' && (
+                      <p className="animate-fade-in"><strong>Sangvinik:</strong> Juda harakatchan, quvnoq va ta'sirchan odam. Ular osonlik bilan yangi odamlar bilan tillashib ketadilar, optimistik qarashga ega. Qiyinchiliklarni oson yengib o'tadilar va muloqotni sevishadi.</p>
+                    )}
+                    {tempInfoTab === 'xolerik' && (
+                      <p className="animate-fade-in"><strong>Xolerik:</strong> Tezkor, ba'zan qiziqqon va kuchli emotsional odam. Ular maqsad sari qat'iy harakat qiladilar, ammo asab tizimi tez qo'zg'aluvchan bo'lgani uchun kayfiyati tez-tez o'zgarib turadi.</p>
+                    )}
+                    {tempInfoTab === 'flegmatik' && (
+                      <p className="animate-fade-in"><strong>Flegmatik:</strong> Xotirjam, mulohazali va sabrli insonlar. Ular shoshqaloqlikni yomon ko'rishadi, doim barqaror va ishonchli. Atrofdagi o'zgarishlarga tez moslashishi qiyin, ammo ishni oxiriga yetkazadi.</p>
+                    )}
+                    {tempInfoTab === 'melanxolik' && (
+                      <p className="animate-fade-in"><strong>Melanxolik:</strong> Chuqur hissiyotli, sezgir va ijodkor odamlar. Ular tashqi tomondan tinch ko'rinsada, ichida ko'p narsani his qiladilar. Shovqinni uncha yoqtirmaydi, lekin juda mehribon va e'tiborli bo'lishadi.</p>
+                    )}
+                  </div>
                 </div>
               </div>
               )}
@@ -1375,6 +1397,23 @@ export default function App() {
         {/* TAB 5: SCIENTIFIC KNOWLEDGE HUB & RECOMMENDATIONS */}
         {activeTab === 'info' && (
           <div className="space-y-8 animate-fade-in max-w-6xl mx-auto" id="tab_info_view">
+            
+            {/* EMERGENCY TICKER in INFO tab */}
+            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2 max-w-3xl mx-auto shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="bg-rose-100 text-rose-600 p-2.5 rounded-full flex-shrink-0">
+                  <PhoneCall className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-rose-800 text-sm">Shoshilinch Ruhiy Yordam</h3>
+                  <p className="text-xs text-rose-600 mt-0.5">O&apos;zingizni yomon his qilayotgan bo&apos;lsangiz yoki tezkor psixologik yordam kerak bo&apos;lsa, mutaxassislarga murojaat qiling.</p>
+                </div>
+              </div>
+              <a href="tel:1003" className="flex items-center justify-center gap-2 bg-rose-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-rose-700 transition shadow-sm w-full sm:w-auto flex-shrink-0">
+                1003 ga qong&apos;iroq qilish
+              </a>
+            </div>
+
             <div className="text-center space-y-3 max-w-2xl mx-auto mt-4">
               <h2 className="font-display font-bold text-3xl text-slate-900">Psixologiya Hubi</h2>
               <p className="text-sm text-slate-500 leading-relaxed">
