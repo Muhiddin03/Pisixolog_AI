@@ -502,10 +502,10 @@ export default function App() {
 
   // Render different tabs
   return (
-    <div className="min-h-screen bg-mesh-pattern text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900 pb-6 md:pb-0" id="app_root">
+    <div className="h-screen flex flex-col overflow-hidden bg-mesh-pattern text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-900" id="app_root">
       {/* HEADER SECTION */}
-      <header className="sticky top-0 z-50 glass-panel border-b border-white/60 px-4 py-3" id="header_section">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+      <header className="z-50 glass-panel border-b border-white/60 px-3 py-1.5 shrink-0" id="header_section">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-1.5 md:gap-3">
           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-2.5">
               <div className="bg-emerald-600 text-white p-2 rounded-xl shadow-sm" id="logo_container">
@@ -524,11 +524,11 @@ export default function App() {
             </a>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-white/40 p-1.5 rounded-2xl border border-white/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] overflow-x-auto no-scrollbar max-w-full" id="main_navigation">
+          <div className="flex items-center gap-1 bg-white/40 p-1 rounded-xl border border-white/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] overflow-x-auto no-scrollbar max-w-full w-full md:w-auto" id="main_navigation">
             <button 
               id="nav_tests"
               onClick={() => setActiveTab('tests')} 
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'tests' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
+              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'tests' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
               <Activity className={`w-4 h-4 ${activeTab === 'tests' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Testlar</span>
@@ -536,7 +536,7 @@ export default function App() {
             <button 
               id="nav_chat"
               onClick={() => setActiveTab('ai-chat')} 
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'ai-chat' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
+              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'ai-chat' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
               <MessageSquare className={`w-4 h-4 ${activeTab === 'ai-chat' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>AI Sodiq</span>
@@ -544,7 +544,7 @@ export default function App() {
             <button 
               id="nav_breathing"
               onClick={() => setActiveTab('breathing')} 
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'breathing' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
+              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'breathing' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
               <Wind className={`w-4 h-4 ${activeTab === 'breathing' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Nafas</span>
@@ -552,7 +552,7 @@ export default function App() {
             <button 
               id="nav_mood"
               onClick={() => setActiveTab('mood')} 
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'mood' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
+              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'mood' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
               <Smile className={`w-4 h-4 ${activeTab === 'mood' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Kundalik</span>
@@ -560,7 +560,7 @@ export default function App() {
             <button 
               id="nav_info"
               onClick={() => setActiveTab('info')} 
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 shrink-0 ${activeTab === 'info' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
+              className={`flex items-center justify-center gap-1 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-300 shrink-0 flex-1 md:flex-none ${activeTab === 'info' ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-stone-200/50 scale-105' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}
             >
               <BookOpen className={`w-4 h-4 ${activeTab === 'info' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span>Maslahatlar</span>
@@ -570,7 +570,7 @@ export default function App() {
       </header>
 
       {/* EMERGENCY CRISIS TICKER */}
-      <div className="bg-rose-50 border-b border-rose-100 px-4 py-2.5 text-center text-xs text-rose-700 font-semibold" id="emergency_ticker">
+      <div className="bg-rose-50 border-b border-rose-100 px-3 py-1.5 text-center text-[10px] text-rose-700 font-semibold shrink-0" id="emergency_ticker">
         <div className="max-w-6xl mx-auto flex items-center justify-center gap-1.5 flex-wrap">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>Favqulodda vaziyatda bepul va maxfiy ruhiy ko&apos;mak ishonch telefoni: <strong className="font-bold underline">1003</strong> (Sog&apos;liqni saqlash vazirligi) yoki <strong className="font-bold underline">103</strong>.</span>
@@ -578,10 +578,11 @@ export default function App() {
       </div>
 
       {/* MAIN CONTENT CONTAINER */}
-      <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 pb-24 md:pb-12" id="main_content_container">
-        {/* TAB 1: TESTS & DIAGNOSTICS */}
-        {activeTab === 'tests' && (
-          <div className="space-y-8 md:space-y-10" id="tab_tests_view">
+      <div className="flex-1 overflow-y-auto no-scrollbar relative w-full" id="scrollable_main">
+        <main className="max-w-6xl mx-auto px-3 py-3 md:py-4 pb-20 md:pb-6" id="main_content_container">
+          {/* TAB 1: TESTS & DIAGNOSTICS */}
+          {activeTab === 'tests' && (
+            <div className="space-y-4 md:space-y-6" id="tab_tests_view">
             {/* Top diagnostic state */}
             {(eyResult || pssResult) && (
               <div className="bg-white border border-stone-200/80 rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-sm space-y-6" id="diagnostic_dashboard">
@@ -707,23 +708,23 @@ export default function App() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* EYSENCK TEST INTERFACE */}
-              <div className="glass-card rounded-3xl p-6 md:p-8 space-y-6 flex flex-col justify-between group relative overflow-hidden" id="eysenck_test_card">
+              <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 space-y-4 flex flex-col justify-between group relative overflow-hidden" id="eysenck_test_card">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <div className="bg-emerald-50 text-emerald-700 p-2 rounded-xl">
-                      <Brain className="w-5 h-5" />
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg">
+                      <Brain className="w-4 h-4" />
                     </div>
-                    <h2 className="font-bold text-lg text-slate-900">1. Temperament Testi (Eysenck)</h2>
+                    <h2 className="font-bold text-sm text-slate-900">1. Temperament Testi (Eysenck)</h2>
                   </div>
-                  <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                    Ushbu test shaxsiyatning 2 ta asosiy ustunini aniqlaydi: Muloqot xulqi (Ekstraversiya/Introversiya) va Hissiy barqarorlik. 20 ta savolga faqat ha/yo&apos;q shaklida samimiy javob bering.
+                  <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
+                    Test 2 ta asosiy ustunni aniqlaydi: Muloqot xulqi va Hissiy barqarorlik. Faqat ha/yo&apos;q shaklida javob bering.
                   </p>
 
                   {!eyCompleted ? (
-                    <div className="space-y-6 pt-2" id="ey_question_area">
+                    <div className="space-y-4 pt-1" id="ey_question_area">
                       {/* Progress bar */}
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-xs font-semibold text-slate-600">
@@ -739,25 +740,25 @@ export default function App() {
                       </div>
 
                       {/* Question Text */}
-                      <div className="p-6 bg-white rounded-2xl border border-stone-100 min-h-[120px] flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] transform transition-all duration-300 hover:shadow-md">
-                        <p className="font-bold text-base md:text-lg text-slate-800 text-center leading-relaxed">
+                      <div className="p-4 bg-white/80 rounded-xl border border-stone-100 min-h-[80px] flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                        <p className="font-bold text-sm md:text-base text-slate-800 text-center leading-relaxed">
                           {EYSENCK_QUESTIONS[eyQuestionIndex].text}
                         </p>
                       </div>
 
                       {/* Options */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3">
                         <button 
                           id="btn_ey_yes"
                           onClick={() => handleEyAnswer(true)}
-                          className="py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
+                          className="py-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
                         >
                           Ha
                         </button>
                         <button 
                           id="btn_ey_no"
                           onClick={() => handleEyAnswer(false)}
-                          className="py-3.5 rounded-2xl bg-white border border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95"
+                          className="py-2.5 rounded-xl bg-white/80 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 text-slate-700 font-bold text-sm transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
                         >
                           Yo&apos;q
                         </button>
@@ -783,21 +784,21 @@ export default function App() {
               </div>
 
               {/* STRESS TEST INTERFACE */}
-              <div className="glass-card rounded-3xl p-6 md:p-8 space-y-6 flex flex-col justify-between group relative overflow-hidden" id="stress_test_card">
+              <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 space-y-4 flex flex-col justify-between group relative overflow-hidden" id="stress_test_card">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-3xl opacity-50 pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <div className="bg-emerald-50 text-emerald-700 p-2 rounded-xl">
-                      <Activity className="w-5 h-5" />
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg">
+                      <Activity className="w-4 h-4" />
                     </div>
-                    <h2 className="font-bold text-lg text-slate-900">2. Stress darajasi (PSS-10)</h2>
+                    <h2 className="font-bold text-sm text-slate-900">2. Stress darajasi (PSS-10)</h2>
                   </div>
-                  <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                    Oxirgi bir oy davomidagi hayotiy stress darajangizni ilmiy o&apos;lchash uchun har bir holat sizda qanchalik ko&apos;p takrorlanganini samimiy belgilang (0: Hech qachon, 4: Juda ko&apos;p).
+                  <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
+                    Oxirgi 1 oy davomidagi hayotiy stress darajangizni o&apos;lchash uchun holatlarni belgilang (0: Hech qachon, 4: Juda ko&apos;p).
                   </p>
 
                   {!pssCompleted ? (
-                    <div className="space-y-6 pt-2" id="pss_question_area">
+                    <div className="space-y-4 pt-1" id="pss_question_area">
                       {/* Progress */}
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-xs font-semibold text-slate-600">
@@ -813,14 +814,14 @@ export default function App() {
                       </div>
 
                       {/* Question text */}
-                      <div className="p-6 bg-white rounded-2xl border border-stone-100 min-h-[120px] flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] transform transition-all duration-300 hover:shadow-md">
-                        <p className="font-bold text-base md:text-lg text-slate-800 text-center leading-relaxed">
+                      <div className="p-4 bg-white/80 rounded-xl border border-stone-100 min-h-[80px] flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                        <p className="font-bold text-sm md:text-base text-slate-800 text-center leading-relaxed">
                           {PSS_QUESTIONS[pssQuestionIndex].text}
                         </p>
                       </div>
 
                       {/* 5 Options */}
-                      <div className="flex flex-col gap-2.5">
+                      <div className="flex flex-col gap-1.5">
                         {[
                           { val: 0, label: "Hech qachon" },
                           { val: 1, label: "Deyarli hech qachon" },
@@ -832,10 +833,10 @@ export default function App() {
                             key={opt.val}
                             id={`btn_pss_opt_${opt.val}`}
                             onClick={() => handlePssAnswer(opt.val)}
-                            className="w-full text-left py-3 px-5 rounded-2xl bg-white border border-stone-200 hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 hover:text-emerald-800 transition-all text-xs md:text-sm font-semibold text-slate-700 cursor-pointer shadow-sm active:scale-95 group flex items-center justify-between"
+                            className="w-full text-left py-2 px-3 rounded-xl bg-white/80 border border-stone-200 hover:border-emerald-400 hover:shadow-sm hover:text-emerald-800 transition-all text-xs font-semibold text-slate-700 cursor-pointer active:scale-95 group flex items-center justify-between"
                           >
                             <span>{opt.label}</span>
-                            <span className="w-6 h-6 rounded-full bg-stone-100 flex items-center justify-center text-[10px] font-bold text-stone-400 group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors">{opt.val}</span>
+                            <span className="w-5 h-5 rounded-full bg-stone-100 flex items-center justify-center text-[9px] font-bold text-stone-400 group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors">{opt.val}</span>
                           </button>
                         ))}
                       </div>
@@ -866,13 +867,13 @@ export default function App() {
         {activeTab === 'ai-chat' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8" id="tab_chat_view">
             {/* Chat Box Interface */}
-            <div className="lg:col-span-2 glass-card rounded-2xl md:rounded-3xl flex flex-col h-[500px] sm:h-[600px] overflow-hidden order-1 lg:order-2 border-t border-white/80" id="chat_box_interface">
+            <div className="lg:col-span-2 glass-card rounded-2xl md:rounded-3xl flex flex-col h-[400px] sm:h-[450px] overflow-hidden order-1 lg:order-2 border-t border-white/80" id="chat_box_interface">
               {/* Chat Header */}
-              <div className="bg-white/60 backdrop-blur-md border-b border-white/50 px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between" id="chat_header">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold relative shadow-md">
+              <div className="bg-white/60 backdrop-blur-md border-b border-white/50 px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between" id="chat_header">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center font-bold relative shadow-md">
                     S
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full animate-pulse"></span>
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-white rounded-full animate-pulse"></span>
                   </div>
                   <div>
                     <h3 className="font-display font-bold text-xs sm:text-sm text-slate-900">Ruhshunos Sodiq</h3>
@@ -885,14 +886,14 @@ export default function App() {
               </div>
 
               {/* Messages display */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 bg-transparent" id="chat_messages_area">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 bg-transparent custom-scrollbar" id="chat_messages_area">
                 {chatHistory.map((msg, idx) => (
                   <div 
                     key={idx} 
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     id={`chat_msg_${idx}`}
                   >
-                    <div className={`max-w-[85%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                    <div className={`max-w-[85%] rounded-2xl p-2.5 sm:p-3 text-xs leading-relaxed shadow-sm ${
                       msg.role === 'user' 
                         ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-tr-sm' 
                         : 'bg-white border border-stone-100/50 text-slate-800 rounded-tl-sm'
@@ -918,28 +919,28 @@ export default function App() {
               </div>
 
               {/* Chat Input form */}
-              <form onSubmit={sendChatMessage} className="p-3 sm:p-4 bg-white/70 backdrop-blur-md border-t border-white/50 flex gap-2" id="chat_input_form">
+              <form onSubmit={sendChatMessage} className="p-2 sm:p-3 bg-white/70 backdrop-blur-md border-t border-white/50 flex gap-2" id="chat_input_form">
                 <input
                   id="input_chat_text"
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Xavotirlaringizni yozing..."
-                  className="flex-1 bg-white border border-stone-200/60 rounded-2xl px-4 py-3 sm:py-3.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 font-medium transition shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+                  className="flex-1 bg-white border border-stone-200/60 rounded-2xl px-3 py-2 sm:py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 font-medium transition shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
                 />
                 <button
                   id="btn_chat_send"
                   type="submit"
                   disabled={chatLoading || !chatInput.trim()}
-                  className="bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3.5 sm:p-4 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center cursor-pointer"
+                  className="bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2.5 sm:p-3 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center cursor-pointer"
                 >
-                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Send className="w-4 h-4" />
                 </button>
               </form>
             </div>
 
             {/* Sidebar with current context */}
-            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-6 shadow-sm space-y-4 lg:space-y-6 h-fit order-2 lg:order-1" id="chat_context_sidebar">
+            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm space-y-3 lg:space-y-4 h-fit order-2 lg:order-1" id="chat_context_sidebar">
               <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                 <Shield className="w-5 h-5 text-emerald-600" />
                 <h3 className="font-display font-bold text-sm text-slate-900">Ulanish Ma&apos;lumotlari</h3>
@@ -1022,7 +1023,7 @@ export default function App() {
 
         {/* TAB 3: DEEP BREATHING EXERCISE */}
         {activeTab === 'breathing' && (
-          <div className="max-w-xl mx-auto glass-card rounded-2xl md:rounded-3xl p-6 sm:p-10 text-center space-y-8 animate-slide-up relative overflow-hidden" id="tab_breathing_view">
+          <div className="max-w-xl mx-auto glass-card rounded-2xl md:rounded-3xl p-4 sm:p-5 text-center space-y-4 animate-slide-up relative overflow-hidden" id="tab_breathing_view">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-100 rounded-full blur-[80px] opacity-40 pointer-events-none"></div>
             <div className="space-y-3 relative z-10">
               <div className="bg-emerald-50 text-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
@@ -1035,7 +1036,7 @@ export default function App() {
             </div>
 
             {/* Breathing Animation Canvas */}
-            <div className="relative w-72 h-72 mx-auto flex items-center justify-center animate-float relative z-10" id="breathing_visualizer">
+            <div className="relative w-56 h-56 mx-auto flex items-center justify-center animate-float relative z-10" id="breathing_visualizer">
               {/* Outer wave ripples */}
               <div className={`absolute inset-0 rounded-full border-2 border-emerald-300/30 transition-all duration-1000 ${
                 breathingPhase === 'inhale' ? 'scale-125 opacity-100' : 'scale-90 opacity-0'
@@ -1047,10 +1048,10 @@ export default function App() {
               {/* Breathing Ball */}
               <div 
                 className={`rounded-full flex flex-col items-center justify-center text-slate-900 transition-all shadow-[0_0_40px_rgba(16,185,129,0.2)] ${
-                  breathingPhase === 'inhale' ? 'w-64 h-64 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
-                  breathingPhase === 'hold' ? 'w-64 h-64 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
-                  breathingPhase === 'exhale' ? 'w-40 h-40 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
-                  'w-40 h-40 bg-white border-2 border-emerald-100'
+                  breathingPhase === 'inhale' ? 'w-52 h-52 bg-gradient-to-tr from-emerald-100 to-teal-50 duration-[4000ms] shadow-[0_0_60px_rgba(16,185,129,0.4)]' :
+                  breathingPhase === 'hold' ? 'w-52 h-52 bg-gradient-to-tr from-teal-100 to-emerald-100 duration-[7000ms] shadow-[0_0_50px_rgba(20,184,166,0.5)]' :
+                  breathingPhase === 'exhale' ? 'w-32 h-32 bg-gradient-to-br from-emerald-50 to-white duration-[8000ms]' :
+                  'w-32 h-32 bg-white border-2 border-emerald-100'
                 }`}
                 id="breathing_ball"
               >
@@ -1074,12 +1075,12 @@ export default function App() {
             </div>
 
             {/* Control buttons */}
-            <div className="space-y-4" id="breathing_controls">
+            <div className="space-y-3" id="breathing_controls">
               {breathingPhase === 'idle' ? (
                 <button
                   id="btn_start_breathing"
                   onClick={startBreathing}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-2xl text-sm transition shadow-sm cursor-pointer active:scale-98"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer active:scale-98"
                 >
                   Mashqni boshlash
                 </button>
@@ -1087,7 +1088,7 @@ export default function App() {
                 <button
                   id="btn_stop_breathing"
                   onClick={stopBreathing}
-                  className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-8 py-3 rounded-2xl text-sm transition border border-rose-200 cursor-pointer active:scale-98"
+                  className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-6 py-2.5 rounded-xl text-sm transition border border-rose-200 cursor-pointer active:scale-98"
                 >
                   To&apos;xtatish
                 </button>
@@ -1114,18 +1115,18 @@ export default function App() {
 
         {/* TAB 4: MOOD DIARY */}
         {activeTab === 'mood' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 animate-slide-up" id="tab_mood_view">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 animate-slide-up" id="tab_mood_view">
             {/* New entry logging */}
-            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-6 shadow-sm space-y-6 h-fit" id="mood_form_box">
+            <div className="lg:col-span-1 glass-card rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm space-y-4 h-fit" id="mood_form_box">
               <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                 <Smile className="w-5 h-5 text-emerald-600" />
                 <h3 className="font-display font-bold text-base text-slate-900">Bugungi kayfiyatingiz</h3>
               </div>
 
               {/* Mood Emojis Picker */}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-500 block">Holatni tanlang:</label>
-                <div className="grid grid-cols-3 gap-2.5" id="mood_emoji_selector">
+                <div className="grid grid-cols-3 gap-1.5" id="mood_emoji_selector">
                   {[
                     { label: "Sog'lom & Tinch", emoji: "😊" },
                     { label: "Shod & Xursand", emoji: "😃" },
@@ -1141,14 +1142,14 @@ export default function App() {
                         setSelectedMood(item.label);
                         setSelectedMoodEmoji(item.emoji);
                       }}
-                      className={`p-3 rounded-2xl border text-center transition-all duration-300 flex flex-col items-center gap-1.5 cursor-pointer hover:-translate-y-1 hover:shadow-md ${
+                      className={`p-1.5 rounded-xl border text-center transition-all duration-300 flex flex-col items-center gap-1 cursor-pointer hover:-translate-y-0.5 hover:shadow-sm ${
                         selectedMood === item.label 
-                          ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-white text-emerald-900 font-bold scale-105 shadow-md ring-2 ring-emerald-500/20' 
+                          ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-white text-emerald-900 font-bold scale-105 shadow-md ring-1 ring-emerald-500/20' 
                           : 'border-stone-200 bg-white text-slate-600'
                       }`}
                     >
-                      <span className="text-3xl filter drop-shadow-sm">{item.emoji}</span>
-                      <span className="text-[10px] leading-tight block truncate w-full">{item.label}</span>
+                      <span className="text-2xl filter drop-shadow-sm">{item.emoji}</span>
+                      <span className="text-[9px] leading-tight block truncate w-full">{item.label}</span>
                     </button>
                   ))}
                 </div>
@@ -1393,14 +1394,12 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="mt-20 border-t border-stone-200 bg-stone-50 py-8 text-center text-xs text-slate-400 font-medium" id="footer_section">
-        <div className="max-w-6xl mx-auto px-4 space-y-2">
-          <p>© 2026 Psixologik Maslahat Platformasi. Barcha huquqlar himoyalangan.</p>
-          <p className="max-w-lg mx-auto text-[10px] leading-relaxed text-slate-400">
-            Maslahatchi faqat axborot berish va umumiy ruhiy salomatlikni mustahkamlash maqsadida yaratilgan bo&apos;lib, klinik diagnostika yoki rasmiy shifokor retsepti o&apos;rnini bosa olmaydi.
-          </p>
+      <footer className="border-t border-stone-200 bg-stone-50/50 py-3 text-center text-[9px] text-slate-400 font-medium shrink-0" id="footer_section">
+        <div className="max-w-6xl mx-auto px-4 space-y-1">
+          <p>© 2026 Psixolog AI. Barcha huquqlar himoyalangan.</p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
