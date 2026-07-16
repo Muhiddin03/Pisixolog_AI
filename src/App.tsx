@@ -343,38 +343,50 @@ export default function App() {
         setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
         setFaceLoading(false);
         return;
-      }      const models = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+      }      const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
       let success = false;
       let modelErrors: string[] = [];
 
       for (const modelName of models) {
-        try {
-          const ai = new GoogleGenAI({ 
-            apiKey,
-            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-          });
-          const result = await ai.models.generateContent({
-            model: modelName,
-            contents: [{
-              role: 'user',
-              parts: [
-                { text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting." },
-                { inlineData: { data: base64Image, mimeType: 'image/jpeg' } }
-              ]
-            }]
-          });
-          const responseText = result.text;
-          if (responseText) {
-            setFaceResult(responseText);
-            setFaceSubTab('result'); // Switch to result tab
-            setShowFaceModal(true); // Optional: still show modal to notify
-            success = true;
+        let attempts = 3;
+        let responseText = '';
+        for (let i = 0; i < attempts; i++) {
+          try {
+            const ai = new GoogleGenAI({ 
+              apiKey,
+              httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+            });
+            const result = await ai.models.generateContent({
+              model: modelName,
+              contents: [{
+                role: 'user',
+                parts: [
+                  { text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting." },
+                  { inlineData: { data: base64Image, mimeType: 'image/jpeg' } }
+                ]
+              }]
+            });
+            responseText = result.text || '';
+            break;
+          } catch (err: any) {
+            const errStr = err?.message || err?.toString() || '';
+            const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
+            if (isUnavailable && i < attempts - 1) {
+              console.warn(`Face analysis: Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              continue;
+            }
+            console.warn(`Face analysis: Model ${modelName} failed: ${errStr}`);
+            modelErrors.push(`${modelName}: ${errStr}`);
             break;
           }
-        } catch (err: any) {
-          const errStr = err?.message || err?.toString() || '';
-          console.warn(`Face analysis: Model ${modelName} failed: ${errStr}`);
-          modelErrors.push(`${modelName}: ${errStr}`);
+        }
+        if (responseText) {
+          setFaceResult(responseText);
+          setFaceSubTab('result'); // Switch to result tab
+          setShowFaceModal(true); // Optional: still show modal to notify
+          success = true;
+          break;
         }
       }
 
@@ -613,40 +625,52 @@ export default function App() {
         const apiKey = customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY;
 
         if (apiKey && apiKey.trim()) {
-          const models = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+          const models = ['gemini-3.5-flash', 'gemini-3.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
           let modelErrors: string[] = [];
           for (const modelName of models) {
-            try {
-              const ai = new GoogleGenAI({
-                apiKey,
-                httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-              });
-              const contents = [
-                {
-                  role: 'user',
-                  parts: [{ text: `Tizim: ${context}\nSiz Ruhshunos Sodiqsiz. Professional psixolog sifatida, foydalanuvchining his-tuyg'ularini tushungan holda ilmiy va amaliy psixologik maslahatlar bering. Javobingiz xushmuomala, qisqa va o'zbek tilida bo'lsin.` }]
-                },
-                ...chatHistory.map(msg => ({
-                  role: msg.role === 'user' ? 'user' : 'model',
-                  parts: [{ text: msg.text }]
-                })),
-                { role: 'user', parts: [{ text: userMsg }] }
-              ];
-              const response = await ai.models.generateContent({
-                model: modelName,
-                contents,
-                config: { systemInstruction: "Sizning ismingiz - Sodiq. Siz ilmiy-psixologik, o'ta xushmuomala, empatik va tushunadigan AI maslahatchisiz. Kognitiv-bixevioral terapiya (CBT) tamoyillari asosida ilmiy yondashing. O'zbek tilida javob bering." }
-              });
-              if (response && response.text) {
-                assistantText = response.text;
-                success = true;
+            let attempts = 3;
+            let responseText = '';
+            for (let i = 0; i < attempts; i++) {
+              try {
+                const ai = new GoogleGenAI({
+                  apiKey,
+                  httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+                });
+                const contents = [
+                  {
+                    role: 'user',
+                    parts: [{ text: `Tizim: ${context}\nSiz Ruhshunos Sodiqsiz. Professional psixolog sifatida, foydalanuvchining his-tuyg'ularini tushungan holda ilmiy va amaliy psixologik maslahatlar bering. Javobingiz xushmuomala, qisqa va o'zbek tilida bo'lsin.` }]
+                  },
+                  ...chatHistory.map(msg => ({
+                    role: msg.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.text }]
+                  })),
+                  { role: 'user', parts: [{ text: userMsg }] }
+                ];
+                const response = await ai.models.generateContent({
+                  model: modelName,
+                  contents,
+                  config: { systemInstruction: "Sizning ismingiz - Sodiq. Siz ilmiy-psixologik, o'ta xushmuomala, empatik va tushunadigan AI maslahatchisiz. Kognitiv-bixevioral terapiya (CBT) tamoyillari asosida ilmiy yondashing. O'zbek tilida javob bering." }
+                });
+                responseText = response.text || '';
+                break;
+              } catch (modelErr: any) {
+                const errStr = modelErr?.message || modelErr?.toString() || '';
+                const isUnavailable = errStr.includes('503') || errStr.includes('UNAVAILABLE');
+                if (isUnavailable && i < attempts - 1) {
+                  console.warn(`Model ${modelName} returned 503, retrying in 1.5s (attempt ${i + 1}/3)...`);
+                  await new Promise(resolve => setTimeout(resolve, 1500));
+                  continue;
+                }
+                console.warn(`Model ${modelName} failed: ${errStr}`);
+                modelErrors.push(`${modelName}: ${errStr}`);
                 break;
               }
-            } catch (modelErr: any) {
-              const errStr = modelErr?.message || modelErr?.toString() || '';
-              console.warn(`Model ${modelName} failed: ${errStr}`);
-              modelErrors.push(`${modelName}: ${errStr}`);
-              continue;
+            }
+            if (responseText) {
+              assistantText = responseText;
+              success = true;
+              break;
             }
           }
           if (!success) {
