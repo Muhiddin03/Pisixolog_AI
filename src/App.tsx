@@ -1517,7 +1517,7 @@ export default function App() {
 
         {/* TAB 2: AI CONSULTANT CHAT - Full messenger layout */}
         {activeTab === 'ai-chat' && (
-          <div className="absolute inset-0 flex flex-col" id="tab_chat_view">
+          <div className="absolute inset-0 flex flex-col pb-[76px] md:pb-0" id="tab_chat_view">
             <div className="flex flex-col h-full bg-white" id="chat_box_interface">
 
               {/* Chat Header */}
