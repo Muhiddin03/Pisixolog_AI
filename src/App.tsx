@@ -247,10 +247,12 @@ export default function App() {
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
       setFaceCameraActive(true);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 100);
     } catch (err) {
       alert("Kameraga ulanib bo'lmadi. Ruxsat berilganligini tekshiring.");
     }
@@ -298,7 +300,7 @@ export default function App() {
 
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
-          model: 'gemini-1.5-pro',
+          model: 'gemini-1.5-flash',
           contents: [
             {
               role: 'user',
