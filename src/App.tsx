@@ -115,7 +115,9 @@ interface MoodLog {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tests' | 'ai-chat' | 'practices' | 'mood' | 'info' | 'settings'>('tests');
+  const [activeTab, setActiveTab] = useState<'welcome' | 'tests' | 'ai-chat' | 'practices' | 'mood' | 'info' | 'settings'>(() => {
+    return localStorage.getItem('psixologik_welcomed') === 'true' ? 'tests' : 'welcome';
+  });
   const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
@@ -193,6 +195,34 @@ export default function App() {
   // --- GRATITUDE STATE ---
   const [gratitudeEntries, setGratitudeEntries] = useState<string[]>(() => loadState('psixologik_gratitude', ['', '', '']));
   const [gratitudeSaved, setGratitudeSaved] = useState(() => loadState('psixologik_gratitude_saved', false));
+
+  // --- STORAGE USAGE STATE ---
+  const [storageUsage, setStorageUsage] = useState({ bytes: 0, percent: 0 });
+
+  const calculateStorage = () => {
+    let _lsTotal = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('psixologik_')) {
+        const item = localStorage.getItem(key);
+        if (item) {
+          _lsTotal += (key.length + item.length) * 2; // UTF-16 characters take 2 bytes
+        }
+      }
+    }
+    // Most browsers have a 5MB limit per origin (5242880 bytes)
+    const MAX_STORAGE = 5 * 1024 * 1024;
+    setStorageUsage({
+      bytes: _lsTotal,
+      percent: Math.min(100, (_lsTotal / MAX_STORAGE) * 100)
+    });
+  };
+
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      calculateStorage();
+    }
+  }, [activeTab, chatHistory, moodLogs, eyResult, pssResult]);
 
   // Auto-save effects
   useEffect(() => { localStorage.setItem('psixologik_ey_result', JSON.stringify(eyResult)); }, [eyResult]);
@@ -654,6 +684,50 @@ export default function App() {
         {/* SCROLLABLE MAIN CONTENT */}
         <main className="flex-1 overflow-y-auto w-full relative p-3 md:p-6 pb-24 md:pb-10 custom-scrollbar" id="main_content_container">
           <div className="max-w-4xl mx-auto">
+          
+          {/* TAB 0: WELCOME SCREEN */}
+          {activeTab === 'welcome' && (
+            <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 animate-fade-in text-center space-y-8" id="tab_welcome_view">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-400 blur-[80px] opacity-30 rounded-full animate-pulse-ring"></div>
+                <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 text-white w-24 h-24 sm:w-32 sm:h-32 rounded-[2rem] flex items-center justify-center shadow-2xl mx-auto border-4 border-white/50 rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <Heart className="w-12 h-12 sm:w-16 sm:h-16 animate-pulse" />
+                </div>
+              </div>
+              
+              <div className="space-y-4 max-w-lg z-10">
+                <h2 className="font-display font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
+                  Sizning <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Ruhiy</span> Hamrohingiz
+                </h2>
+                <p className="text-sm sm:text-base text-slate-500 font-medium leading-relaxed">
+                  Psixologik holatingizni tahlil qiling, stressni yengishni o'rganing va shaxsiy AI Ruhshunos Sodiq bilan sirlaringizni bo'lishing. Barchasi mutlaqo xavfsiz va maxfiy.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto mb-8 z-10">
+                <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3 text-left">
+                  <div className="bg-emerald-100 p-2 rounded-xl text-emerald-700"><Shield className="w-4 h-4"/></div>
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-700 leading-tight">100%<br/>Maxfiy</span>
+                </div>
+                <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3 text-left">
+                  <div className="bg-teal-100 p-2 rounded-xl text-teal-700"><Brain className="w-4 h-4"/></div>
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-700 leading-tight">Aqlli<br/>Tahlillar</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  localStorage.setItem('psixologik_welcomed', 'true');
+                  setActiveTab('tests');
+                }}
+                className="group relative px-8 py-4 bg-slate-900 text-white rounded-full font-bold text-lg hover:bg-slate-800 transition-all shadow-[0_10px_40px_rgba(0,0,0,0.15)] hover:shadow-[0_15px_50px_rgba(0,0,0,0.25)] hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 w-full max-w-xs z-10 mx-auto"
+              >
+                <span>Boshlash</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          )}
+
           {/* TAB 1: TESTS & DIAGNOSTICS */}
           {activeTab === 'tests' && (
             <div className="space-y-4 md:space-y-6" id="tab_tests_view">
@@ -1842,6 +1916,26 @@ export default function App() {
                 <Shield className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <p>
                   <strong>100% Maxfiy:</strong> Barcha test natijalaringiz, kundaligingiz va chat xabarlaringiz faqatgina ushbu brauzerning lokal xotirasida (Local Storage) saqlanadi. Ular hech qanday serverga yuborilmaydi. Agar siz boshqa qurilmadan kirsangiz, ma'lumotlarni ko'rmaysiz.
+                </p>
+              </div>
+
+              <div className="bg-white border border-stone-100 rounded-2xl p-5 mb-8 shadow-sm">
+                <div className="flex justify-between items-end mb-2">
+                  <h3 className="font-bold text-slate-800 text-sm">Xotira sarfi</h3>
+                  <span className="text-xs font-semibold text-slate-500">
+                    {(storageUsage.bytes / 1024).toFixed(2)} KB / 5 MB
+                  </span>
+                </div>
+                <div className="w-full bg-stone-100 rounded-full h-2.5 mb-2 overflow-hidden">
+                  <div 
+                    className={`h-2.5 rounded-full transition-all duration-500 ${storageUsage.percent > 80 ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                    style={{ width: `${Math.max(2, storageUsage.percent)}%` }}
+                  ></div>
+                </div>
+                <p className="text-[10px] text-slate-400">
+                  {storageUsage.percent > 80 
+                    ? "Ogohlantirish: Xotira to'lish arafasida. Ba'zi eski ma'lumotlarni o'chirishni maslahat beramiz." 
+                    : "Xotira yetarli darajada. Barcha ma'lumotlar xavfsiz saqlanmoqda."}
                 </p>
               </div>
 
