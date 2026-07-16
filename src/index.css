@@ -129,3 +129,13 @@
 .animate-vibrate {
   animation: vibrate 0.2s linear infinite;
 }
+
+@keyframes scan {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(300px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-scan {
+  animation: scan 2s linear infinite;
+}

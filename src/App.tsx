@@ -18,6 +18,7 @@ import {
   Star, 
   RefreshCw, 
   User, 
+  Camera,
   Shield, 
   Info, 
   ArrowRight, 
@@ -115,7 +116,7 @@ interface MoodLog {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'welcome' | 'tests' | 'ai-chat' | 'practices' | 'mood' | 'info' | 'settings'>('welcome');
+  const [activeTab, setActiveTab] = useState<'welcome' | 'tests' | 'ai-chat' | 'practices' | 'mood' | 'face' | 'info' | 'settings'>('welcome');
   const [testsSubTab, setTestsSubTab] = useState<'eysenck' | 'stress' | 'colors' | 'dashboard'>('eysenck');
   const [moodSubTab, setMoodSubTab] = useState<'log' | 'history'>('log');
   const [tempInfoTab, setTempInfoTab] = useState<'sangvinik' | 'xolerik' | 'flegmatik' | 'melanxolik'>('sangvinik');
@@ -194,6 +195,13 @@ export default function App() {
   const [gratitudeEntries, setGratitudeEntries] = useState<string[]>(() => loadState('psixologik_gratitude', ['', '', '']));
   const [gratitudeSaved, setGratitudeSaved] = useState(() => loadState('psixologik_gratitude_saved', false));
 
+  // --- FACE ANALYSIS STATE ---
+  const [faceCameraActive, setFaceCameraActive] = useState(false);
+  const [faceLoading, setFaceLoading] = useState(false);
+  const [faceResult, setFaceResult] = useState<string | null>(() => loadState('psixologik_face_result', null));
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   // --- STORAGE USAGE STATE ---
   const [storageUsage, setStorageUsage] = useState({ bytes: 0, percent: 0 });
 
@@ -233,6 +241,94 @@ export default function App() {
   useEffect(() => { localStorage.setItem('psixologik_colors_result', JSON.stringify(colorResult)); }, [colorResult]);
   useEffect(() => { localStorage.setItem('psixologik_gratitude', JSON.stringify(gratitudeEntries)); }, [gratitudeEntries]);
   useEffect(() => { localStorage.setItem('psixologik_gratitude_saved', JSON.stringify(gratitudeSaved)); }, [gratitudeSaved]);
+  useEffect(() => { localStorage.setItem('psixologik_face_result', JSON.stringify(faceResult)); }, [faceResult]);
+
+  // --- CAMERA LOGIC ---
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setFaceCameraActive(true);
+    } catch (err) {
+      alert("Kameraga ulanib bo'lmadi. Ruxsat berilganligini tekshiring.");
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setFaceCameraActive(false);
+  };
+
+  useEffect(() => {
+    // If user navigates away from face tab, stop camera
+    if (activeTab !== 'face') {
+      stopCamera();
+    }
+    return () => stopCamera();
+  }, [activeTab]);
+
+  const analyzeFace = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    setFaceLoading(true);
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // Get base64 without data type prefix
+      const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+      stopCamera(); // Turn off camera immediately after capturing the frame to save power
+
+      try {
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
+        if (!apiKey) {
+          alert("Gemini API kaliti topilmadi.");
+          setFaceLoading(false);
+          return;
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+        const response = await ai.models.generateContent({
+          model: 'gemini-1.5-pro',
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting."
+                },
+                {
+                  inlineData: {
+                    data: base64Image,
+                    mimeType: "image/jpeg"
+                  }
+                }
+              ]
+            }
+          ]
+        });
+
+        if (response && response.text) {
+          setFaceResult(response.text);
+        } else {
+          alert("Tahlilni olishda xatolik yuz berdi.");
+        }
+      } catch (err) {
+        console.error("AI Analysis Error:", err);
+        alert("Xatolik: Tarmoq muammosi yoki kalit noto'g'ri.");
+      }
+    }
+    setFaceLoading(false);
+  };
 
   const saveMoodLogs = (logs: MoodLog[]) => {
     setMoodLogs(logs);
@@ -643,6 +739,10 @@ export default function App() {
               <Wind className={`w-5 h-5 ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`} />
               Amaliyotlar
             </button>
+            <button onClick={() => setActiveTab('face')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'face' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
+              <Camera className={`w-5 h-5 ${activeTab === 'face' ? 'text-emerald-600' : 'text-slate-400'}`} />
+              Yuz Tahlili
+            </button>
             <button onClick={() => setActiveTab('mood')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-semibold text-sm cursor-pointer ${activeTab === 'mood' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100' : 'text-slate-500 hover:bg-stone-50 hover:text-slate-800'}`}>
               <Smile className="w-5 h-5" /> <span>Kundalik</span>
             </button>
@@ -727,6 +827,120 @@ export default function App() {
                 <span>Boshlash</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
+            </div>
+          )}
+
+          {/* TAB 0.5: FACE ANALYSIS */}
+          {activeTab === 'face' && (
+            <div className="space-y-6 max-w-2xl mx-auto animate-slide-up" id="tab_face_view">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full blur-[60px] opacity-60"></div>
+                
+                <div className="text-center space-y-3 mb-8 relative z-10">
+                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Camera className="w-8 h-8" />
+                  </div>
+                  <h2 className="font-display font-bold text-xl sm:text-2xl text-slate-900">Yuz Fiziognomikasi va Emotsiya</h2>
+                  <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Kameraga qarab turing. Sun'iy intellekt sizning yuz tuzilishingiz va mikroifodalaringiz orqali psixologik holatingizni tahlil qiladi. Rasm xotiraga saqlanmaydi!
+                  </p>
+                </div>
+
+                {/* Camera Container */}
+                <div className="relative w-full max-w-sm mx-auto aspect-square bg-slate-900 rounded-3xl overflow-hidden shadow-inner mb-6 border-4 border-stone-100">
+                  {faceCameraActive ? (
+                    <video 
+                      ref={videoRef} 
+                      autoPlay 
+                      playsInline 
+                      muted 
+                      className="w-full h-full object-cover transform -scale-x-100"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 space-y-3 p-6 text-center">
+                      <Camera className="w-12 h-12 opacity-30" />
+                      <p className="text-xs font-medium">Tahlilni boshlash uchun kamerani yoqing</p>
+                    </div>
+                  )}
+
+                  {/* Scanning Overlay Animation */}
+                  {faceLoading && (
+                    <div className="absolute inset-0 z-10">
+                      <div className="w-full h-full bg-emerald-500/20"></div>
+                      <div className="w-full h-1 bg-emerald-400 absolute top-0 left-0 shadow-[0_0_15px_rgba(52,211,153,1)] animate-scan"></div>
+                    </div>
+                  )}
+                </div>
+
+                <canvas ref={canvasRef} className="hidden" />
+
+                <div className="flex justify-center gap-4">
+                  {!faceCameraActive ? (
+                    <button 
+                      onClick={startCamera}
+                      className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2"
+                    >
+                      <Camera className="w-4 h-4" />
+                      Kamerani Yoqish
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={analyzeFace}
+                      disabled={faceLoading}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-70"
+                    >
+                      {faceLoading ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Tahlil qilinmoqda...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="w-4 h-4" />
+                          Tahlil Qilish
+                        </>
+                      )}
+                    </button>
+                  )}
+                  {faceCameraActive && !faceLoading && (
+                    <button 
+                      onClick={stopCamera}
+                      className="bg-stone-200 hover:bg-stone-300 text-slate-700 px-4 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
+                    >
+                      O'chirish
+                    </button>
+                  )}
+                </div>
+
+                {/* Analysis Result */}
+                {faceResult && (
+                  <div className="mt-10 animate-fade-in relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        <User className="w-5 h-5 text-emerald-600" />
+                        Tahlil Xulosasi
+                      </h3>
+                      <button 
+                        onClick={() => {
+                          const blob = new Blob([faceResult], {type: "text/plain;charset=utf-8"});
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.txt`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Yuklab olish
+                      </button>
+                    </div>
+                    <div className="bg-stone-50 border border-stone-200 p-5 rounded-2xl text-sm text-slate-700 leading-relaxed whitespace-pre-line custom-scrollbar max-h-96 overflow-y-auto">
+                      {faceResult}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -2034,9 +2248,13 @@ export default function App() {
               <MessageSquare className={`w-5 h-5 mb-1 ${activeTab === 'ai-chat' ? 'scale-110' : ''} transition-transform`} />
               <span className="text-[10px] font-bold">Chat</span>
             </button>
-            <button onClick={() => setActiveTab('practices')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`}>
+            <button onClick={() => setActiveTab('practices')} className={`flex flex-col items-center justify-center w-14 p-1 rounded-xl transition-all ${activeTab === 'practices' ? 'text-emerald-600' : 'text-slate-400'}`}>
               <Wind className={`w-5 h-5 mb-1 ${activeTab === 'practices' ? 'scale-110' : ''} transition-transform`} />
               <span className="text-[10px] font-bold">Amaliyot</span>
+            </button>
+            <button onClick={() => setActiveTab('face')} className={`flex flex-col items-center justify-center w-14 p-1 rounded-xl transition-all ${activeTab === 'face' ? 'text-emerald-600' : 'text-slate-400'}`}>
+              <Camera className={`w-5 h-5 mb-1 ${activeTab === 'face' ? 'scale-110' : ''} transition-transform`} />
+              <span className="text-[10px] font-bold">Yuz</span>
             </button>
             <button onClick={() => setActiveTab('mood')} className={`flex flex-col items-center justify-center w-16 p-1.5 rounded-xl transition-all ${activeTab === 'mood' ? 'text-emerald-600' : 'text-slate-400'}`}>
               <Smile className={`w-5 h-5 mb-1 ${activeTab === 'mood' ? 'scale-110' : ''} transition-transform`} />
