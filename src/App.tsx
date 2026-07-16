@@ -201,6 +201,7 @@ export default function App() {
   const [faceLoading, setFaceLoading] = useState(false);
   const [faceResult, setFaceResult] = useState<string | null>(() => loadState('psixologik_face_result', null));
   const [showFaceModal, setShowFaceModal] = useState(false);
+  const [faceError, setFaceError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -310,12 +311,12 @@ export default function App() {
   const analyzeFace = async () => {
     if (!videoRef.current || !canvasRef.current) return;
     setFaceLoading(true);
+    setFaceError(null);
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     
-    // Resize image to max 800px to avoid payload too large errors
-    const maxDim = 800;
+    const maxDim = 640;
     let width = video.videoWidth;
     let height = video.videoHeight;
     if (width > maxDim || height > maxDim) {
@@ -333,55 +334,56 @@ export default function App() {
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      // Get base64 with lower quality to save bandwidth
-      const base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-      stopCamera(); // Turn off camera immediately after capturing the frame to save power
+      const base64Image = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+      stopCamera();
 
-      try {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
-        if (!apiKey) {
-          alert("Gemini API kaliti topilmadi.");
-          setFaceLoading(false);
-          return;
-        }
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
+      if (!apiKey) {
+        setFaceError("Gemini API kaliti topilmadi. Sozlamalar bo'limiga kiring va API kalitni kiriting.");
+        setFaceLoading(false);
+        return;
+      }
 
-        const ai = new GoogleGenAI({ 
-          apiKey: apiKey,
-          httpOptions: {
-            headers: {
-              'User-Agent': 'aistudio-build'
-            }
-          }
-        });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.0-flash',
-          contents: [
-            {
+      const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite'];
+      let success = false;
+
+      for (const modelName of models) {
+        try {
+          const ai = new GoogleGenAI({ 
+            apiKey,
+            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+          });
+          const response = await ai.models.generateContent({
+            model: modelName,
+            contents: [{
               role: 'user',
               parts: [
-                {
-                  text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting."
-                },
-                {
-                  inlineData: {
-                    data: base64Image,
-                    mimeType: "image/jpeg"
-                  }
-                }
+                { text: "Siz Fiziognomika bo'yicha eng oldi mutaxassis va Psixologsiz. Quyidagi rasmdagi insonning yuz tuzilishiga qarab uning psixologik xarakterini va hozirgi emotsional holatini chuqur tahlil qilib bering. Tahlilingiz: 1) Hozirgi emotsional holati (mikroifodalar orqali), 2) Yuz tuzilishidan kelib chiquvchi asosiy xarakter xususiyatlari, 3) Umumiy psixologik xulosa. Javobingizni ishonchli, ilmiy-psixologik tilda va o'qishga qulay qilib (ro'yxatlar bilan) O'zbek tilida taqdim eting. Agar rasmda inson yuzi ko'rinmasa, iltimos buni ayting." },
+                { inlineData: { data: base64Image, mimeType: 'image/jpeg' } }
               ]
-            }
-          ]
-        });
-
-        if (response && response.text) {
-          setFaceResult(response.text);
-          setShowFaceModal(true);
-        } else {
-          alert("Tahlilni olishda xatolik yuz berdi: Bo'sh javob.");
+            }]
+          });
+          if (response && response.text) {
+            setFaceResult(response.text);
+            setShowFaceModal(true);
+            success = true;
+            break;
+          }
+        } catch (err: any) {
+          const status = err?.message || '';
+          if (status.includes('429') || status.includes('quota') || status.includes('RESOURCE_EXHAUSTED')) {
+            console.warn(`Model ${modelName} quota exceeded, trying next...`);
+            continue;
+          }
+          console.error('Face analysis error:', err);
+          setFaceError(`Xatolik: ${err.message || 'Noma\'lum xato'}`);
+          success = true; // stop loop
+          break;
         }
-      } catch (err: any) {
-        console.error("AI Analysis Error:", err);
-        alert(`Tarmoq yoki API Xatosi: ${err.message || err.toString()}`);
+      }
+
+      if (!success) {
+        setFaceError('Barcha modellar uchun so\'rov limiti tugagan. Iltimos, bir necha daqiqadan so\'ng qayta urinib ko\'ring.');
       }
     }
     setFaceLoading(false);
@@ -615,49 +617,45 @@ export default function App() {
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY || customApiKey || localStorage.getItem('VITE_GEMINI_API_KEY');
 
         if (apiKey && apiKey.trim()) {
-          try {
-            const ai = new GoogleGenAI({
-              apiKey: apiKey,
-              httpOptions: {
-                headers: {
-                  'User-Agent': 'aistudio-build'
-                }
+          const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-lite'];
+          for (const modelName of models) {
+            try {
+              const ai = new GoogleGenAI({
+                apiKey,
+                httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+              });
+              const contents = [
+                {
+                  role: 'user',
+                  parts: [{ text: `Tizim: ${context}\nSiz Ruhshunos Sodiqsiz. Professional psixolog sifatida, foydalanuvchining his-tuyg'ularini tushungan holda ilmiy va amaliy psixologik maslahatlar bering. Javobingiz xushmuomala, qisqa va o'zbek tilida bo'lsin.` }]
+                },
+                ...chatHistory.map(msg => ({
+                  role: msg.role === 'user' ? 'user' : 'model',
+                  parts: [{ text: msg.text }]
+                })),
+                { role: 'user', parts: [{ text: userMsg }] }
+              ];
+              const response = await ai.models.generateContent({
+                model: modelName,
+                contents,
+                config: { systemInstruction: "Sizning ismingiz - Sodiq. Siz ilmiy-psixologik, o'ta xushmuomala, empatik va tushunadigan AI maslahatchisiz. Kognitiv-bixevioral terapiya (CBT) tamoyillari asosida ilmiy yondashing. O'zbek tilida javob bering." }
+              });
+              if (response && response.text) {
+                assistantText = response.text;
+                success = true;
+                break;
               }
-            });
-
-            // Map chat history to Gemini standard API structure
-            const contents = [
-              {
-                role: 'user',
-                parts: [{ text: `Tizim va foydalanuvchi ma'lumotlari: ${context}\nSiz Ruhshunos Sodiqsiz - professional psixolog va psixoterapevt sifatida faoliyat yurituvchi eng oldi AI maslahatchisiz. Siz kognitiv-bixevioral terapiya (KBT), gumanistik psixologiya va chuqur empatiya qoidalariga asoslanib harakat qilasiz. Maqsadingiz: foydalanuvchining his-tuyg'ularini tushunish, holatni ilmiy tahlil qilish, ularga yengillik hissini berish hamda haqiqiy ekspertdek aniq, ishonchli va amaliy psixologik maslahatlar berishdir. Javoblaringiz har doim xushmuomala, xavfsiz, sabrli va professional daldali bo'lsin. Kerak bo'lganda hissiyotlarni qabul qiling va murakkab muammolarga tizimli yechim taklif qiling. Eslatma: Tibbiy dori vositalarini tavsiya etmang, javoblaringizni o'qishga qulay qilib, chiroyli abzaslar yoki ro'yxatlar bilan taqdim eting.` }]
-              },
-              ...chatHistory.map(msg => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }]
-              })),
-              {
-                role: 'user',
-                parts: [{ text: userMsg }]
+            } catch (modelErr: any) {
+              const errStr = modelErr?.message || '';
+              if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('RESOURCE_EXHAUSTED')) {
+                console.warn(`Model ${modelName} quota exceeded, trying next...`);
+                continue;
               }
-            ];
-
-            const response = await ai.models.generateContent({
-              model: 'gemini-2.0-flash',
-              contents: contents,
-              config: {
-                systemInstruction: "Sizning ismingiz - Sodiq. Siz ilmiy-psixologik, o'ta xushmuomala, empatik, xavfsiz va tushunadigan AI maslahatchisiz. Foydalanuvchining his-tuyg'ularini qo'llab-quvvatlang, kognitiv-bixevioral terapiya (CBT) tamoyillari asosida ilmiy yondashing. Qisqa va tushunarli, o'zbek tilida javob bering."
-              }
-            });
-
-            if (response && response.text) {
-              assistantText = response.text;
-              success = true;
-            } else {
-              throw new Error("Bo'sh javob qaytdi.");
+              throw modelErr;
             }
-          } catch (geminiErr: any) {
-            console.error("Direct Gemini call error:", geminiErr);
-            assistantText = `Gemini API orqali bog'lanishda xatolik yuz berdi: ${geminiErr.message || geminiErr}. Iltimos, API kalit sozlamalarini tekshiring.`;
+          }
+          if (!success) {
+            assistantText = "⚠️ Hozirda barcha AI modellari uchun so'rov limiti tugagan. Iltimos, bir necha daqiqadan so'ng qayta urinib ko'ring. (Bepul API limitdan foydalanayapsiz - kunda ma'lum miqdordagi so'rov bepul beriladi)";
           }
         } else {
           assistantText = "Siz ushbu ilovani GitHub orqali yuklab, Vercel/GitHub Pages kabi statik xostingga joylaganga o'xshaysiz. AI Ruhshunos ishlashi uchun Vercel boshqaruv panelida 'VITE_GEMINI_API_KEY' muhit o'zgaruvchisini (Environment Variable) o'rnating, yoki o'ng tomondagi 'Ulanish Ma'lumotlari' qismida shaxsiy Gemini API kalitingizni kiriting.";
@@ -898,6 +896,56 @@ export default function App() {
           {/* TAB 0.5: FACE ANALYSIS */}
           {activeTab === 'face' && (
             <div className="space-y-4 max-w-xl mx-auto animate-slide-up" id="tab_face_view">
+
+              {/* Result shown at TOP when available */}
+              {faceResult && (
+                <div className="bg-white rounded-3xl p-5 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-emerald-100 animate-fade-in" id="face_result_card">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
+                      <span className="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><Check className="w-4 h-4" /></span>
+                      Tahlil Xulosasi
+                    </h3>
+                    <button
+                      onClick={() => {
+                        const doc = new jsPDF();
+                        doc.setFont("helvetica", "bold");
+                        doc.setFontSize(16);
+                        doc.text("Psixolog AI - Yuz Tahlili", 20, 20);
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(11);
+                        const lines = doc.splitTextToSize(faceResult || "", 170);
+                        doc.text(lines, 20, 35);
+                        doc.save(`Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.pdf`);
+                      }}
+                      className="text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1"
+                    >
+                      <Download className="w-3 h-3" /> PDF
+                    </button>
+                  </div>
+                  <div className="bg-stone-50 border border-stone-100 p-4 rounded-2xl text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line custom-scrollbar max-h-64 overflow-y-auto">
+                    {faceResult}
+                  </div>
+                  <button
+                    onClick={() => { setFaceResult(null); }}
+                    className="mt-3 text-xs text-slate-400 hover:text-rose-500 transition flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Yangi tahlil
+                  </button>
+                </div>
+              )}
+
+              {/* Error shown at top */}
+              {faceError && (
+                <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-rose-700 text-sm">Tahlilni amalga oshirib bo'lmadi</p>
+                    <p className="text-xs text-rose-600 mt-1 leading-relaxed">{faceError}</p>
+                    <button onClick={() => setFaceError(null)} className="text-xs text-rose-500 underline mt-2">Yopish</button>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_10px_40px_rgb(0,0,0,0.06)] border border-stone-100 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100 rounded-full blur-[40px] opacity-60"></div>
                 
@@ -939,7 +987,7 @@ export default function App() {
 
                 <canvas ref={canvasRef} className="hidden" />
 
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-3">
                   {!faceCameraActive ? (
                     <button 
                       onClick={startCamera}
@@ -955,15 +1003,9 @@ export default function App() {
                       className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-70"
                     >
                       {faceLoading ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          Tahlil qilinmoqda...
-                        </>
+                        <><RefreshCw className="w-4 h-4 animate-spin" />Tahlil qilinmoqda...</>
                       ) : (
-                        <>
-                          <Brain className="w-4 h-4" />
-                          Tahlil Qilish
-                        </>
+                        <><Brain className="w-4 h-4" />Tahlil Qilish</>
                       )}
                     </button>
                   )}
@@ -972,43 +1014,12 @@ export default function App() {
                       onClick={stopCamera}
                       className="bg-stone-200 hover:bg-stone-300 text-slate-700 px-4 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
                     >
-                      O'chirish
+                      Bekor
                     </button>
                   )}
                 </div>
 
-                {/* Analysis Result */}
-                {faceResult && (
-                  <div className="mt-10 animate-fade-in relative z-10">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                        <User className="w-5 h-5 text-emerald-600" />
-                        Tahlil Xulosasi
-                      </h3>
-                      <button 
-                        onClick={() => {
-                          const doc = new jsPDF();
-                          doc.setFont("helvetica", "bold");
-                          doc.setFontSize(16);
-                          doc.text("Psixolog AI - Yuz Tahlili", 20, 20);
-                          doc.setFont("helvetica", "normal");
-                          doc.setFontSize(12);
-                          const lines = doc.splitTextToSize(faceResult || "", 170);
-                          doc.text(lines, 20, 35);
-                          doc.save(`Yuz_Tahlili_${new Date().toISOString().slice(0,10)}.pdf`);
-                        }}
-                        className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors"
-                      >
-                        PDF Yuklab olish
-                      </button>
-                    </div>
-                    <div className="bg-stone-50 border border-stone-200 p-5 rounded-2xl text-sm text-slate-700 leading-relaxed whitespace-pre-line custom-scrollbar max-h-96 overflow-y-auto">
-                      {faceResult}
-                    </div>
-                  </div>
-                )}
-
-                {/* Face Analysis Notification Modal */}
+                {/* Face Analysis Done Modal */}
                 {showFaceModal && (
                   <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in space-y-5">
@@ -1017,13 +1028,13 @@ export default function App() {
                       </div>
                       <div>
                         <h3 className="font-bold text-xl text-slate-900 mb-2">Tahlil Yakunlandi</h3>
-                        <p className="text-sm text-slate-500">Sizning yuz tuzilishingiz va emotsiyangiz muvaffaqiyatli tahlil qilindi.</p>
+                        <p className="text-sm text-slate-500">Natija yuqorida ko'rsatildi. Ko'rish uchun quyidagi tugmani bosing.</p>
                       </div>
                       <button 
                         onClick={() => setShowFaceModal(false)}
                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-md active:scale-95"
                       >
-                        Natijani Ko'rish
+                        Natijani Ko'rish ↑
                       </button>
                     </div>
                   </div>
